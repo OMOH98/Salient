@@ -51,14 +51,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   code: {fileID: 0}
   execute: 0
+  turretGameObjectName: Turret
   speed: 1500000
   tankWidth: 3
-  goCenterHeight: 0.8
+  rotationTreshold: 0.05
+  vertialForceDisplacement: -0.5
+  turretAngularSpeed: 20
+  radarAngularSpeed: 60
+  heatPerShot: 0.2
+  overheatFine: 0.2
   actions:
-    leftTrackSpeed: 0
-    rightTrackSpeed: 0
-    towerAngularSpeed: 0
-    radarAngularSpeed: 0
+    leftTrackCoef: 0
+    rightTrackCoef: 0
+    turretAngularCoef: 0
+    radarAngularCoef: 0
     fireAtWill: 0
 --- !u!65 &1705494381072274411
 BoxCollider:
@@ -296,7 +302,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2302079590260076936}
   m_LocalRotation: {x: -0.5, y: -0.5, z: -0.5, w: 0.5}
-  m_LocalPosition: {x: 0, y: 0.32, z: -1}
+  m_LocalPosition: {x: 0, y: 0.32, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 2148256912375461033}
@@ -371,7 +377,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5376761673124920326}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: -1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 2302079590260501928}
