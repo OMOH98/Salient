@@ -29,6 +29,7 @@ public class Tank : MonoBehaviour
     private float initTime;
     Logger logger = new Logger();
     Rigidbody rb;
+    Sensors sensors;
 
     [System.Serializable]
     public class Actions
@@ -42,7 +43,6 @@ public class Tank : MonoBehaviour
         [Range(-1f, 1f)]
         public float radarAngularCoef;
         public float fireShots;
-        public bool Validate();
     }
 
     [System.Serializable]
@@ -84,19 +84,9 @@ public class Tank : MonoBehaviour
 
         System.Action<string> logger = this.logger.Log;
         engine.SetGlobalFunction("log", logger);
-        System.Action<double> setterMethod;
 
-        setterMethod = (f) => { SetTrackCoef((float)f, true); };
-        engine.SetGlobalFunction("setLeftTrackCoef", setterMethod);
-        
-        setterMethod = f => SetTrackCoef((float)f, false);
-        engine.SetGlobalFunction("setRightTrackCoef", setterMethod);
-
-        setterMethod = f => SetTurretAngularCoef((float)f);
-        engine.SetGlobalFunction("setTurretAngularCoef", setterMethod);
-
-        //engine.EnableExposedClrTypes = true;
-        //engine.SetGlobalValue("actions", actions);
+        engine.EnableExposedClrTypes = true;
+        engine.SetGlobalValue("actions", actions);
 
         initTime = Time.time;
         turret = transform.Find(turretGameObjectName);
@@ -198,6 +188,43 @@ public class Tank : MonoBehaviour
             azimuth = transform.rotation.eulerAngles.y % 360,
             time = Time.time - initTime
         };
+    }
+    private void UpdateSensorData()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public bool ValidateActions()
+    {
+        var ret = true;
+        if (actions.leftTrackCoef > 1f || actions.leftTrackCoef < -0.5f)
+        {
+            logger.Log("Coefficient value for left track speed must be between -0.5 and 1");
+            ret = false;
+            actions.leftTrackCoef = Mathf.Clamp(actions.leftTrackCoef, -0.5f, 1f);
+        }
+
+        if (actions.rightTrackCoef > 1f || actions.rightTrackCoef < -0.5f)
+        {
+            logger.Log("Coefficient value for right track speed must be between -0.5 and 1");
+            ret = false;
+            actions.rightTrackCoef = Mathf.Clamp(actions.rightTrackCoef, -0.5f, 1f);
+        }
+
+        if (Mathf.Abs(actions.radarAngularCoef) > 1f)
+        {
+            logger.Log("Coefficient value for radar angular speed must be between -1 and 1");
+            actions.radarAngularCoef = Mathf.Clamp(actions.radarAngularCoef, -1f, 1f);
+            ret = false;
+        }
+
+        if (Mathf.Abs(actions.turretAngularCoef) > 1f)
+        {
+            logger.Log("Coefficient value for turret angular speed must be between -1 and 1");
+            actions.turretAngularCoef = Mathf.Clamp(actions.turretAngularCoef, -1f, 1f);
+            ret = false;
+        }
+        return ret;
     }
     #endregion
 
