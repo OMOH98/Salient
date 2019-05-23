@@ -27,9 +27,10 @@ public class Tank : MonoBehaviour
 
     private ScriptEngine engine = new ScriptEngine();
     private float initTime;
+    private float radarAzimuth = 0f;
     Logger logger = new Logger();
     Rigidbody rb;
-    Sensors sensors;
+    Sensors sensors = new Sensors();
 
     [System.Serializable]
     public class Actions
@@ -48,12 +49,24 @@ public class Tank : MonoBehaviour
     [System.Serializable]
     public class Sensors
     {
-        public enum ObjectCategory
-        {
-            Wall, Ground, Enemy, Ally, Neutral
-        }
         public double azimuth;
         public double time;
+        public Radar radar;
+
+        public class Radar
+        {
+            public double distance;
+            public double azimuth;
+            public Category category;
+            public enum Category
+            {
+                Wall, Ground, Enemy, Ally, Neutral
+            }
+        }
+        public Sensors()
+        {
+            radar = new Radar();
+        }
     }
 
     public class Logger
@@ -87,6 +100,7 @@ public class Tank : MonoBehaviour
 
         engine.EnableExposedClrTypes = true;
         engine.SetGlobalValue("actions", actions);
+        engine.SetGlobalValue("sensors", sensors);
 
         initTime = Time.time;
         turret = transform.Find(turretGameObjectName);
@@ -95,23 +109,17 @@ public class Tank : MonoBehaviour
     private void FixedUpdate()
     {
         //engine.SetGlobalValue("sensors", );
-        var data = CurrentSensorData();
-        var fields = typeof(Sensors).GetFields();
-        foreach (var item in fields)
-        {
-            engine.SetGlobalValue(item.Name, item.GetValue(data));
-        }
-
 
         //TODO: Validation of actions values;
         //actions.Validate();
-
+        UpdateSensorData();
 
         if (execute)
             ExecOnce();
 
         ApplyMovement();
         ApplyTurretRotation();
+        ApplyRadarRotation();
     }
     #region ApplyMethods
     private void ApplyMovement()
@@ -137,7 +145,11 @@ public class Tank : MonoBehaviour
     private Transform turret;
     private void ApplyTurretRotation()
     {
-        turret.Rotate(Vector3.up * turretAngularSpeed * actions.turretAngularCoef, Space.Self);
+        turret.Rotate(Vector3.up * turretAngularSpeed * actions.turretAngularCoef * Time.fixedDeltaTime, Space.Self);
+    }
+    private void ApplyRadarRotation()
+    {
+        radarAzimuth = (radarAzimuth + radarAngularSpeed * Time.fixedDeltaTime * actions.radarAngularCoef) % 360;
     }
     #endregion
     #region TankAPIFunctions
@@ -181,17 +193,14 @@ public class Tank : MonoBehaviour
         actions.fireShots = 0f;
     }
 
-    private Sensors CurrentSensorData()
-    {
-
-        return new Sensors() {
-            azimuth = transform.rotation.eulerAngles.y % 360,
-            time = Time.time - initTime
-        };
-    }
     private void UpdateSensorData()
     {
-        throw new System.NotImplementedException();
+        sensors.azimuth = transform.rotation.eulerAngles.y % 360;
+        sensors.time = Time.time - initTime;
+        sensors.radar.azimuth = radarAzimuth;
+        //TODO:implement dummies
+        sensors.radar.distance = Time.time % 100f;
+        sensors.radar.category = Sensors.Radar.Category.Enemy;
     }
 
     public bool ValidateActions()
