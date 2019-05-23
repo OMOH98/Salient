@@ -41,8 +41,8 @@ public class Tank : MonoBehaviour
         public float turretAngularCoef;
         [Range(-1f, 1f)]
         public float radarAngularCoef;
-        //public bool fireAtWill;
         public float fireShots;
+        public bool Validate();
     }
 
     [System.Serializable]
