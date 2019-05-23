@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Jurassic;
-using UnityEngine.UI;
+
 
 
 [RequireComponent(typeof(Rigidbody))]
 public class Tank : MonoBehaviour
 {
-    public InputField code;
+
     public bool execute = false;
     [Header("Parts")]
     public string turretGameObjectName = "Turret";
@@ -25,12 +25,31 @@ public class Tank : MonoBehaviour
 
     public Actions actions;
 
-    private ScriptEngine engine = new ScriptEngine();
-    private float initTime;
-    private float radarAzimuth = 0f;
-    Logger logger = new Logger();
-    Rigidbody rb;
-    Sensors sensors = new Sensors();
+    public string code
+    {
+        set
+        {
+            try
+            {
+                var source = new StringScriptSource(value);
+                compiledCode = engine.Compile(source);
+            }
+            catch (JavaScriptException e)
+            {
+                logger.Log($"JavaScript error has occured at line {e.LineNumber} with message: {e.Message}");
+                compiledCode = null;
+            }            
+        }
+    }
+
+
+    protected ScriptEngine engine = new ScriptEngine();
+    protected float initTime;
+    protected float radarAzimuth = 0f;
+    protected Logger logger = new DummyLogger();
+    protected Rigidbody rb;
+    protected Sensors sensors = new Sensors();
+    protected CompiledScript compiledCode;
 
     [System.Serializable]
     public class Actions
@@ -52,12 +71,26 @@ public class Tank : MonoBehaviour
         public double azimuth;
         public double time;
         public Radar radar;
+        public double radarAbsoluteAzimuth
+        {
+            get
+            {
+                return (azimuth + radar.relativeAzimuth) % 360f;
+            }
+        }
 
         public class Radar
         {
             public double distance;
-            public double azimuth;
+            public double relativeAzimuth;
             public Category category;
+            public string catString
+            {
+                get
+                {
+                    return System.Enum.GetName(typeof(Category), category);
+                }
+            }
             public enum Category
             {
                 Wall, Ground, Enemy, Ally, Neutral
@@ -69,7 +102,11 @@ public class Tank : MonoBehaviour
         }
     }
 
-    public class Logger
+    public interface Logger
+    {
+        void Log(string msg);
+    }
+    private class DummyLogger : Logger
     {
         public void Log(string msg)
         {
@@ -77,21 +114,11 @@ public class Tank : MonoBehaviour
         }
     }
 
-    public void ExecOnce()
-    {
-        try
-        {
-            engine.Execute(code.text);
-        }
-        catch (Jurassic.JavaScriptException e)
-        {
-            logger.Log($"JavaScript error has occured at line {e.LineNumber} with message: {e.Message}");
-        }
-    }
 
 
 
-    void Start()
+
+    protected virtual void Start()
     {
         rb = GetComponent<Rigidbody>();
 
@@ -115,12 +142,30 @@ public class Tank : MonoBehaviour
         UpdateSensorData();
 
         if (execute)
-            ExecOnce();
+            Execute();
 
         ApplyMovement();
         ApplyTurretRotation();
         ApplyRadarRotation();
     }
+
+    public virtual void Execute()
+    {
+        if(compiledCode!=null)
+        {
+            try
+            {
+                compiledCode.Execute(engine);
+            }
+            catch (JavaScriptException e)
+            {
+                logger.Log($"JavaScript error has occured at line {e.LineNumber} with message: {e.Message}");
+                throw;
+            }
+           
+        }
+    }
+
     #region ApplyMethods
     private void ApplyMovement()
     {
@@ -155,7 +200,7 @@ public class Tank : MonoBehaviour
     #region TankAPIFunctions
     private void SetTrackCoef(float value, bool left)
     {
-        if(value>1f||value<-0.5f)
+        if (value > 1f || value < -0.5f)
         {
             logger.Log($"Coefficient value for {(left == true ? "left" : "right")} track speed must be between -0.5 and 1");
         }
@@ -174,7 +219,7 @@ public class Tank : MonoBehaviour
     }
     private void SetRadarAngularCoef(float value)
     {
-        if(Mathf.Abs(value)>1f)
+        if (Mathf.Abs(value) > 1f)
         {
             logger.Log("Coefficient value for radar angular speed must be between -1 and 1");
         }
@@ -197,7 +242,7 @@ public class Tank : MonoBehaviour
     {
         sensors.azimuth = transform.rotation.eulerAngles.y % 360;
         sensors.time = Time.time - initTime;
-        sensors.radar.azimuth = radarAzimuth;
+        sensors.radar.relativeAzimuth = radarAzimuth;
         //TODO:implement dummies
         sensors.radar.distance = Time.time % 100f;
         sensors.radar.category = Sensors.Radar.Category.Enemy;
@@ -237,39 +282,4 @@ public class Tank : MonoBehaviour
     }
     #endregion
 
-
-
-    #region Deprecated
-    //private void Movement()
-    //{
-    //    var difference = Mathf.Abs(leftTrackSpeed - rightTrackSpeed);
-    //    float translation = Mathf.Abs(leftTrackSpeed) > Mathf.Abs(rightTrackSpeed) ? leftTrackSpeed : rightTrackSpeed;
-    //    translation -= difference * 0.5f * (translation < 0f ? -1f : 1f);
-
-    //    float alpha = Mathf.Atan(difference * speed / tankWidth) * Mathf.Rad2Deg;
-    //    //var beta = Mathf.Atan()
-    //    //rb.ang
-    //    if (rightTrackSpeed > leftTrackSpeed)
-    //        alpha *= -1;
-
-    //    //transform.Translate(transform.forward * translation * Time.deltaTime * speed, Space.World);
-    //    rb.AddForce(transform.forward * translation * (speed), ForceMode.Force);
-    //    rb.AddTorque(Quaternion.AngleAxis(alpha, transform.up).eulerAngles, ForceMode.Force);
-    //    //transform.Rotate(new Vector3(0f, alpha * Time.deltaTime));
-    //}
-
-    //private void KinematicUpdate()
-    //{
-    //    var difference = Mathf.Abs(leftTrackSpeed - rightTrackSpeed);
-    //    float translation = Mathf.Abs(leftTrackSpeed) > Mathf.Abs(rightTrackSpeed) ? leftTrackSpeed : rightTrackSpeed;
-    //    translation -= difference * 0.5f * (translation < 0f ? -1f : 1f);
-
-    //    float alpha = Mathf.Atan(difference * speed / tankWidth) * Mathf.Rad2Deg;
-    //    if (rightTrackSpeed > leftTrackSpeed)
-    //        alpha *= -1;
-
-    //    transform.Translate(transform.forward * translation * Time.deltaTime * speed, Space.World);
-    //    transform.Rotate(new Vector3(0f, alpha * Time.deltaTime));
-    //}
-    #endregion
 }

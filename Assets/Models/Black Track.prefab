@@ -9,11 +9,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2302079590260501920}
-  - component: {fileID: 6585110088811013393}
   - component: {fileID: 1705494381072274411}
   - component: {fileID: 6056714306295742232}
   - component: {fileID: 2304642157763793137}
   - component: {fileID: 6060992915380121260}
+  - component: {fileID: 8644883104689660270}
   m_Layer: 0
   m_Name: Black Track
   m_TagString: Untagged
@@ -37,35 +37,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6585110088811013393
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2302079590260076928}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3d1d5fc222cc64b49936e99737e6cd3c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  code: {fileID: 0}
-  execute: 0
-  turretGameObjectName: Turret
-  speed: 1500000
-  tankWidth: 3
-  rotationTreshold: 0.05
-  vertialForceDisplacement: -0.5
-  turretAngularSpeed: 20
-  radarAngularSpeed: 60
-  heatPerShot: 0.2
-  overheatFine: 0.2
-  actions:
-    leftTrackCoef: 0
-    rightTrackCoef: 0
-    turretAngularCoef: 0
-    radarAngularCoef: 0
-    fireAtWill: 0
 --- !u!65 &1705494381072274411
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -121,6 +92,35 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 0.6072803, y: 1.137505, z: 5.325476}
   m_Center: {x: 1.3716147, y: -0.79846, z: -0.8846977}
+--- !u!114 &8644883104689660270
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2302079590260076928}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 897656969318218438d18baf0fb19768, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  execute: 0
+  turretGameObjectName: Turret
+  speed: 2000000
+  tankWidth: 3
+  rotationTreshold: 0.005
+  vertialForceDisplacement: -0.5
+  turretAngularSpeed: 20
+  radarAngularSpeed: 60
+  heatPerShot: 0.2
+  overheatFine: 0.2
+  actions:
+    leftTrackCoef: 0
+    rightTrackCoef: 0
+    turretAngularCoef: 0
+    radarAngularCoef: 0
+    fireShots: 0
+  codeField: {fileID: 0}
 --- !u!1 &2302079590260076930
 GameObject:
   m_ObjectHideFlags: 0
