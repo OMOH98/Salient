@@ -10,12 +10,14 @@ public class Tank : MonoBehaviour
 {
     public InputField code;
     public bool execute = false;
+    [Header("Parts")]
+    public string turretGameObjectName = "Turret";
 
     [Header("Actuators")]
     public float speed = 5f;
     public float tankWidth = 2f;
-    //public float goCenterHeight = 1.5f;
     public float rotationTreshold = 0.05f;
+    public float vertialForceDisplacement = -0.5f;
     public float turretAngularSpeed = 20f;
     public float radarAngularSpeed = 60f;
     public float heatPerShot = 0.2f; //heat treshold = 1f
@@ -24,28 +26,22 @@ public class Tank : MonoBehaviour
     public Actions actions;
 
     private ScriptEngine engine = new ScriptEngine();
-    private float initTime = 0f;   
+    private float initTime;
+    Logger logger = new Logger();
+    Rigidbody rb;
 
     [System.Serializable]
     public class Actions
     {
         [Range(-0.5f, 1f)]
-        public float leftTrackSpeed;
+        public float leftTrackCoef;
         [Range(-0.5f, 1f)]
-        public float rightTrackSpeed;
+        public float rightTrackCoef;
         [Range(-1f, 1f)]
-        public float towerAngularSpeed;
+        public float turretAngularCoef;
         [Range(-1f, 1f)]
-        public float radarAngularSpeed;
+        public float radarAngularCoef;
         public bool fireAtWill;
-
-        public void Validate()
-        {
-            leftTrackSpeed = Mathf.Clamp(leftTrackSpeed, -0.5f, 1f);
-            rightTrackSpeed = Mathf.Clamp(rightTrackSpeed, -0.5f, 1f);
-            towerAngularSpeed = Mathf.Clamp(towerAngularSpeed, -1f, 1f);
-            radarAngularSpeed = Mathf.Clamp(radarAngularSpeed, -1f, 1f);
-        }
     }
 
     [System.Serializable]
@@ -55,66 +51,133 @@ public class Tank : MonoBehaviour
         {
             Wall, Ground, Enemy, Ally, Neutral
         }
-        public float azimuth;
-        //public 
+        public double azimuth;
+        public double time;
+    }
+
+    public class Logger
+    {
+        public void Log(string msg)
+        {
+            Debug.Log(msg);
+        }
     }
 
     public void ExecOnce()
     {
-        engine.Execute(code.text);
+        try
+        {
+            engine.Execute(code.text);
+        }
+        catch (Jurassic.JavaScriptException e)
+        {
+            logger.Log($"JavaScript error has occured at line {e.LineNumber} with message: {e.Message}");
+        }
     }
 
-    Rigidbody rb;
-    // Start is called before the first frame update 
+
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        engine.EnableExposedClrTypes = true;
-        System.Action<string> logger = (s) => Debug.Log(s);
+
+        System.Action<string> logger = this.logger.Log;
         engine.SetGlobalFunction("log", logger);
-        engine.SetGlobalValue("actions", actions);
+        System.Action<double> setterMethod;
+
+        setterMethod = (f) => { SetTrackCoef((float)f, true); };
+        engine.SetGlobalFunction("setLeftTrackSpeed", setterMethod);
+        
+        setterMethod = f => SetTrackCoef((float)f, false);
+        engine.SetGlobalFunction("setRightTrackSpeed", setterMethod);
+
+        setterMethod = f => SetTurretAngularCoef((float)f);
+        engine.SetGlobalFunction("setTurretAngularCoef", setterMethod);
+
+        //engine.EnableExposedClrTypes = true;
+        //engine.SetGlobalValue("actions", actions);
 
         initTime = Time.time;
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        //if (Input.GetKeyDown(KeyCode.Space))
-        //    Debug.Break();
+        turret = transform.Find(turretGameObjectName);
     }
 
     private void FixedUpdate()
     {
-        engine.SetGlobalValue("sensors", new Sensors() { azimuth = transform.rotation.eulerAngles.y });
-        
+        //engine.SetGlobalValue("sensors", );
+        var data = CurrentSensorData();
+        var fields = typeof(Sensors).GetFields();
+        foreach (var item in fields)
+        {
+            engine.SetGlobalValue(item.Name, item.GetValue(data));
+        }
+
+
         //TODO: Validation of actions values;
-        actions.Validate();
+        //actions.Validate();
+
 
         if (execute)
-            engine.Execute(code.text);
-        Movement_PhysicsMess();
-    }
+            ExecOnce();
 
-    private void Movement_PhysicsMess()
+        ApplyMovement();
+        ApplyTurretRotation();
+    }
+    #region ApplyMethods
+    private void ApplyMovement()
     {
-        if (Mathf.Abs(actions.leftTrackSpeed - actions.rightTrackSpeed) < rotationTreshold)
+        if (Mathf.Abs(actions.leftTrackCoef - actions.rightTrackCoef) < rotationTreshold)
         {
-            rb.AddForce(transform.forward * 2 * speed * Mathf.Min(actions.leftTrackSpeed, actions.rightTrackSpeed));
+            rb.AddForce(transform.forward * 2 * speed * Mathf.Min(actions.leftTrackCoef, actions.rightTrackCoef));
         }
         else
         {
-            var force = transform.forward * speed * actions.leftTrackSpeed;
-            var point = transform.TransformPoint(Vector3.left * tankWidth * 0.5f/* + Vector3.down * goCenterHeight*/);
+            var force = transform.forward * speed * actions.leftTrackCoef;
+            var point = transform.TransformPoint(Vector3.left * tankWidth * 0.5f + Vector3.up * vertialForceDisplacement);
             rb.AddForceAtPosition(force, point, ForceMode.Force);
             //Debug.Log($"Force: {force.magnitude}; dist: {(gameObject.transform.position - point).magnitude}");
-            force = transform.forward * speed * actions.rightTrackSpeed;
-            point = transform.TransformPoint(Vector3.right * tankWidth * 0.5f/* + Vector3.down * goCenterHeight*/);
+            force = transform.forward * speed * actions.rightTrackCoef;
+            point = transform.TransformPoint(Vector3.right * tankWidth * 0.5f + Vector3.up * vertialForceDisplacement);
             rb.AddForceAtPosition(force, point, ForceMode.Force);
             //Debug.Log($"Force: {force.magnitude}; dist: {(gameObject.transform.position - point).magnitude}");
             //Debug.LogWarning("Hell!");
         }
     }
+
+    private Transform turret;
+    private void ApplyTurretRotation()
+    {
+        turret.Rotate(Vector3.up * turretAngularSpeed * actions.turretAngularCoef, Space.Self);
+    }
+    #endregion
+    #region TankAPIFunctions
+    private void SetTrackCoef(float value, bool left)
+    {
+        if(value>1f||value<-0.5f)
+        {
+            logger.Log($"Coefficient value for {(left == true ? "left" : "right")} track speed must be between -0.5 and 1");
+        }
+        var val = Mathf.Clamp(value, -0.5f, 1f);
+        if (left)
+        {
+            actions.leftTrackCoef = val;
+        }
+        else actions.rightTrackCoef = val;
+    }
+    private void SetTurretAngularCoef(float value)
+    {
+        if (Mathf.Abs(value) > 1f)
+            logger.Log("Coefficient value for turret angular speed must be between -1 and 1");
+        actions.turretAngularCoef = Mathf.Clamp(value, -1f, 1f);
+    }
+
+    private Sensors CurrentSensorData()
+    {
+        return new Sensors() {
+            azimuth = transform.rotation.eulerAngles.y,
+            time = Time.time - initTime
+        };
+    }
+    #endregion
 
 
 
