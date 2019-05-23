@@ -41,7 +41,8 @@ public class Tank : MonoBehaviour
         public float turretAngularCoef;
         [Range(-1f, 1f)]
         public float radarAngularCoef;
-        public bool fireAtWill;
+        //public bool fireAtWill;
+        public float fireShots;
     }
 
     [System.Serializable]
@@ -86,10 +87,10 @@ public class Tank : MonoBehaviour
         System.Action<double> setterMethod;
 
         setterMethod = (f) => { SetTrackCoef((float)f, true); };
-        engine.SetGlobalFunction("setLeftTrackSpeed", setterMethod);
+        engine.SetGlobalFunction("setLeftTrackCoef", setterMethod);
         
         setterMethod = f => SetTrackCoef((float)f, false);
-        engine.SetGlobalFunction("setRightTrackSpeed", setterMethod);
+        engine.SetGlobalFunction("setRightTrackCoef", setterMethod);
 
         setterMethod = f => SetTurretAngularCoef((float)f);
         engine.SetGlobalFunction("setTurretAngularCoef", setterMethod);
@@ -169,11 +170,32 @@ public class Tank : MonoBehaviour
             logger.Log("Coefficient value for turret angular speed must be between -1 and 1");
         actions.turretAngularCoef = Mathf.Clamp(value, -1f, 1f);
     }
+    private void SetRadarAngularCoef(float value)
+    {
+        if(Mathf.Abs(value)>1f)
+        {
+            logger.Log("Coefficient value for radar angular speed must be between -1 and 1");
+        }
+        actions.radarAngularCoef = Mathf.Clamp(value, -1f, 1f);
+    }
+    private void Fire()
+    {
+        actions.fireShots += 1;
+    }
+    private void FireAtWill()
+    {
+        actions.fireShots = float.PositiveInfinity;
+    }
+    private void CeaseFire()
+    {
+        actions.fireShots = 0f;
+    }
 
     private Sensors CurrentSensorData()
     {
+
         return new Sensors() {
-            azimuth = transform.rotation.eulerAngles.y,
+            azimuth = transform.rotation.eulerAngles.y % 360,
             time = Time.time - initTime
         };
     }
