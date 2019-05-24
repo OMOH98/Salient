@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class CamControl : MonoBehaviour {
     public GameObject player;
+    public bool readInput = true;
 
     public float maxDist = 10f;
     public float minDist = 0.75f;
@@ -51,10 +52,14 @@ public class CamControl : MonoBehaviour {
         }
     }
 
+    public void EnableInput() { readInput = true; }
+    public void DisableInput() { readInput = false; }
+
+
 	void Start () {
         
         alpha = 70f;
-        dist = 15f;
+        dist = 30f;
         CreateTarget();
 	}
     private void CreateTarget()
@@ -72,12 +77,15 @@ public class CamControl : MonoBehaviour {
 	void Update () {
         if (target == null)
             CreateTarget();
-        ReadMovement();
-        ReadManipulation();
+        if (readInput)
+        {
+            ReadMovement();
+            ReadManipulation();
+        }
 	}
     private void LateUpdate()
     {
-        if (target == null)
+        if (target == null || !readInput)
             return;
         var alpha = Mathf.Deg2Rad * this.alpha;
         var beta = Mathf.Deg2Rad * this.beta;
@@ -91,7 +99,7 @@ public class CamControl : MonoBehaviour {
         if (Input.GetKey(KeyCode.LeftShift))
         {
             var w = Input.GetAxis("Mouse ScrollWheel");
-            var delta = rotationSpeed * Time.deltaTime * w;
+            var delta = 5f * rotationSpeed * Time.deltaTime * w;
             if (delta != 0f && alpha + delta > 5f && alpha + delta < 160f)
             {
                 if (delta < 0f)
@@ -109,14 +117,8 @@ public class CamControl : MonoBehaviour {
             if (delta != 0f && dist + delta < maxDist && dist + delta > minDist)
                 dist += delta;
         }
-        if (Input.GetKey(KeyCode.Q))
-        {
-            beta -= rotationSpeed * Time.deltaTime;
-        }
-        else if (Input.GetKey(KeyCode.E))
-        {
-            beta += rotationSpeed * Time.deltaTime;
-        }
+        var rot = Input.GetAxis("Rotation");
+        beta += rot * rotationSpeed * Time.deltaTime;
     }
     private void ReadMovement()
     {
@@ -126,7 +128,7 @@ public class CamControl : MonoBehaviour {
         if(Mathf.Abs(v) > 0f || Mathf.Abs(h) > 0f || Mathf.Abs(d) > 0)
         {
             followPlayer = false;
-        } else if(Input.GetKeyDown(KeyCode.CapsLock))
+        } else if(Input.GetButtonDown("Follow"))
         {
             followPlayer = !followPlayer;
         }
