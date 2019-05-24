@@ -7,7 +7,7 @@ public class EditedTank : Tank
 {
     [Header("UI")]
     public TMPro.TMP_InputField codeField;
-    public InputField logField;
+    public TMPro.TMP_InputField logField;
     // Start is called before the first frame update
     protected override void Start()
     {
@@ -32,8 +32,8 @@ public class EditedTank : Tank
 
     public class UserLogger:Logger
     {
-        private InputField logField;
-        public UserLogger(InputField ui)
+        private TMPro.TMP_InputField logField;
+        public UserLogger(TMPro.TMP_InputField ui)
         {
             logField = ui;
             ui.readOnly = true;
@@ -41,6 +41,9 @@ public class EditedTank : Tank
         public void Log(string msg)
         {
             logField.text += msg+"\n--------------------------------------------------\n";
+            //logField.caretPosition = logField.text.Length-1;
+            if (logField.verticalScrollbar.value < 0.98f)
+                logField.verticalScrollbar.value = 0.98f;
         }
     }
 }
