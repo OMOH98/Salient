@@ -120,28 +120,41 @@ public class CamControl : MonoBehaviour {
         var rot = Input.GetAxis("Rotation");
         beta += rot * rotationSpeed * Time.deltaTime;
     }
+
+    private bool IsWhole(float f)
+    {
+        //return ((int)f) == f;
+        return Mathf.Abs(Mathf.Abs(f) - 1f) > 1e-6f;
+    }
     private void ReadMovement()
     {
         var v = Input.GetAxis("Vertical");
         var h = Input.GetAxis("Horizontal");
         var d = Input.GetAxis("Diagonal");
-        if(Mathf.Abs(v) > 0f || Mathf.Abs(h) > 0f || Mathf.Abs(d) > 0)
+        if(!IsWhole(v)||!IsWhole(h)||!IsWhole(d))
         {
             followPlayer = false;
-        } else if(Input.GetButtonDown("Follow"))
+        }
+        //if(Mathf.Abs(v) > 0f || Mathf.Abs(h) > 0f || Mathf.Abs(d) > 0)
+        //{
+        //    followPlayer = false;
+        //}
+        else if(Input.GetButtonDown("Follow"))
         {
             followPlayer = !followPlayer;
         }
 
-        var vertical = /*target.transform.InverseTransformDirection(*/transform.TransformDirection(Vector3.forward)/*)*/;
-        vertical.y = 0f;
-        vertical.Normalize();
+        if (movementToPlayer == null)
+        {
+            var vertical = transform.TransformDirection(Vector3.forward);
+            vertical.y = 0f;
+            vertical.Normalize();
 
-        var horizontal = Vector3.Cross(Vector3.up, vertical).normalized;
+            var horizontal = Vector3.Cross(Vector3.up, vertical).normalized;
 
-        var elevator = Vector3.up;
-        target.transform.localPosition = target.transform.localPosition + (vertical * v + horizontal * h + elevator * d) * movementSpeed * Time.deltaTime;
-        //return Mathf.Abs(v) > 0f || Mathf.Abs(h) > 0f || Mathf.Abs(d) > 0;
+            var elevator = Vector3.up;
+            target.transform.localPosition = target.transform.localPosition + (vertical * v + horizontal * h + elevator * d) * movementSpeed * Time.deltaTime;
+        }
     }
     private IEnumerator MoveTargetToPosition(Transform whereToMove, Transform target, float time, System.Action OnBreak = null)
     {

@@ -15,6 +15,7 @@ public class FlexPanel : MonoBehaviour
     
     [EnumFlags]
     public FlexAlignment allowedAlignmens;// = FlexAlignment.left|FlexAlignment.right;
+    public float paddingLeft, paddingRight;
     public bool changeableWidth = true;
     public bool changeableHeight = false;
     public bool allowHide = true;
@@ -36,13 +37,39 @@ public class FlexPanel : MonoBehaviour
         rt.anchorMin = Vector2.zero;
         rt.anchorMax = Vector2.one;
         float apx = 0f, apy = 0f, sdx = 0f, sdy = 0f, hcoef = 1f;
-        //float vpWidth = Screen.width - pLeft - pRight;
 
         if(alignment == FlexAlignment.left)
         {
             hcoef = -1f;
         }
-        apx = hcoef * Screen.width * widthCoef * 0.5f;
+        switch (alignment)
+        {
+            case FlexAlignment.left:
+                hcoef = -1f;
+                break;
+            case FlexAlignment.right:
+                hcoef = 1f;
+                break;
+            case FlexAlignment.middle:
+                hcoef = 0f;
+                break;
+            default:
+                break;
+        }
+
+        apx = hcoef * Screen.width * (1f - widthCoef) * 0.5f;
+        switch (alignment)
+        {
+            case FlexAlignment.left:
+                apx += paddingLeft;
+                break;
+            case FlexAlignment.right:
+                apx -= paddingRight;
+                break;
+            default:
+                break;
+        }
+
         sdx = -Screen.width * (1f - widthCoef);
         sdy = -Screen.height *(1f - heightCoef);
 

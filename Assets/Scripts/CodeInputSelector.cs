@@ -9,16 +9,20 @@ public class CodeInputSelector : MonoBehaviour
 {
     TMP_InputField field;
     bool selected = false;
+    Color caretColor;
     // Start is called before the first frame update
     void Start()
     {
         field = GetComponent<TMP_InputField>();
+        caretColor = field.caretColor;
         field.onSelect.AddListener((s) => {
             selected = true;
-            Debug.Log(s);
+            field.caretColor = caretColor;
+            //Debug.Log(s);
         });
         field.onDeselect.AddListener((s) =>
         {
+            field.caretColor = Color.clear;
             selected = false;
         });
         
