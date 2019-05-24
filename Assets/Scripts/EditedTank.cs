@@ -40,10 +40,7 @@ public class EditedTank : Tank
         }
         public void Log(string msg)
         {
-            logField.text += msg+"\n--------------------------------------------------\n";
-            //logField.caretPosition = logField.text.Length-1;
-            if (logField.verticalScrollbar.value < 0.98f)
-                logField.verticalScrollbar.value = 0.98f;
+            logField.text = msg + "\n--------------------------------------------------\n" + logField.text;
         }
     }
 }
