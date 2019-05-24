@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class EditedTank : Tank
 {
     [Header("UI")]
-    public InputField codeField;
+    public TMPro.TMP_InputField codeField;
     public InputField logField;
     // Start is called before the first frame update
     protected override void Start()
