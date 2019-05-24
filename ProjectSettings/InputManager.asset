@@ -346,9 +346,9 @@ InputManager:
     descriptiveName: Select/Deselect code field
     descriptiveNegativeName: 
     negativeButton: 
-    positiveButton: left alt
+    positiveButton: 
     altNegativeButton: 
-    altPositiveButton: 
+    altPositiveButton: left alt
     gravity: 1000
     dead: 0.001
     sensitivity: 1000
