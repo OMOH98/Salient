@@ -40,7 +40,7 @@ public class EditedTank : Tank
         }
         public void Log(string msg)
         {
-            logField.text += "\n" + msg;
+            logField.text += msg+"\n--------------------------------------------------\n";
         }
     }
 }

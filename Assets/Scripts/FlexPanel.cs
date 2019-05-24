@@ -23,6 +23,9 @@ public class FlexPanel : MonoBehaviour
     public GameObject buttonPrefab;
     public Transform controlsParent = null;
 
+    //[Header("Padding")]
+    //public float pLeft, pTop, pRight, pBottom;
+
     private RectTransform rt;
     private Button trayButton;
     private Button hideButton;
@@ -33,6 +36,8 @@ public class FlexPanel : MonoBehaviour
         rt.anchorMin = Vector2.zero;
         rt.anchorMax = Vector2.one;
         float apx = 0f, apy = 0f, sdx = 0f, sdy = 0f, hcoef = 1f;
+        //float vpWidth = Screen.width - pLeft - pRight;
+
         if(alignment == FlexAlignment.left)
         {
             hcoef = -1f;
@@ -48,7 +53,6 @@ public class FlexPanel : MonoBehaviour
         {
             trayButton = Instantiate(buttonPrefab).GetComponent<Button>();
             trayButton.GetComponentInChildren<Text>().text = "Show " + gameObject.name;
-            trayButton.transform.SetParent(trayButtonsParent);
             trayButton.gameObject.SetActive(false);
             trayButton.onClick.AddListener(() =>
             {
@@ -58,19 +62,25 @@ public class FlexPanel : MonoBehaviour
 
             hideButton = Instantiate(buttonPrefab).GetComponent<Button>();
             hideButton.GetComponentInChildren<Text>().text = "Hide";
-            hideButton.transform.SetParent(controlsParent == null ? transform : controlsParent);
             hideButton.onClick.AddListener(() =>
             {
                 trayButton.gameObject.SetActive(true);
                 gameObject.SetActive(false);
             });
+
+            StartCoroutine(DelayAction(0.05f, () =>
+            {
+                trayButton.transform.SetParent(trayButtonsParent);
+                hideButton.transform.SetParent(controlsParent == null ? transform : controlsParent);
+            }));
         }
     }
 
-    // Update is called once per frame
-    void Update()
+    private IEnumerator DelayAction(float seconds, System.Action action)
     {
-
+        yield return new WaitForSeconds(seconds);
+        action();
+        yield break;
     }
 
     [System.Flags]
