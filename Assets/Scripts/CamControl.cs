@@ -1,0 +1,227 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class CamControl : MonoBehaviour {
+    public GameObject player;
+
+    public float maxDist = 10f;
+    public float minDist = 0.75f;
+    public float rotationSpeed = 30f;
+    public float changeDistSpeed = 2f;
+    public float movementSpeed = 5f;
+    public float timeToMoveToPlayer = 0.5f;
+
+    public event System.Action onFollow;
+    public event System.Action onBreakFollow;
+
+
+
+    //[SerializeField]
+    float alpha, beta, dist;
+    Coroutine movementToPlayer = null;
+    GameObject target;
+    private bool _followPlayer;
+    bool followPlayer
+    {
+        get { return _followPlayer; }
+        set
+        {
+            if(value)
+            {
+                if (!_followPlayer)
+                {
+                    movementToPlayer = StartCoroutine(MoveTargetToPosition(player.transform, target.transform, timeToMoveToPlayer, () =>
+                    {
+                        target.transform.SetParent(player.transform);
+                        target.transform.localPosition = Vector3.zero;
+                    }));
+                    onFollow?.Invoke();
+                }
+
+            }
+            else if(_followPlayer)
+            {
+                if (movementToPlayer != null)
+                    StopCoroutine(movementToPlayer);
+                target.transform.SetParent(null);
+                onBreakFollow?.Invoke();
+            }
+            _followPlayer = value;
+        }
+    }
+
+	void Start () {
+        
+        alpha = 70f;
+        dist = 15f;
+        CreateTarget();
+	}
+    private void CreateTarget()
+    {
+        target = new GameObject("CamFreelookTarget");
+        if (player == null)
+        {
+            var initialPosition = transform.TransformDirection(Vector3.forward * dist) + transform.position;
+            target.transform.position = initialPosition;
+        }
+        else target.transform.position = player.transform.position;
+    }
+	
+	// Update is called once per frame
+	void Update () {
+        if (target == null)
+            CreateTarget();
+        ReadMovement();
+        ReadManipulation();
+	}
+    private void LateUpdate()
+    {
+        if (target == null)
+            return;
+        var alpha = Mathf.Deg2Rad * this.alpha;
+        var beta = Mathf.Deg2Rad * this.beta;
+        var elevation = Vector3.up * dist * Mathf.Cos(alpha);
+        var displacement = (Vector3.right * Mathf.Cos(beta) + Vector3.forward * Mathf.Sin(beta)).normalized * dist * Mathf.Sin(alpha);
+        transform.position = target.transform.position + elevation + displacement;
+        transform.LookAt(target.transform.position + Vector3.up);
+    }
+    private void ReadManipulation()
+    {
+        if (Input.GetKey(KeyCode.LeftShift))
+        {
+            var w = Input.GetAxis("Mouse ScrollWheel");
+            var delta = rotationSpeed * Time.deltaTime * w;
+            if (delta != 0f && alpha + delta > 5f && alpha + delta < 160f)
+            {
+                if (delta < 0f)
+                    alpha += delta;
+                else
+                {
+                    if (!Physics.Raycast(new Ray(transform.position, Vector3.down), 0.3f))
+                        alpha += delta;
+                }
+            }
+        }
+        else if (/*Input.GetKey(KeyCode.LeftControl)*/true)
+        {
+            var delta = Input.GetAxis("Mouse ScrollWheel") * changeDistSpeed * Time.deltaTime;
+            if (delta != 0f && dist + delta < maxDist && dist + delta > minDist)
+                dist += delta;
+        }
+        if (Input.GetKey(KeyCode.Q))
+        {
+            beta -= rotationSpeed * Time.deltaTime;
+        }
+        else if (Input.GetKey(KeyCode.E))
+        {
+            beta += rotationSpeed * Time.deltaTime;
+        }
+    }
+    private void ReadMovement()
+    {
+        var v = Input.GetAxis("Vertical");
+        var h = Input.GetAxis("Horizontal");
+        var d = Input.GetAxis("Diagonal");
+        if(Mathf.Abs(v) > 0f || Mathf.Abs(h) > 0f || Mathf.Abs(d) > 0)
+        {
+            followPlayer = false;
+        } else if(Input.GetKeyDown(KeyCode.CapsLock))
+        {
+            followPlayer = !followPlayer;
+        }
+
+        var vertical = /*target.transform.InverseTransformDirection(*/transform.TransformDirection(Vector3.forward)/*)*/;
+        vertical.y = 0f;
+        vertical.Normalize();
+
+        var horizontal = Vector3.Cross(Vector3.up, vertical).normalized;
+
+        var elevator = Vector3.up;
+        target.transform.localPosition = target.transform.localPosition + (vertical * v + horizontal * h + elevator * d) * movementSpeed * Time.deltaTime;
+        //return Mathf.Abs(v) > 0f || Mathf.Abs(h) > 0f || Mathf.Abs(d) > 0;
+    }
+    private IEnumerator MoveTargetToPosition(Transform whereToMove, Transform target, float time, System.Action OnBreak = null)
+    {
+        Vector3 oPos = target.position;
+        float begin = Time.time, ptg = 0f;
+        do
+        {
+            ptg = (Time.time - begin) / time;
+            target.position = Vector3.Lerp(oPos, whereToMove.position, ptg);
+            yield return null;
+        } while (ptg <= 1f);
+
+        if (movementToPlayer != null)
+            movementToPlayer = null;
+        if (OnBreak != null)
+            OnBreak.Invoke();
+
+        yield break;
+    }
+}
+//public class CamMover:MonoBehaviour
+//
+//    float _alpha=20f;
+//    float _beta;
+//    float _dist=3f;
+//    Vector3 _base;
+//    bool _change;
+//    public float angleToY
+//    {
+//        get { return _alpha; }
+//        set
+//        {
+//            if (value > 90f)
+//                _alpha = 90f;
+//            else if (value < 90f)
+//                _alpha = 0f;
+//            else
+//            {
+//                _alpha = value;
+//                _change = true;
+//            }
+//        }
+//    }
+//    public float angleToX
+//    {
+//        get { return _beta; }
+//        set
+//        {
+//            _beta = value % 360f;
+//            _change = true;
+//        }
+//    }
+//    public float distanceToBase
+//    {
+//        get { return _dist; }
+//        set
+//        {
+//            _dist = value;
+//            _change = true;
+//        }
+//    }
+//    public Vector3 basePosition
+//    {
+//        get { return _base; }
+//        set
+//        {
+//            _change = _change || value != _base;
+//            _base = value;
+//        }
+//    }
+
+//    private void LateUpdate()
+//    {
+//        if (_change)
+//        {
+//            var alpha = Mathf.Deg2Rad * _alpha;
+//            var beta = Mathf.Deg2Rad * _beta;
+//            var elevation = Vector3.up * _dist * Mathf.Cos(alpha);
+//            var displacement = (Vector3.right * Mathf.Cos(beta) + Vector3.forward * Mathf.Sin(beta)).normalized * _dist * Mathf.Sin(alpha);
+//            transform.position = _base + elevation + displacement;
+//            transform.LookAt(_base + Vector3.up);
+//            _change = false;
+//        }
+//    }
+//}
