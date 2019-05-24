@@ -714,5 +714,15 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7979408944756824732, guid: 172cb31e462fad24fad7547c5ae11a2b,
+        type: 3}
+      propertyPath: m_OnSelect.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1757948216}
+    - target: {fileID: 7979408944756824732, guid: 172cb31e462fad24fad7547c5ae11a2b,
+        type: 3}
+      propertyPath: m_OnDeselect.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1757948216}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 172cb31e462fad24fad7547c5ae11a2b, type: 3}
