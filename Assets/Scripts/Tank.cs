@@ -193,11 +193,15 @@ public class Tank : MonoBehaviour, PoliticsSubject
     {
         turret.Rotate(Vector3.up * turretAngularSpeed * actions.turretAngularCoef * Time.fixedDeltaTime, Space.Self);
     }
+
     private void ApplyRadarRotation()
     {
         radarAzimuth = (radarAzimuth + radarAngularSpeed * Time.fixedDeltaTime * actions.radarAngularCoef) % 360;
         radar.localRotation = Quaternion.Euler(Vector3.up*radarAzimuth);
-        radar.localPosition = new Vector3(Mathf.Sin(radarAzimuth*Mathf.Deg2Rad) * radarRadius, radar.localPosition.y, Mathf.Cos(radarAzimuth* Mathf.Deg2Rad) * radarRadius);
+        var radarDirection = new Vector3(Mathf.Sin(radarAzimuth * Mathf.Deg2Rad), 0f, Mathf.Cos(radarAzimuth * Mathf.Deg2Rad)).normalized;
+        var radarHeight = radar.position.y - turret.position.y;
+        radar.position = turret.position + Vector3.up * radarHeight + radarDirection * radarRadius;
+        //radar.localPosition = new Vector3(Mathf.Sin(radarAzimuth*Mathf.Deg2Rad) * radarRadius, radar.localPosition.y, Mathf.Cos(radarAzimuth* Mathf.Deg2Rad) * radarRadius);
     }
 
     protected float heat;
@@ -289,12 +293,14 @@ public class Tank : MonoBehaviour, PoliticsSubject
 
         sensors.radar.relativeAzimuth = radarAzimuth;
         RaycastHit rhi;
-        var radarDirection = new Vector3(Mathf.Sin(radarAzimuth), 0f, Mathf.Cos(radarAzimuth));
-        var radarRay = new Ray(transform.position, radarDirection);
+        var radarDirection = new Vector3(Mathf.Sin(radarAzimuth*Mathf.Deg2Rad), 0f, Mathf.Cos(radarAzimuth * Mathf.Deg2Rad));
+        radarDirection = transform.TransformDirection(radarDirection);
+        var radarRay = new Ray(turret.position, radarDirection);
         sensors.radar.distance = float.PositiveInfinity;
         sensors.radar.category = Sensors.Radar.Category.Ground;
         if (Physics.Raycast(radarRay, out rhi, float.PositiveInfinity, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
         {
+            Debug.DrawLine(radarRay.origin, rhi.point, Color.red);
             sensors.radar.distance = rhi.distance;
             var politican = rhi.collider.gameObject.GetComponent<PoliticsSubject>();
             if(politican!=null)
