@@ -149,6 +149,7 @@ public class Tank : MonoBehaviour
 
         if (execute)
             Execute();
+        ValidateActions();
 
         ApplyMovement();
         ApplyTurretRotation();

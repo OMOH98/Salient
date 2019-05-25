@@ -45,7 +45,7 @@ public class EditedTank : Tank
             names.RemoveAll((toTest) => { return string.IsNullOrEmpty(toTest); });
             return names;
         }
-        catch (PlayerPrefsException e)
+        catch (PlayerPrefsException)
         {
             return new List<string>();
         }
@@ -116,6 +116,7 @@ public class EditedTank : Tank
             {
                 AddScriptNames(new string[] { n });
                 File.WriteAllText(n + scriptExtention, codeField.text);
+                logger.Log($"Current script is successfuly saved as \"{n}\"!");
             }
             catch (IOException e)
             {

@@ -61,6 +61,7 @@ public class CamControl : MonoBehaviour {
         alpha = 70f;
         dist = 30f;
         CreateTarget();
+        transform.SetParent(null);
 	}
     private void CreateTarget()
     {
@@ -77,15 +78,17 @@ public class CamControl : MonoBehaviour {
 	void Update () {
         if (target == null)
             CreateTarget();
+        var input = Vector3.zero;
         if (readInput)
         {
-            ReadMovement();
-            ReadManipulation();
+            input = ReadMovement();
+            ReadAndApplyManipulation();
         }
+        ApplyMovement(input.x, input.y, input.z);
 	}
     private void LateUpdate()
     {
-        if (target == null || !readInput)
+        if (target == null /*|| !readInput*/)
             return;
         var alpha = Mathf.Deg2Rad * this.alpha;
         var beta = Mathf.Deg2Rad * this.beta;
@@ -94,7 +97,7 @@ public class CamControl : MonoBehaviour {
         transform.position = target.transform.position + elevation + displacement;
         transform.LookAt(target.transform.position + Vector3.up);
     }
-    private void ReadManipulation()
+    private void ReadAndApplyManipulation()
     {
         if (Input.GetKey(KeyCode.LeftShift))
         {
@@ -126,7 +129,7 @@ public class CamControl : MonoBehaviour {
         //return ((int)f) == f;
         return Mathf.Abs(Mathf.Abs(f) - 1f) > 1e-6f;
     }
-    private void ReadMovement()
+    private Vector3 ReadMovement()
     {
         var v = Input.GetAxis("Vertical");
         var h = Input.GetAxis("Horizontal");
@@ -143,7 +146,11 @@ public class CamControl : MonoBehaviour {
         {
             followPlayer = !followPlayer;
         }
+        return new Vector3(v, d, h);
+    }
 
+    private void ApplyMovement(float v, float d, float h)
+    {
         if (movementToPlayer == null)
         {
             var vertical = transform.TransformDirection(Vector3.forward);
@@ -156,6 +163,7 @@ public class CamControl : MonoBehaviour {
             target.transform.localPosition = target.transform.localPosition + (vertical * v + horizontal * h + elevator * d) * movementSpeed * Time.deltaTime;
         }
     }
+
     private IEnumerator MoveTargetToPosition(Transform whereToMove, Transform target, float time, System.Action OnBreak = null)
     {
         Vector3 oPos = target.position;
