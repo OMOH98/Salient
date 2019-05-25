@@ -1,0 +1,1 @@
+actions.fireShots = 5;

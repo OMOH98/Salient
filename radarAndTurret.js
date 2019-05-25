@@ -1,2 +1,2 @@
-actions.leftTrackCoef = 0.22;
-actions.leftTrackCoef = 0.2;
+actions.turretAngularCoef = 1;
+actions.radarAngularCoef = -1;
