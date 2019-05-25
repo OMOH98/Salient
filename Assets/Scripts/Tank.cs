@@ -32,13 +32,19 @@ public class Tank : MonoBehaviour
             try
             {
                 var source = new StringScriptSource(value);
+                
                 compiledCode = engine.Compile(source);
             }
             catch (JavaScriptException e)
             {
                 logger.Log($"JavaScript error has occured at line {e.LineNumber} with message: {e.Message}");
                 compiledCode = null;
-            }            
+            }        
+            catch(Jurassic.Compiler.SyntaxErrorException e)
+            {
+                logger.Log($"JavaScript syntax error has occured at line {e.LineNumber} with message: {e.Message}");
+                compiledCode = null;
+            }
         }
     }
 

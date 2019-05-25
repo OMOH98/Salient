@@ -5,12 +5,14 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.Text;
 
 public class EditedTank : Tank
 {
     public const string scriptNames = "scriptNames";
     public const char scriptSeparator = ';';
     public const string scriptExtention = ".js";
+    public const string scriptNameTaboo = ";?,.";
 
     [Header("UI")]
     public TMP_InputField codeField;
@@ -25,91 +27,150 @@ public class EditedTank : Tank
     protected override void Start()
     {
         base.Start();
-        this.logger = new UserLogger(logField);
-        System.Action<string> logger = this.logger.Log;
+        base.logger = new UserLogger(logField);
+        System.Action<string> logger = base.logger.Log;
         engine.SetGlobalFunction("log", logger);
 
         saveAsButton.onClick.AddListener(SaveScript);
+        loadButton.onClick.AddListener(LoadScript);
+        PopulateSavedScriptDropdown();
     }
 
 
+    private List<string> GetScriptNames()
+    {
+        try
+        {
+            var names = PlayerPrefs.GetString(scriptNames).Split(scriptSeparator).ToList();
+            names.RemoveAll((toTest) => { return string.IsNullOrEmpty(toTest); });
+            return names;
+        }
+        catch (PlayerPrefsException e)
+        {
+            return new List<string>();
+        }
+    }
+    private void SetScriptNames(List<string> names)
+    {
+        var tail = new StringBuilder();
+        for (int i = 0; i < names.Count; i++)
+        {
+            if(names.IndexOf(names[i])==i)
+            {
+                tail.AppendFormat("{0}{1}", names[i], scriptSeparator);
+            }
+        }
+        PlayerPrefs.SetString(scriptNames, tail.ToString());
+    }
+    private void AddScriptNames(IEnumerable<string> toAdd)
+    {
+        var names = GetScriptNames();
+        names.AddRange(toAdd);
+        SetScriptNames(names);
+    }
+    private bool RemoveScriptName(string n)
+    {
+        var names = GetScriptNames();
+        var ret = names.Remove(n);
+        SetScriptNames(names);
+        return ret;
+    }
+    
+    private void PopulateSavedScriptDropdown()
+    {
+        loadDropdown.ClearOptions();
+        if (!PlayerPrefs.HasKey(scriptNames))
+            return;
+        var names = GetScriptNames();
+        var ops = loadDropdown.options;// new List<TMP_Dropdown.OptionData>();
+        foreach (var n in names)
+        {
+            ops.Add(new TMP_Dropdown.OptionData(n));
+        }
+    }
+
     private bool IsValidFileName(string s)
     {
-        const string taboo = ";?,.";
+
         var ret = !string.IsNullOrEmpty(s);
         if (ret)
         {
             foreach (var c in s)
             {
-                if(taboo.Contains(c.ToString()))
+                if(scriptNameTaboo.Contains(c.ToString()))
                 {
                     ret = false;
                     break;
                 }
             }
         }
-
-        if (ret)
-        {
-            try
-            {
-                var names = PlayerPrefs.GetString(scriptNames).Split(scriptSeparator).ToList();
-                names.RemoveAll((toTest) => { return string.IsNullOrEmpty(toTest); });
-                foreach (var name in names)
-                {
-                    if (s.Equals(name, System.StringComparison.Ordinal))
-                    {
-                        //TODO: check if string comparison works properly
-                        ret = false;
-                        break;
-                    }
-                }
-            }
-            catch (PlayerPrefsException)
-            {
-                ;
-            }
-        }
-
         return ret;
     }
+
     public void SaveScript()
     {
         var n = saveAsNameField.text;
         if (IsValidFileName(n))
         {
-            string names = "";
-            if(PlayerPrefs.HasKey(scriptNames))
+            try
             {
-                names = PlayerPrefs.GetString(scriptNames);
+                AddScriptNames(new string[] { n });
+                File.WriteAllText(n + scriptExtention, codeField.text);
             }
-            PlayerPrefs.SetString(scriptNames, names + n + scriptSeparator.ToString());
-
-            File.WriteAllText(n + scriptExtention, codeField.text);
+            catch (IOException e)
+            {
+                logger.Log($"Script saving failed due to an error risen with message \"{e.Message}\"");
+            }
         }
         else
         {
-            logger.Log("Set name is not valid either because it is already used or it contains taboo chars. Try other name.");
+            logger.Log($"Set name is not valid because it contains taboo chars \"{scriptNameTaboo}\". Try other name.");
         }
+        PopulateSavedScriptDropdown();
     }
+    
+    public void LoadScript()
+    {
+        if(!PlayerPrefs.HasKey(scriptNames)||loadDropdown.value<0||loadDropdown.options.Count<=0)
+        {
+            logger.Log("There are no saved scripts to load");
+            return;
+        }
+        var requestedName = loadDropdown.options[loadDropdown.value].text;
+
+        var names = GetScriptNames();
+        if(names.Contains(requestedName))
+        {
+            string content = "";
+            try
+            {
+                content = File.ReadAllText(requestedName + scriptExtention);
+            }
+            catch (IOException e)
+            {
+                logger.Log($"Error has occured while loading \"{requestedName}\" script with message \"{e.Message}\". The name would be deleted from selection dropdown.");
+                RemoveScriptName(requestedName);
+                PopulateSavedScriptDropdown();
+                return;
+            }
+           
+            codeField.text = content;
+            logger.Log($"Script \"{requestedName }\" was successfuly loaded!");
+        }
+        
+    }
+
 
     public void ExecOnce()
     {
-        try
-        {
-            code = codeField.text;
-            compiledCode.Execute(engine);
-        }
-        catch (Jurassic.JavaScriptException e)
-        {
-            logger.Log($"JavaScript error has occured at line {e.LineNumber} with message: {e.Message}");
-        }
+        code = codeField.text;
+        Execute();
     }
 
     public class UserLogger:Logger
     {
-        private TMPro.TMP_InputField logField;
-        public UserLogger(TMPro.TMP_InputField ui)
+        private TMP_InputField logField;
+        public UserLogger(TMP_InputField ui)
         {
             logField = ui;
             ui.readOnly = true;
