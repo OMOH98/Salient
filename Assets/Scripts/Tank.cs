@@ -6,12 +6,18 @@ using Jurassic;
 
 
 [RequireComponent(typeof(Rigidbody))]
-public class Tank : MonoBehaviour
+[RequireComponent(typeof(DamagableBehaviour))]
+public class Tank : MonoBehaviour, PoliticsSubject
 {
 
     public bool execute = false;
     [Header("Parts")]
     public string turretGameObjectName = "Turret";
+    public string radarGameObjectName = "Radar";
+    public float radarRadius = 4f;
+    public string muzzleGameObjectName = "Muzzle";
+    public GameObject impactPrefab;
+   
 
     [Header("Actuators")]
     public float speed = 5f;
@@ -20,113 +26,38 @@ public class Tank : MonoBehaviour
     public float vertialForceDisplacement = -0.5f;
     public float turretAngularSpeed = 20f;
     public float radarAngularSpeed = 60f;
+    [Range(0f,1f)]
     public float heatPerShot = 0.2f; //heat treshold = 1f
     public float overheatFine = 0.2f;
+    [Range(0f,1f)]
+    public float coolingRate = 0.5f;
+    public float firePeriod = 1f;
+    public float impactDestructionDelay = 6f;
+    public Damage damage;
+    public int sideIdentifier = 0;
 
     public Actions actions;
 
-    public string code
-    {
-        set
-        {
-            try
-            {
-                var source = new StringScriptSource(value);
-                
-                compiledCode = engine.Compile(source);
-            }
-            catch (JavaScriptException e)
-            {
-                logger.Log($"JavaScript error has occured at line {e.LineNumber} with message: {e.Message}");
-                compiledCode = null;
-            }        
-            catch(Jurassic.Compiler.SyntaxErrorException e)
-            {
-                logger.Log($"JavaScript syntax error has occured at line {e.LineNumber} with message: {e.Message}");
-                compiledCode = null;
-            }
-        }
-    }
 
+    public int SideId() { return sideIdentifier; }
 
     protected ScriptEngine engine = new ScriptEngine();
     protected float initTime;
     protected float radarAzimuth = 0f;
     protected Logger logger = new DummyLogger();
     protected Rigidbody rb;
+    protected DamagableBehaviour hb;
     protected Sensors sensors = new Sensors();
     protected CompiledScript compiledCode;
 
-    [System.Serializable]
-    public class Actions
-    {
-        [Range(-0.5f, 1f)]
-        public float leftTrackCoef;
-        [Range(-0.5f, 1f)]
-        public float rightTrackCoef;
-        [Range(-1f, 1f)]
-        public float turretAngularCoef;
-        [Range(-1f, 1f)]
-        public float radarAngularCoef;
-        public float fireShots;
-    }
-
-    [System.Serializable]
-    public class Sensors
-    {
-        public double azimuth;
-        public double time;
-        public Radar radar;
-        public double radarAbsoluteAzimuth
-        {
-            get
-            {
-                return (azimuth + radar.relativeAzimuth) % 360f;
-            }
-        }
-
-        public class Radar
-        {
-            public double distance;
-            public double relativeAzimuth;
-            public Category category;
-            public string catString
-            {
-                get
-                {
-                    return System.Enum.GetName(typeof(Category), category);
-                }
-            }
-            public enum Category
-            {
-                Wall, Ground, Enemy, Ally, Neutral
-            }
-        }
-        public Sensors()
-        {
-            radar = new Radar();
-        }
-    }
-
-    public interface Logger
-    {
-        void Log(string msg);
-    }
-    private class DummyLogger : Logger
-    {
-        public void Log(string msg)
-        {
-            Debug.Log(msg);
-        }
-    }
-
-
-
-
+    private Transform turret;
+    private ParticleSystem muzzleFlash;
+    private Transform radar; 
 
     protected virtual void Start()
     {
         rb = GetComponent<Rigidbody>();
+        hb = GetComponent<DamagableBehaviour>();
 
         System.Action<string> logger = this.logger.Log;
         engine.SetGlobalFunction("log", logger);
@@ -137,14 +68,14 @@ public class Tank : MonoBehaviour
 
         initTime = Time.time;
         turret = transform.Find(turretGameObjectName);
+        //muzzleFlash = transform.Find(muzzleGameObjectName).GetComponent<ParticleSystem>();
+        //muzzleFlash = GetComponentInChildren<ParticleSystem>();
+        muzzleFlash = turret.Find(muzzleGameObjectName).GetComponent<ParticleSystem>();
+        radar = transform.Find(radarGameObjectName);
     }
 
     private void FixedUpdate()
     {
-        //engine.SetGlobalValue("sensors", );
-
-        //TODO: Validation of actions values;
-        //actions.Validate();
         UpdateSensorData();
 
         if (execute)
@@ -154,11 +85,36 @@ public class Tank : MonoBehaviour
         ApplyMovement();
         ApplyTurretRotation();
         ApplyRadarRotation();
+        ApplyFire();
     }
 
+
+    #region CodeMethods
+    public string code
+    {
+        set
+        {
+            try
+            {
+                var source = new StringScriptSource(value);
+
+                compiledCode = engine.Compile(source);
+            }
+            catch (JavaScriptException e)
+            {
+                logger.Log($"JavaScript error has occured at line {e.LineNumber} with message: {e.Message}");
+                compiledCode = null;
+            }
+            catch (Jurassic.Compiler.SyntaxErrorException e)
+            {
+                logger.Log($"JavaScript syntax error has occured at line {e.LineNumber} with message: {e.Message}");
+                compiledCode = null;
+            }
+        }
+    }
     public virtual void Execute()
     {
-        if(compiledCode!=null)
+        if (compiledCode != null)
         {
             try
             {
@@ -169,9 +125,10 @@ public class Tank : MonoBehaviour
                 logger.Log($"JavaScript error has occured at line {e.LineNumber} with message: {e.Message}");
                 throw;
             }
-           
+
         }
     }
+    #endregion
 
     #region ApplyMethods
     private void ApplyMovement()
@@ -185,16 +142,13 @@ public class Tank : MonoBehaviour
             var force = transform.forward * speed * actions.leftTrackCoef;
             var point = transform.TransformPoint(Vector3.left * tankWidth * 0.5f + Vector3.up * vertialForceDisplacement);
             rb.AddForceAtPosition(force, point, ForceMode.Force);
-            //Debug.Log($"Force: {force.magnitude}; dist: {(gameObject.transform.position - point).magnitude}");
+            
             force = transform.forward * speed * actions.rightTrackCoef;
             point = transform.TransformPoint(Vector3.right * tankWidth * 0.5f + Vector3.up * vertialForceDisplacement);
             rb.AddForceAtPosition(force, point, ForceMode.Force);
-            //Debug.Log($"Force: {force.magnitude}; dist: {(gameObject.transform.position - point).magnitude}");
-            //Debug.LogWarning("Hell!");
         }
     }
 
-    private Transform turret;
     private void ApplyTurretRotation()
     {
         turret.Rotate(Vector3.up * turretAngularSpeed * actions.turretAngularCoef * Time.fixedDeltaTime, Space.Self);
@@ -202,7 +156,49 @@ public class Tank : MonoBehaviour
     private void ApplyRadarRotation()
     {
         radarAzimuth = (radarAzimuth + radarAngularSpeed * Time.fixedDeltaTime * actions.radarAngularCoef) % 360;
+        radar.localRotation = Quaternion.Euler(Vector3.up*radarAzimuth);
+        radar.localPosition = new Vector3(Mathf.Sin(radarAzimuth*Mathf.Deg2Rad) * radarRadius, radar.localPosition.y, Mathf.Cos(radarAzimuth* Mathf.Deg2Rad) * radarRadius);
     }
+
+    private float heat;
+    private float nextTimeToFire;
+    private void ApplyFire()
+    {
+        heat -= coolingRate;
+        if (heat < 0f)
+            heat = 0f;
+
+        if (heat > 1f || actions.fireShots <= 0f || Time.time < nextTimeToFire)
+            return;
+
+        actions.fireShots--;
+        nextTimeToFire = Time.time + firePeriod;
+        heat += heatPerShot;
+        if (heat >= 1f)
+            heat += overheatFine;
+
+        if (muzzleFlash.isPlaying)
+            muzzleFlash.Stop();
+        muzzleFlash.Play();
+
+        RaycastHit rhi;
+        Ray ray = new Ray(muzzleFlash.transform.position, muzzleFlash.transform.forward);
+        if(Physics.Raycast(ray, out rhi, float.PositiveInfinity, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
+        {
+            var impact = Instantiate(impactPrefab);
+            impact.transform.SetPositionAndRotation(rhi.point, muzzleFlash.transform.rotation);
+            if (impactDestructionDelay >= 0f)
+                Destroy(impact, impactDestructionDelay);
+
+            var hc = rhi.collider.gameObject.GetComponent<HealthCare>();
+            if(hc!=null)
+            {
+                hc.ReceiveDamage(damage);
+            }
+        }
+
+    }
+    
     #endregion
     #region TankAPIFunctions
     private void SetTrackCoef(float value, bool left)
@@ -249,10 +245,29 @@ public class Tank : MonoBehaviour
     {
         sensors.azimuth = transform.rotation.eulerAngles.y % 360;
         sensors.time = Time.time - initTime;
+        sensors.health01 = hb.Health01();
+
         sensors.radar.relativeAzimuth = radarAzimuth;
-        //TODO:implement dummies
-        sensors.radar.distance = Time.time % 100f;
-        sensors.radar.category = Sensors.Radar.Category.Enemy;
+        RaycastHit rhi;
+        var radarDirection = new Vector3(Mathf.Sin(radarAzimuth), 0f, Mathf.Cos(radarAzimuth));
+        var radarRay = new Ray(transform.position, radarDirection);
+        sensors.radar.distance = float.PositiveInfinity;
+        sensors.radar.category = Sensors.Radar.Category.Ground;
+        if (Physics.Raycast(radarRay, out rhi, float.PositiveInfinity, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
+        {
+            sensors.radar.distance = rhi.distance;
+            var politican = rhi.collider.gameObject.GetComponent<PoliticsSubject>();
+            if(politican!=null)
+            {
+                if (politican.SideId() != SideId())
+                {
+                    sensors.radar.category = Sensors.Radar.Category.Enemy;
+                }
+                else sensors.radar.category = Sensors.Radar.Category.Ally;
+            }
+        }
+        
+        
     }
 
     public bool ValidateActions()
@@ -288,5 +303,69 @@ public class Tank : MonoBehaviour
         return ret;
     }
     #endregion
+    #region NestedClasses&Interfaces
+    [System.Serializable]
+    public class Actions
+    {
+        [Range(-0.5f, 1f)]
+        public float leftTrackCoef;
+        [Range(-0.5f, 1f)]
+        public float rightTrackCoef;
+        [Range(-1f, 1f)]
+        public float turretAngularCoef;
+        [Range(-1f, 1f)]
+        public float radarAngularCoef;
+        public float fireShots;
+    }
 
+    [System.Serializable]
+    public class Sensors
+    {
+        public double azimuth;
+        public double time;
+        public double health01;
+        public Radar radar;
+        public double radarAbsoluteAzimuth
+        {
+            get
+            {
+                return (azimuth + radar.relativeAzimuth) % 360f;
+            }
+        }
+
+        public class Radar
+        {
+            public double distance;
+            public double relativeAzimuth;
+            public Category category;
+            public string catString
+            {
+                get
+                {
+                    return System.Enum.GetName(typeof(Category), category);
+                }
+            }
+            public enum Category
+            {
+                Wall, Ground, Enemy, Ally, Neutral
+            }
+        }
+        public Sensors()
+        {
+            radar = new Radar();
+        }
+    }
+
+    public interface Logger
+    {
+        void Log(string msg);
+    }
+    private class DummyLogger : Logger
+    {
+        public void Log(string msg)
+        {
+            Debug.Log(msg);
+        }
+    }
+    #endregion
 }

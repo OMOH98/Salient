@@ -156,6 +156,7 @@ public class EditedTank : Tank
             }
            
             codeField.text = content;
+            saveAsNameField.text = requestedName;
             logger.Log($"Script \"{requestedName }\" was successfuly loaded!");
         }
         

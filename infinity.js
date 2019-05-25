@@ -1,0 +1,1 @@
+log(-Number.POSITIVE_INFINITY);
