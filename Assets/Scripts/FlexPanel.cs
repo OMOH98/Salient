@@ -193,13 +193,13 @@ public class FlexPanel : MonoBehaviour
         rt.sizeDelta = new Vector2(sdx, sdy);
     }
 
-    private IEnumerator DelayAction(float seconds, System.Action action)
+    public static IEnumerator DelayAction(float seconds, System.Action action)
     {
         yield return new WaitForSeconds(seconds);
         action();
         yield break;
     }
-    private IEnumerator DelayActionWhile(System.Action action, System.Func<bool> holdCondition)
+    public static IEnumerator DelayActionWhile(System.Action action, System.Func<bool> holdCondition)
     {
         while (holdCondition())
             yield return null;

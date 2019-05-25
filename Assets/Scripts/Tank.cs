@@ -44,7 +44,7 @@ public class Tank : MonoBehaviour, PoliticsSubject
     protected ScriptEngine engine = new ScriptEngine();
     protected float initTime;
     protected float radarAzimuth = 0f;
-    protected Logger logger = new DummyLogger();
+    protected Logger logger;
     protected Rigidbody rb;
     protected DamagableBehaviour hb;
     protected Sensors sensors = new Sensors();
@@ -54,22 +54,19 @@ public class Tank : MonoBehaviour, PoliticsSubject
     private ParticleSystem muzzleFlash;
     private Transform radar; 
 
+
+
     protected virtual void Start()
+    {
+        StartScripting(new DummyLogger());
+        StaticStart();
+    }
+    protected virtual void StaticStart()
     {
         rb = GetComponent<Rigidbody>();
         hb = GetComponent<DamagableBehaviour>();
 
-        System.Action<string> logger = this.logger.Log;
-        engine.SetGlobalFunction("log", logger);
-
-        engine.EnableExposedClrTypes = true;
-        engine.SetGlobalValue("actions", actions);
-        engine.SetGlobalValue("sensors", sensors);
-
-        initTime = Time.time;
         turret = transform.Find(turretGameObjectName);
-        //muzzleFlash = transform.Find(muzzleGameObjectName).GetComponent<ParticleSystem>();
-        //muzzleFlash = GetComponentInChildren<ParticleSystem>();
         muzzleFlash = turret.Find(muzzleGameObjectName).GetComponent<ParticleSystem>();
         radar = transform.Find(radarGameObjectName);
     }
@@ -90,43 +87,86 @@ public class Tank : MonoBehaviour, PoliticsSubject
 
 
     #region CodeMethods
+    public const string loopFunction = "loop";
+    public const string setupFunction = "setup";
+    public const string logFunction = "log";
+    
     public string code
     {
         set
         {
-            try
+            compiledCode = Compile(value);
+            if (compiledCode != null)
             {
-                var source = new StringScriptSource(value);
-
-                compiledCode = engine.Compile(source);
-            }
-            catch (JavaScriptException e)
-            {
-                logger.Log($"JavaScript error has occured at line {e.LineNumber} with message: {e.Message}");
-                compiledCode = null;
-            }
-            catch (Jurassic.Compiler.SyntaxErrorException e)
-            {
-                logger.Log($"JavaScript syntax error has occured at line {e.LineNumber} with message: {e.Message}");
-                compiledCode = null;
+                try
+                {
+                    compiledCode.Execute(engine);
+                }
+                catch (JavaScriptException e)
+                {
+                    logger.Log($"JavaScript error has occured at line {e.LineNumber} with message: {e.Message}");
+                }
             }
         }
     }
-    public virtual void Execute()
+    
+    protected CompiledScript Compile(string value)
+    {
+        CompiledScript ret = null;
+        try
+        {
+            var source = new StringScriptSource(value);
+            ret = engine.Compile(source);
+        }
+        catch (JavaScriptException e)
+        {
+            logger.Log($"JavaScript error has occured at line {e.LineNumber} with message: {e.Message}");
+        }
+        catch (Jurassic.Compiler.SyntaxErrorException e)
+        {
+            logger.Log($"JavaScript syntax error has occured at line {e.LineNumber} with message: {e.Message}");
+        }
+        return ret;
+    }
+    protected void ExecuteOnce(string code)
+    {
+        var cmp = Compile(code);
+        if (cmp != null)
+            cmp.Execute(engine);
+    }
+    protected void CallGlobalAction(string name)
     {
         if (compiledCode != null)
         {
             try
             {
-                compiledCode.Execute(engine);
+                engine.CallGlobalFunction(name);
             }
             catch (JavaScriptException e)
             {
                 logger.Log($"JavaScript error has occured at line {e.LineNumber} with message: {e.Message}");
-                throw;
             }
-
         }
+    }
+    public virtual void Execute()
+    {
+        CallGlobalAction(loopFunction);
+    }
+    protected virtual void StartScripting(Logger lgr)
+    {
+        logger = lgr;
+        engine.EnableExposedClrTypes = true;
+        RestartScripting();
+    }
+    protected void RestartScripting()
+    {
+        System.Action<string> logger = this.logger.Log;
+        engine.SetGlobalFunction(logFunction, logger);
+        engine.SetGlobalValue(nameof(actions), actions);
+        engine.SetGlobalValue(nameof(sensors), sensors);
+
+        CallGlobalAction(setupFunction);
+        initTime = Time.time;
     }
     #endregion
 
@@ -160,11 +200,11 @@ public class Tank : MonoBehaviour, PoliticsSubject
         radar.localPosition = new Vector3(Mathf.Sin(radarAzimuth*Mathf.Deg2Rad) * radarRadius, radar.localPosition.y, Mathf.Cos(radarAzimuth* Mathf.Deg2Rad) * radarRadius);
     }
 
-    private float heat;
+    protected float heat;
     private float nextTimeToFire;
     private void ApplyFire()
     {
-        heat -= coolingRate;
+        heat -= coolingRate*Time.fixedDeltaTime;
         if (heat < 0f)
             heat = 0f;
 

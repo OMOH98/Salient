@@ -15,28 +15,33 @@ public class EditedTank : Tank
     public const string scriptNameTaboo = ";?,.";
 
     [Header("UI")]
+    public TextAsset scriptTemplate;
     public TMP_InputField codeField;
     public TMP_InputField logField;
     public Button saveAsButton;
     public TMP_InputField saveAsNameField;
     public Button loadButton;
     public TMP_Dropdown loadDropdown;
+    public ProgressBar healthBar;
+    public ProgressBar heatBar;
 
-    
-    // Start is called before the first frame update
+
     protected override void Start()
     {
-        base.Start();
-        base.logger = new UserLogger(logField);
-        System.Action<string> logger = base.logger.Log;
-        engine.SetGlobalFunction("log", logger);
+        StartScripting(new UserLogger(logField));
 
-        saveAsButton.onClick.AddListener(SaveScript);
-        loadButton.onClick.AddListener(LoadScript);
-        PopulateSavedScriptDropdown();
+        StaticStart();
+
+        StartCoroutine(FlexPanel.DelayAction(0.1f, FillInScriptTemplate));
     }
 
+    public void FillInScriptTemplate()
+    {
+        if (codeField.text.Length <= 3)
+            codeField.text = scriptTemplate.text;
+    }
 
+    #region ScriptIO
     private List<string> GetScriptNames()
     {
         try
@@ -87,6 +92,9 @@ public class EditedTank : Tank
         {
             ops.Add(new TMP_Dropdown.OptionData(n));
         }
+        if (names.Count > 0)
+            loadDropdown.value = 0;
+        else loadDropdown.value = -1;
     }
 
     private bool IsValidFileName(string s)
@@ -161,12 +169,26 @@ public class EditedTank : Tank
         }
         
     }
+    #endregion
 
-
-    public void ExecOnce()
+    public void Flash()
     {
         code = codeField.text;
-        Execute();
+        RestartScripting();
+    }
+
+    protected override void StaticStart()
+    {
+        base.StaticStart();
+        saveAsButton.onClick.AddListener(SaveScript);
+        loadButton.onClick.AddListener(LoadScript);
+        PopulateSavedScriptDropdown();
+    }
+
+    protected virtual void Update()
+    {
+        healthBar.value = hb.Health01();
+        heatBar.value = heat;
     }
 
     public class UserLogger:Logger
