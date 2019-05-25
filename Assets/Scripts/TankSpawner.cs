@@ -1,0 +1,44 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class TankSpawner : MonoBehaviour
+{
+    public List<Spawnpoint> spawnpoints;
+    public GameObject tankPrefab;
+
+    public void Spawn(int side, string code)
+    {
+        var tank = Instantiate(tankPrefab);
+        tank.transform.SetParent(null);
+        var point = spawnpoints.Find((p) => { return p.sideId == side; });
+        if (point == null)
+            return;
+
+        var rnd = Random.insideUnitCircle * point.radius;
+        tank.transform.SetPositionAndRotation(point.center.position + new Vector3(rnd.x, 0f, rnd.y), point.center.rotation);
+        var rnds = tank.GetComponentsInChildren<MeshRenderer>();
+        foreach (var item in rnds)
+        {
+            //item.material = point.sideMaterial;
+            List<Material> lst = new List<Material>();
+            for (int i = 0; i < item.materials.Length; i++)
+                lst.Add(point.sideMaterial);
+            item.materials = lst.ToArray();
+
+        }
+
+        var tankScript = tank.GetComponent<Tank>();
+        tankScript.sideIdentifier = side;
+        tankScript.code = code;
+    }
+
+    [System.Serializable]
+    public class Spawnpoint
+    {
+        public Transform center;
+        public float radius = 50f;
+        public Material sideMaterial;
+        public int sideId;
+    }
+}

@@ -110,6 +110,7 @@ MonoBehaviour:
   turretGameObjectName: Turret
   radarGameObjectName: Radar
   radarRadius: 4
+  radarHeight: 1.1
   muzzleGameObjectName: Muzzle
   impactPrefab: {fileID: 100010, guid: 68b851daa6d71e842a86ea9fbb62daae, type: 3}
   speed: 2000000

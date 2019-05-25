@@ -42,7 +42,7 @@ public class EditedTank : Tank
     }
 
     #region ScriptIO
-    private List<string> GetScriptNames()
+    public static List<string> GetScriptNames()
     {
         try
         {
@@ -55,7 +55,7 @@ public class EditedTank : Tank
             return new List<string>();
         }
     }
-    private void SetScriptNames(List<string> names)
+    public static void SetScriptNames(List<string> names)
     {
         var tail = new StringBuilder();
         for (int i = 0; i < names.Count; i++)
@@ -67,13 +67,13 @@ public class EditedTank : Tank
         }
         PlayerPrefs.SetString(scriptNames, tail.ToString());
     }
-    private void AddScriptNames(IEnumerable<string> toAdd)
+    public static  void AddScriptNames(IEnumerable<string> toAdd)
     {
         var names = GetScriptNames();
         names.AddRange(toAdd);
         SetScriptNames(names);
     }
-    private bool RemoveScriptName(string n)
+    public static bool RemoveScriptName(string n)
     {
         var names = GetScriptNames();
         var ret = names.Remove(n);
@@ -81,7 +81,7 @@ public class EditedTank : Tank
         return ret;
     }
     
-    private void PopulateSavedScriptDropdown()
+    public static void PopulateSavedScriptDropdown(TMP_Dropdown loadDropdown)
     {
         loadDropdown.ClearOptions();
         if (!PlayerPrefs.HasKey(scriptNames))
@@ -97,7 +97,7 @@ public class EditedTank : Tank
         else loadDropdown.value = -1;
     }
 
-    private bool IsValidFileName(string s)
+    public static bool IsValidFileName(string s)
     {
 
         var ret = !string.IsNullOrEmpty(s);
@@ -115,15 +115,15 @@ public class EditedTank : Tank
         return ret;
     }
 
-    public void SaveScript()
+    public static void SaveScript(string name, string code, Logger logger)
     {
-        var n = saveAsNameField.text;
+        var n = name;
         if (IsValidFileName(n))
         {
             try
             {
                 AddScriptNames(new string[] { n });
-                File.WriteAllText(n + scriptExtention, codeField.text);
+                File.WriteAllText(n + scriptExtention, code);
                 logger.Log($"Current script is successfuly saved as \"{n}\"!");
             }
             catch (IOException e)
@@ -135,17 +135,10 @@ public class EditedTank : Tank
         {
             logger.Log($"Set name is not valid because it contains taboo chars \"{scriptNameTaboo}\". Try other name.");
         }
-        PopulateSavedScriptDropdown();
     }
     
-    public void LoadScript()
+    public static string LoadScript(string requestedName, Logger logger)
     {
-        if(!PlayerPrefs.HasKey(scriptNames)||loadDropdown.value<0||loadDropdown.options.Count<=0)
-        {
-            logger.Log("There are no saved scripts to load");
-            return;
-        }
-        var requestedName = loadDropdown.options[loadDropdown.value].text;
 
         var names = GetScriptNames();
         if(names.Contains(requestedName))
@@ -159,15 +152,13 @@ public class EditedTank : Tank
             {
                 logger.Log($"Error has occured while loading \"{requestedName}\" script with message \"{e.Message}\". The name would be deleted from selection dropdown.");
                 RemoveScriptName(requestedName);
-                PopulateSavedScriptDropdown();
-                return;
+                //PopulateSavedScriptDropdown(loadDropdown);
+                return "";
             }
-           
-            codeField.text = content;
-            saveAsNameField.text = requestedName;
             logger.Log($"Script \"{requestedName }\" was successfuly loaded!");
+            return content;            
         }
-        
+        return "";
     }
     #endregion
 
@@ -180,9 +171,23 @@ public class EditedTank : Tank
     protected override void StaticStart()
     {
         base.StaticStart();
-        saveAsButton.onClick.AddListener(SaveScript);
-        loadButton.onClick.AddListener(LoadScript);
-        PopulateSavedScriptDropdown();
+        saveAsButton.onClick.AddListener(() => {
+            SaveScript(saveAsNameField.text, codeField.text, logger);
+            PopulateSavedScriptDropdown(loadDropdown);
+        });
+        loadButton.onClick.AddListener(()=> {
+            if (!PlayerPrefs.HasKey(scriptNames) || loadDropdown.value < 0 || loadDropdown.options.Count <= 0)
+            {
+                logger.Log("There are no saved scripts to load");
+                return;
+            }
+            var requestedName = loadDropdown.options[loadDropdown.value].text;
+            var content = LoadScript(requestedName, logger);
+            codeField.text = content;
+            saveAsNameField.text = requestedName;
+            PopulateSavedScriptDropdown(loadDropdown);
+        });
+        PopulateSavedScriptDropdown(loadDropdown);
     }
 
     protected virtual void Update()

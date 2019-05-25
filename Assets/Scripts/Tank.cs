@@ -15,6 +15,7 @@ public class Tank : MonoBehaviour, PoliticsSubject
     public string turretGameObjectName = "Turret";
     public string radarGameObjectName = "Radar";
     public float radarRadius = 4f;
+    public float radarHeight = 0.5f;
     public string muzzleGameObjectName = "Muzzle";
     public GameObject impactPrefab;
    
@@ -199,7 +200,8 @@ public class Tank : MonoBehaviour, PoliticsSubject
         radarAzimuth = (radarAzimuth + radarAngularSpeed * Time.fixedDeltaTime * actions.radarAngularCoef) % 360;
         radar.localRotation = Quaternion.Euler(Vector3.up*radarAzimuth);
         var radarDirection = new Vector3(Mathf.Sin(radarAzimuth * Mathf.Deg2Rad), 0f, Mathf.Cos(radarAzimuth * Mathf.Deg2Rad)).normalized;
-        var radarHeight = radar.position.y - turret.position.y;
+        radarDirection = transform.TransformDirection(radarDirection);
+        //var radarHeight = radar.position.y - turret.position.y;
         radar.position = turret.position + Vector3.up * radarHeight + radarDirection * radarRadius;
         //radar.localPosition = new Vector3(Mathf.Sin(radarAzimuth*Mathf.Deg2Rad) * radarRadius, radar.localPosition.y, Mathf.Cos(radarAzimuth* Mathf.Deg2Rad) * radarRadius);
     }
@@ -406,11 +408,12 @@ public class Tank : MonoBehaviour, PoliticsSubject
     {
         void Log(string msg);
     }
-    private class DummyLogger : Logger
+    public class DummyLogger : Logger
     {
         public void Log(string msg)
         {
-            Debug.Log(msg);
+            //Debug.Log(msg);
+            ;
         }
     }
     #endregion
