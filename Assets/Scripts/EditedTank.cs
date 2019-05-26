@@ -225,7 +225,7 @@ public class EditedTank : MonoBehaviour
         }));
     }
 
-    protected new void StaticStart()
+    protected void StaticStart()
     {
         
         if (PlayerPrefs.HasKey(autosavedScript))
