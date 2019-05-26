@@ -29,6 +29,10 @@ public class Tank : MonoBehaviour, PoliticsSubject
     public float vertialForceDisplacement = -0.5f;
     public float turretAngularSpeed = 20f;
     public float radarAngularSpeed = 60f;
+    public float proxorUpdatePeriod = 2f;
+    public float proxorRadius = 10f;
+    public int proxorMaxCount = 16;
+    public int recentDamagesMemory = 16;
     [Range(0f,1f)]
     public float heatPerShot = 0.2f; //heat treshold = 1f
     public float overheatFine = 0.2f;
@@ -70,6 +74,17 @@ public class Tank : MonoBehaviour, PoliticsSubject
     {
         rb = GetComponent<Rigidbody>();
         healthCare = GetComponent<DamagableBehaviour>();
+        healthCare.onDamageTaken.AddListener((d) =>
+        {
+            var direction = transform.InverseTransformDirection(d.direction);
+            var alpha = Vector3.Angle(Vector3.forward, direction);
+            if (direction.x < 0f)
+                alpha *= -1f;
+            var recentd = new Sensors.RecentDamage() { ammount = d.ammount, timestamp = sensors.time, sourceAzimuth = (alpha + 180f) % 360f };
+            sensors.recentDamage.Enqueue(recentd);
+            while (sensors.recentDamage.Count > recentDamagesMemory)
+                sensors.recentDamage.Dequeue();
+        });
 
         turret = transform.Find(turretGameObjectName);
         muzzleFlash = turret.Find(muzzleGameObjectName).GetComponent<ParticleSystem>();
@@ -91,6 +106,38 @@ public class Tank : MonoBehaviour, PoliticsSubject
         ApplyFire();
     }
 
+    bool grounded = false;
+    List<GameObject> collidingObjects = new List<GameObject>();
+    private void OnCollisionEnter(Collision collision)
+    {
+        var pol = collision.gameObject.GetComponent<PoliticsSubject>();
+        if(pol==null)
+        {
+            grounded = true;
+        }
+        collidingObjects.Add(collision.gameObject);
+    }
+    private void OnCollisionExit(Collision collision)
+    {
+        if(collidingObjects.Remove(collision.gameObject))
+        {
+            var pol = collision.gameObject.GetComponent<PoliticsSubject>();
+            if (pol == null)
+            {
+                var g = false;
+                foreach (var item in collidingObjects)
+                {
+                    pol = item.GetComponent<PoliticsSubject>();
+                    if(pol==null)
+                    {
+                        g = true;
+                        break;
+                    }
+                }
+                grounded = g;
+            }
+        }
+    }
 
     #region CodeMethods
     public const string loopFunction = "loop";
@@ -180,19 +227,22 @@ public class Tank : MonoBehaviour, PoliticsSubject
     #region ApplyMethods
     private void ApplyMovement()
     {
-        if (Mathf.Abs(actions.leftTrackCoef - actions.rightTrackCoef) < rotationTreshold)
+        if (grounded)
         {
-            rb.AddForce(transform.forward * 2 * speed * Mathf.Min(actions.leftTrackCoef, actions.rightTrackCoef));
-        }
-        else
-        {
-            var force = transform.forward * speed * actions.leftTrackCoef;
-            var point = transform.TransformPoint(Vector3.left * tankWidth * 0.5f + Vector3.up * vertialForceDisplacement);
-            rb.AddForceAtPosition(force, point, ForceMode.Force);
-            
-            force = transform.forward * speed * actions.rightTrackCoef;
-            point = transform.TransformPoint(Vector3.right * tankWidth * 0.5f + Vector3.up * vertialForceDisplacement);
-            rb.AddForceAtPosition(force, point, ForceMode.Force);
+            if (Mathf.Abs(actions.leftTrackCoef - actions.rightTrackCoef) < rotationTreshold)
+            {
+                rb.AddForce(transform.forward * 2 * speed * Mathf.Min(actions.leftTrackCoef, actions.rightTrackCoef));
+            }
+            else
+            {
+                var force = transform.forward * speed * actions.leftTrackCoef;
+                var point = transform.TransformPoint(Vector3.left * tankWidth * 0.5f + Vector3.up * vertialForceDisplacement);
+                rb.AddForceAtPosition(force, point, ForceMode.Force);
+
+                force = transform.forward * speed * actions.rightTrackCoef;
+                point = transform.TransformPoint(Vector3.right * tankWidth * 0.5f + Vector3.up * vertialForceDisplacement);
+                rb.AddForceAtPosition(force, point, ForceMode.Force);
+            }
         }
     }
 
@@ -245,7 +295,8 @@ public class Tank : MonoBehaviour, PoliticsSubject
             var hc = rhi.collider.gameObject.GetComponent<HealthCare>();
             if(hc!=null)
             {
-                hc.ReceiveDamage(damage);
+                var d = new Damage() {ammount = damage.ammount, direction = muzzleFlash.transform.forward };
+                hc.ReceiveDamage(d);
             }
         }
 
@@ -254,6 +305,7 @@ public class Tank : MonoBehaviour, PoliticsSubject
     #endregion
     #region TankAPIFunctions
 
+    float nextTimeToUpdateProxor = 0f;
     private void UpdateSensorData()
     {
         sensors.azimuth = transform.rotation.eulerAngles.y % 360;
@@ -269,23 +321,37 @@ public class Tank : MonoBehaviour, PoliticsSubject
         radarDirection = transform.TransformDirection(radarDirection);
         var radarRay = new Ray(turret.position, radarDirection);
         sensors.radar.distance = float.PositiveInfinity;
-        sensors.radar.category = Sensors.Radar.Category.Ground;
         if (Physics.Raycast(radarRay, out rhi, float.PositiveInfinity, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
         {
             Debug.DrawLine(radarRay.origin, rhi.point, Color.red);
             sensors.radar.distance = rhi.distance;
-            var politican = rhi.collider.gameObject.GetComponent<PoliticsSubject>();
-            if(politican!=null)
+            sensors.radar.category = Sensors.Radar.Categorize(rhi.collider.gameObject, SideId());
+        }
+
+        if (Time.time >= nextTimeToUpdateProxor)
+        {
+            nextTimeToUpdateProxor = Time.time + proxorUpdatePeriod;
+            sensors.lastProxorUpdate = sensors.time;
+
+            var po = Physics.OverlapSphere(turret.position, proxorRadius, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
+            sensors.proxor.Clear();
+            foreach (var col in po)
             {
-                if (politican.SideId() != SideId())
-                {
-                    sensors.radar.category = Sensors.Radar.Category.Enemy;
-                }
-                else sensors.radar.category = Sensors.Radar.Category.Ally;
+                var cat = Sensors.Radar.Categorize(col.gameObject, SideId());
+                Vector3 center = transform.InverseTransformPoint(col.gameObject.transform.position);
+                var dist = center.magnitude;
+                center.y = 0f;
+                var alpha = Vector3.Angle(Vector3.forward, center);
+                if (center.x < 0f)
+                    alpha *= -1f;
+
+                var rep = new Sensors.Radar(dist, alpha % 360, cat);
+                sensors.proxor.Add(rep);
+
+                if (sensors.proxor.Count >= proxorMaxCount)
+                    break;
             }
         }
-        
-        
     }
 
     public bool ValidateActions()
@@ -376,6 +442,9 @@ public class Tank : MonoBehaviour, PoliticsSubject
         public double health01;
         public Radar radar;
         public Turret turret;
+        public List<Radar> proxor;
+        public double lastProxorUpdate;
+        public Queue<RecentDamage> recentDamage;
 
         public double radarAbsoluteAzimuth
         {
@@ -397,6 +466,19 @@ public class Tank : MonoBehaviour, PoliticsSubject
             public double distance;
             public double relativeAzimuth;
             public Category category;
+
+            public Radar()
+            {
+
+            }
+            public Radar(double _distance, double _relativeAzimuth, Category _category)
+            {
+                distance = _distance;
+                relativeAzimuth = _relativeAzimuth;
+                category = _category;
+            }
+
+
             public string catString
             {
                 get
@@ -408,6 +490,22 @@ public class Tank : MonoBehaviour, PoliticsSubject
             {
                 Wall, Ground, Enemy, Ally, Neutral
             }
+            public static Category Categorize(GameObject obj, int allyID)
+            {
+                var politican = obj.GetComponent<PoliticsSubject>();
+                if (politican != null)
+                {
+                    if (politican.SideId() != allyID)
+                    {
+                       return Category.Enemy;
+                    }
+                    else return Category.Ally;
+                }
+                else
+                {
+                    return Category.Ground;
+                }
+            }
         }
         public class Turret
         {
@@ -418,17 +516,20 @@ public class Tank : MonoBehaviour, PoliticsSubject
                 get { return heat01 <= 1f; }
             }
         }
+        public struct RecentDamage
+        {
+            public double ammount;
+            public double sourceAzimuth;
+            public double timestamp;
+        }
 
         public Sensors()
         {
             radar = new Radar();
             turret = new Turret();
-<<<<<<< HEAD
             proxor = new List<Radar>();
             recentDamage = new Queue<RecentDamage>();
             
-=======
->>>>>>> parent of 0054e4c... Broken: new sensors are not working
         }
     }
 
