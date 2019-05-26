@@ -41,13 +41,14 @@ public class Tank : MonoBehaviour, PoliticsSubject
 
 
     public int SideId() { return sideIdentifier; }
+    public DamagableBehaviour healthCare { get; private set; }
 
     protected ScriptEngine engine = new ScriptEngine();
     protected float initTime;
     protected float radarAzimuth = 0f;
-    protected Logger logger;
+    protected Logger logger = null;
     protected Rigidbody rb;
-    protected DamagableBehaviour hb;
+
     protected Sensors sensors = new Sensors();
     protected CompiledScript compiledCode;
 
@@ -59,13 +60,14 @@ public class Tank : MonoBehaviour, PoliticsSubject
 
     protected virtual void Start()
     {
-        StartScripting(new DummyLogger());
+        if (logger == null)
+            StartScripting(new DummyLogger());
         StaticStart();
     }
-    protected virtual void StaticStart()
+    protected void StaticStart()
     {
         rb = GetComponent<Rigidbody>();
-        hb = GetComponent<DamagableBehaviour>();
+        healthCare = GetComponent<DamagableBehaviour>();
 
         turret = transform.Find(turretGameObjectName);
         muzzleFlash = turret.Find(muzzleGameObjectName).GetComponent<ParticleSystem>();
@@ -153,13 +155,13 @@ public class Tank : MonoBehaviour, PoliticsSubject
     {
         CallGlobalAction(loopFunction);
     }
-    protected virtual void StartScripting(Logger lgr)
+    public void StartScripting(Logger lgr)
     {
         logger = lgr;
         engine.EnableExposedClrTypes = true;
         RestartScripting();
     }
-    protected void RestartScripting()
+    public void RestartScripting()
     {
         System.Action<string> logger = this.logger.Log;
         engine.SetGlobalFunction(logFunction, logger);
@@ -206,7 +208,7 @@ public class Tank : MonoBehaviour, PoliticsSubject
         //radar.localPosition = new Vector3(Mathf.Sin(radarAzimuth*Mathf.Deg2Rad) * radarRadius, radar.localPosition.y, Mathf.Cos(radarAzimuth* Mathf.Deg2Rad) * radarRadius);
     }
 
-    protected float heat;
+    public float heat { get; private set; }
     private float nextTimeToFire;
     private void ApplyFire()
     {
@@ -291,7 +293,7 @@ public class Tank : MonoBehaviour, PoliticsSubject
     {
         sensors.azimuth = transform.rotation.eulerAngles.y % 360;
         sensors.time = Time.time - initTime;
-        sensors.health01 = hb.Health01();
+        sensors.health01 = healthCare.Health01();
 
         sensors.turret.heat01 = heat;
         sensors.turret.relativeAzimuth = turret.localRotation.eulerAngles.y;
