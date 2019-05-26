@@ -22,6 +22,9 @@ public class TankSpawnerUI : MonoBehaviour
         {
             sideChoise.options.Add(new TMP_Dropdown.OptionData(item.sideId.ToString()));
         }
+        sideChoise.value = -1;
+        sideChoise.value = 0;
+
         add.onClick.AddListener(() =>
         {
             spawner.Spawn(int.Parse(sideChoise.options[sideChoise.value].text), EditedTank.LoadScript(scriptChoise.options[scriptChoise.value].text, new Tank.DummyLogger()));

@@ -92,9 +92,9 @@ public class EditedTank : Tank
         {
             ops.Add(new TMP_Dropdown.OptionData(n));
         }
-        if (names.Count > 0)
-            loadDropdown.value = 0;
-        else loadDropdown.value = -1;
+
+        loadDropdown.value = 1;
+        loadDropdown.value = 0;
     }
 
     public static bool IsValidFileName(string s)

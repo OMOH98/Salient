@@ -61,7 +61,7 @@ public class FlexPanel : MonoBehaviour
         {
             trayButton = Instantiate(buttonPrefab).GetComponent<Button>();
             trayButton.GetComponentInChildren<Text>().text = "Show " + gameObject.name;
-            trayButton.gameObject.SetActive(false);
+
             trayButton.onClick.AddListener(() =>
             {
                 gameObject.SetActive(true);
@@ -76,20 +76,17 @@ public class FlexPanel : MonoBehaviour
                 gameObject.SetActive(false);
             });
 
-            StartCoroutine(DelayAction(0.05f, () =>
-            {
-                trayButton.transform.SetParent(trayButtonsParent);
-                hideButton.transform.SetParent(controlsParent == null ? transform : controlsParent);
-            }));
+            trayButton.transform.SetParent(trayButtonsParent);
+            hideButton.transform.SetParent(controlsParent == null ? transform : controlsParent);
+            LayoutRebuilder.ForceRebuildLayoutImmediate(trayButtonsParent as RectTransform);
+            trayButton.gameObject.SetActive(false);
         }
         if(allowedAlignmens!=0&&allowedAlignmens!=_alignment)
         {
             switchAlignmenButton = Instantiate(buttonPrefab).GetComponent<Button>();
             switchAlignmentCaption = switchAlignmenButton.GetComponentInChildren<Text>();
             switchAlignmentCaption.text = "Align >";
-            StartCoroutine(DelayAction(0.05f, () => {
-                switchAlignmenButton.transform.SetParent(controlsParent == null ? transform : controlsParent);
-            }));
+            switchAlignmenButton.transform.SetParent(controlsParent == null ? transform : controlsParent);
             switchAlignmenButton.onClick.AddListener(() =>
             {
                 var a = NextAllowedAlignment();
@@ -122,9 +119,8 @@ public class FlexPanel : MonoBehaviour
                     }));
                 }
             });
-            StartCoroutine(DelayAction(0.05f, () => {
-                widthSlider.transform.SetParent(controlsParent == null ? transform : controlsParent);
-            }));
+            widthSlider.transform.SetParent(controlsParent == null ? transform : controlsParent);
+            LayoutRebuilder.ForceRebuildLayoutImmediate((controlsParent == null ? transform : controlsParent) as RectTransform);
         }
     }
 
