@@ -293,6 +293,9 @@ public class Tank : MonoBehaviour, PoliticsSubject
         sensors.time = Time.time - initTime;
         sensors.health01 = hb.Health01();
 
+        sensors.turret.heat01 = heat;
+        sensors.turret.relativeAzimuth = turret.localRotation.eulerAngles.y;
+
         sensors.radar.relativeAzimuth = radarAzimuth;
         RaycastHit rhi;
         var radarDirection = new Vector3(Mathf.Sin(radarAzimuth*Mathf.Deg2Rad), 0f, Mathf.Cos(radarAzimuth * Mathf.Deg2Rad));
@@ -373,11 +376,20 @@ public class Tank : MonoBehaviour, PoliticsSubject
         public double time;
         public double health01;
         public Radar radar;
+        public Turret turret;
+
         public double radarAbsoluteAzimuth
         {
             get
             {
                 return (azimuth + radar.relativeAzimuth) % 360f;
+            }
+        }
+        public double turretAbsoluteAzimuth
+        {
+            get
+            {
+                return (azimuth + turret.relativeAzimuth) % 360f;
             }
         }
 
@@ -398,9 +410,20 @@ public class Tank : MonoBehaviour, PoliticsSubject
                 Wall, Ground, Enemy, Ally, Neutral
             }
         }
+        public class Turret
+        {
+            public double relativeAzimuth;
+            public double heat01;
+            public bool readyToFire
+            {
+                get { return heat01 <= 1f; }
+            }
+        }
+
         public Sensors()
         {
             radar = new Radar();
+            turret = new Turret();
         }
     }
 
