@@ -4,9 +4,11 @@ using UnityEngine.EventSystems;
 using System.Collections;
 
 [System.Serializable]
-public class Damage
+public struct Damage
 {
     public float ammount;
+    //[HideInInspector]
+    public Vector3 direction;
 }
 public interface PoliticsSubject
 {
@@ -25,7 +27,10 @@ public class DamagableBehaviour : MonoBehaviour, HealthCare
     public GameObject explosionPrefab;
     public float explosionDestructionDelay;
 
-    public UnityEvent onDamageTaken;
+    public DamageTakenEvent onDamageTaken;
+    [System.Serializable]
+    public class DamageTakenEvent : UnityEvent<Damage> { }
+
     public UnityEvent onDeath;
     
     float health;
@@ -63,7 +68,7 @@ public class DamagableBehaviour : MonoBehaviour, HealthCare
         if (health - dmg.ammount > 0)
         {
             health -= dmg.ammount;
-            onDamageTaken?.Invoke();
+            onDamageTaken?.Invoke(dmg);
         }
         else
             Die();
