@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Jurassic;
 using Jurassic.Library;
@@ -42,7 +43,7 @@ public class Tank : MonoBehaviour, PoliticsSubject
     public Damage damage;
     public int sideIdentifier = 0;
 
-    public Actions actions;
+    public Actions actionsPublic;
 
 
     public int SideId() { return sideIdentifier; }
@@ -65,9 +66,11 @@ public class Tank : MonoBehaviour, PoliticsSubject
 
     protected virtual void Start()
     {
+        StaticStart();
         if (logger == null)
             StartScripting(new DummyLogger());
-        StaticStart();
+        actions = engine.Object.Construct();
+        eSensors = engine.Object.Construct();
     }
     protected void StaticStart()
     {
@@ -94,14 +97,17 @@ public class Tank : MonoBehaviour, PoliticsSubject
     {
         UpdateSensorData();
 
+
         if (execute)
             Execute();
+        PolActions();
         ValidateActions();
 
         ApplyMovement();
         ApplyTurretRotation();
         ApplyRadarRotation();
         ApplyFire();
+        PushActions();
     }
 
     bool grounded = false;
@@ -209,16 +215,11 @@ public class Tank : MonoBehaviour, PoliticsSubject
         //engine.EnableExposedClrTypes = true;
         RestartScripting();
     }
-    public void Expose(Exposable exposable)
-    {
-        var n = exposable.GetType().Name.ToLower();
-        engine.SetGlobalValue(n, exposable.GetMirror());
-    }
     public void RestartScripting()
     {
         System.Action<string> logger = this.logger.Log;
         engine.SetGlobalFunction(logFunction, logger);
-        Expose(actions);
+        engine.SetGlobalValue(nameof(actions), actions);
         //engine.SetGlobalValue(nameof(actions), actions);
         //engine.SetGlobalValue(nameof(sensors), sensors);
 
@@ -232,17 +233,17 @@ public class Tank : MonoBehaviour, PoliticsSubject
     {
         if (grounded)
         {
-            if (Mathf.Abs(actions.leftTrackCoef - actions.rightTrackCoef) < rotationTreshold)
+            if (Mathf.Abs(actionsPublic.leftTrackCoef - actionsPublic.rightTrackCoef) < rotationTreshold)
             {
-                rb.AddForce(transform.forward * 2 * speed * Mathf.Min(actions.leftTrackCoef, actions.rightTrackCoef));
+                rb.AddForce(transform.forward * 2 * speed * Mathf.Min(actionsPublic.leftTrackCoef, actionsPublic.rightTrackCoef));
             }
             else
             {
-                var force = transform.forward * speed * actions.leftTrackCoef;
+                var force = transform.forward * speed * actionsPublic.leftTrackCoef;
                 var point = transform.TransformPoint(Vector3.left * tankWidth * 0.5f + Vector3.up * vertialForceDisplacement);
                 rb.AddForceAtPosition(force, point, ForceMode.Force);
 
-                force = transform.forward * speed * actions.rightTrackCoef;
+                force = transform.forward * speed * actionsPublic.rightTrackCoef;
                 point = transform.TransformPoint(Vector3.right * tankWidth * 0.5f + Vector3.up * vertialForceDisplacement);
                 rb.AddForceAtPosition(force, point, ForceMode.Force);
             }
@@ -251,12 +252,12 @@ public class Tank : MonoBehaviour, PoliticsSubject
 
     private void ApplyTurretRotation()
     {
-        turret.Rotate(Vector3.up * turretAngularSpeed * actions.turretAngularCoef * Time.fixedDeltaTime, Space.Self);
+        turret.Rotate(Vector3.up * turretAngularSpeed * actionsPublic.turretAngularCoef * Time.fixedDeltaTime, Space.Self);
     }
 
     private void ApplyRadarRotation()
     {
-        radarAzimuth = (radarAzimuth + radarAngularSpeed * Time.fixedDeltaTime * actions.radarAngularCoef) % 360;
+        radarAzimuth = (radarAzimuth + radarAngularSpeed * Time.fixedDeltaTime * actionsPublic.radarAngularCoef) % 360;
         radar.localRotation = Quaternion.Euler(Vector3.up*radarAzimuth);
         var radarDirection = new Vector3(Mathf.Sin(radarAzimuth * Mathf.Deg2Rad), 0f, Mathf.Cos(radarAzimuth * Mathf.Deg2Rad)).normalized;
         radarDirection = transform.TransformDirection(radarDirection);
@@ -273,10 +274,10 @@ public class Tank : MonoBehaviour, PoliticsSubject
         if (heat < 0f)
             heat = 0f;
 
-        if (heat > 1f || actions.fireShots <= 0f || Time.time < nextTimeToFire)
+        if (heat > 1f || actionsPublic.fireShots <= 0f || Time.time < nextTimeToFire)
             return;
 
-        actions.fireShots--;
+        actionsPublic.fireShots--;
         nextTimeToFire = Time.time + firePeriod;
         heat += heatPerShot;
         if (heat >= 1f)
@@ -307,47 +308,28 @@ public class Tank : MonoBehaviour, PoliticsSubject
     
     #endregion
     #region TankAPIFunctions
-    private void SetTrackCoef(float value, bool left)
+
+    private void PolActions()
     {
-        if (value > 1f || value < -0.5f)
+        var t = actionsPublic.GetType();
+        var fields = from f in t.GetFields() where f.IsPublic select f;
+        foreach (var field in fields)
         {
-            logger.Log($"Coefficient value for {(left == true ? "left" : "right")} track speed must be between -0.5 and 1");
+            field.SetValue(actionsPublic, actions[field.Name]);
         }
-        var val = Mathf.Clamp(value, -0.5f, 1f);
-        if (left)
+    }
+    private void PushActions()
+    {
+        var t = actionsPublic.GetType();
+        var fields = from f in t.GetFields() where f.IsPublic select f;
+        foreach (var field in fields)
         {
-            actions.leftTrackCoef = val;
+            actions[field.Name] = field.GetValue(actionsPublic);
         }
-        else actions.rightTrackCoef = val;
-    }
-    private void SetTurretAngularCoef(float value)
-    {
-        if (Mathf.Abs(value) > 1f)
-            logger.Log("Coefficient value for turret angular speed must be between -1 and 1");
-        actions.turretAngularCoef = Mathf.Clamp(value, -1f, 1f);
-    }
-    private void SetRadarAngularCoef(float value)
-    {
-        if (Mathf.Abs(value) > 1f)
-        {
-            logger.Log("Coefficient value for radar angular speed must be between -1 and 1");
-        }
-        actions.radarAngularCoef = Mathf.Clamp(value, -1f, 1f);
-    }
-    private void Fire()
-    {
-        actions.fireShots += 1;
-    }
-    private void FireAtWill()
-    {
-        actions.fireShots = float.PositiveInfinity;
-    }
-    private void CeaseFire()
-    {
-        actions.fireShots = 0f;
     }
 
     float nextTimeToUpdateProxor = 0f;
+    ObjectInstance actions, eSensors;
     private void UpdateSensorData()
     {
         sensors.azimuth = transform.rotation.eulerAngles.y % 360;
@@ -399,63 +381,40 @@ public class Tank : MonoBehaviour, PoliticsSubject
     public bool ValidateActions()
     {
         var ret = true;
-        if (actions.leftTrackCoef > 1f || actions.leftTrackCoef < -0.5f)
+        if (actionsPublic.leftTrackCoef > 1f || actionsPublic.leftTrackCoef < -0.5f)
         {
             logger.Log("Coefficient value for left track speed must be between -0.5 and 1");
             ret = false;
-            actions.leftTrackCoef = Mathf.Clamp(actions.leftTrackCoef, -0.5f, 1f);
+            actionsPublic.leftTrackCoef = Mathf.Clamp(actionsPublic.leftTrackCoef, -0.5f, 1f);
         }
 
-        if (actions.rightTrackCoef > 1f || actions.rightTrackCoef < -0.5f)
+        if (actionsPublic.rightTrackCoef > 1f || actionsPublic.rightTrackCoef < -0.5f)
         {
             logger.Log("Coefficient value for right track speed must be between -0.5 and 1");
             ret = false;
-            actions.rightTrackCoef = Mathf.Clamp(actions.rightTrackCoef, -0.5f, 1f);
+            actionsPublic.rightTrackCoef = Mathf.Clamp(actionsPublic.rightTrackCoef, -0.5f, 1f);
         }
 
-        if (Mathf.Abs(actions.radarAngularCoef) > 1f)
+        if (Mathf.Abs(actionsPublic.radarAngularCoef) > 1f)
         {
             logger.Log("Coefficient value for radar angular speed must be between -1 and 1");
-            actions.radarAngularCoef = Mathf.Clamp(actions.radarAngularCoef, -1f, 1f);
+            actionsPublic.radarAngularCoef = Mathf.Clamp(actionsPublic.radarAngularCoef, -1f, 1f);
             ret = false;
         }
 
-        if (Mathf.Abs(actions.turretAngularCoef) > 1f)
+        if (Mathf.Abs(actionsPublic.turretAngularCoef) > 1f)
         {
             logger.Log("Coefficient value for turret angular speed must be between -1 and 1");
-            actions.turretAngularCoef = Mathf.Clamp(actions.turretAngularCoef, -1f, 1f);
+            actionsPublic.turretAngularCoef = Mathf.Clamp(actionsPublic.turretAngularCoef, -1f, 1f);
             ret = false;
         }
         return ret;
     }
     #endregion
     #region NestedClasses&Interfaces
-    public abstract class Exposable
-    {
-        private ObjectInstance mirror;
-        public ObjectInstance GetMirror()
-        {
-            RefreshMirror();
-            return mirror;
-        }
-        public void RefreshMirror()
-        {
-            foreach (var item in this.GetType().GetFields())
-            {
-                if(item.IsPublic)
-                {
-                    mirror[item.Name] = item.GetValue(this);
-                }
-            }
-        }
-        public Exposable(ScriptEngine e)
-        {
-            mirror = e.Object.Construct();
-        }
-    }
 
     [System.Serializable]
-    public class Actions:Exposable
+    public class Actions
     {
         [Range(-0.5f, 1f)]
         public float leftTrackCoef;
@@ -466,10 +425,6 @@ public class Tank : MonoBehaviour, PoliticsSubject
         [Range(-1f, 1f)]
         public float radarAngularCoef;
         public float fireShots;
-        public Actions(ScriptEngine e):base(e)
-        {
-
-        }
     }
 
     [System.Serializable]
