@@ -6494,6 +6494,9 @@ MonoBehaviour:
   healthBar: {fileID: 4671596983158509025}
   heatBar: {fileID: 5525174375110836090}
   deathCanvas: {fileID: 6421394750895350100}
+  exampleScripts:
+  - {fileID: 4900000, guid: 7b67f9fed14170c46b3e9e3fe010c2a9, type: 3}
+  - {fileID: 4900000, guid: a4fc73b6fb1d6224abaab3c7adba7733, type: 3}
 --- !u!114 &4139785237703673419
 MonoBehaviour:
   m_ObjectHideFlags: 0

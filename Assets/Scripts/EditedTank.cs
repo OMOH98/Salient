@@ -13,7 +13,7 @@ public class EditedTank : Tank
     public const string autosavedScript = "asvScript";
     public const char scriptSeparator = ';';
     public const string scriptExtention = ".js";
-    public const string scriptNameTaboo = ";?,.";
+    public const string scriptNameTaboo = ";:?,.";
     public const string sceneMenu = "Menu";
     public const string sceneSimulation = "WorkingScene";
 
@@ -28,8 +28,15 @@ public class EditedTank : Tank
     public ProgressBar healthBar;
     public ProgressBar heatBar;
     public RectTransform deathCanvas;
+    [Header("Example scripts")]
+    public List<TextAsset> exampleScripts;
 
 
+    protected void Awake()
+    {
+        if (staticExamples == null)
+            staticExamples = exampleScripts;
+    }
     protected override void Start()
     {
         StartScripting(new UserLogger(logField));
@@ -84,17 +91,22 @@ public class EditedTank : Tank
         SetScriptNames(names);
         return ret;
     }
-    
+
+    public static List<TextAsset> staticExamples = null;
     public static void PopulateSavedScriptDropdown(TMP_Dropdown loadDropdown)
     {
         loadDropdown.ClearOptions();
         if (!PlayerPrefs.HasKey(scriptNames))
             return;
         var names = GetScriptNames();
-        var ops = loadDropdown.options;// new List<TMP_Dropdown.OptionData>();
+        var ops = loadDropdown.options;
         foreach (var n in names)
         {
             ops.Add(new TMP_Dropdown.OptionData(n));
+        }
+        foreach (var item in staticExamples)
+        {
+            ops.Add(new TMP_Dropdown.OptionData("i.e. " + item.name));
         }
 
         loadDropdown.value = 1;
@@ -162,6 +174,17 @@ public class EditedTank : Tank
             logger.Log($"Script \"{requestedName }\" was successfuly loaded!");
             return content;            
         }
+        else
+        {
+            foreach (var item in staticExamples)
+            {
+                if(requestedName.Contains(item.name))
+                {
+                    logger.Log($"Example script \"{item.name}\" was successfuly loaded!");
+                    return item.text;
+                }
+            }
+        }
         return "";
     }
     #endregion
@@ -173,10 +196,7 @@ public class EditedTank : Tank
     }
 
 
-    private class DummyBehaviour:MonoBehaviour
-    {
-
-    }
+    private class DummyBehaviour : MonoBehaviour { }
     public void Exit()
     {
         deathCanvas.SetParent(null);
