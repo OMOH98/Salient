@@ -7,6 +7,14 @@ public class TankSpawner : MonoBehaviour
     public List<Spawnpoint> spawnpoints;
     public GameObject tankPrefab;
 
+    protected void Start()
+    {
+        foreach (var point in spawnpoints)
+        {
+            point.center.SetParent(null);
+        }
+    }
+
     public void Spawn(int side, string code)
     {
         var tank = Instantiate(tankPrefab);

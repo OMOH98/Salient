@@ -7,7 +7,8 @@ using UnityEngine.UI;
 using TMPro;
 using System.Text;
 
-public class EditedTank : Tank
+[RequireComponent(typeof(Tank))]
+public class EditedTank : MonoBehaviour
 {
     public const string scriptNames = "scriptNames";
     public const string autosavedScript = "asvScript";
@@ -31,16 +32,20 @@ public class EditedTank : Tank
     [Header("Example scripts")]
     public List<TextAsset> exampleScripts;
 
+    private Tank tank;
+    private UserLogger logger;
 
     protected void Awake()
     {
         if (staticExamples == null)
             staticExamples = exampleScripts;
     }
-    protected override void Start()
-    {
-        StartScripting(new UserLogger(logField));
 
+    protected void Start()
+    {
+        logger = new UserLogger(logField);
+        tank = GetComponent<Tank>();
+        tank.StartScripting(logger);
         StaticStart();
 
         StartCoroutine(FlexPanel.DelayAction(0.1f, FillInScriptTemplate));
@@ -131,7 +136,7 @@ public class EditedTank : Tank
         return ret;
     }
 
-    public static void SaveScript(string name, string code, Logger logger)
+    public static void SaveScript(string name, string code, Tank.Logger logger)
     {
         var n = name;
         if (IsValidFileName(n))
@@ -153,7 +158,7 @@ public class EditedTank : Tank
         }
     }
     
-    public static string LoadScript(string requestedName, Logger logger)
+    public static string LoadScript(string requestedName, Tank.Logger logger)
     {
 
         var names = GetScriptNames();
@@ -191,8 +196,8 @@ public class EditedTank : Tank
 
     public void Flash()
     {
-        code = codeField.text;
-        RestartScripting();
+        tank.code = codeField.text;
+        tank.RestartScripting();
     }
 
 
@@ -220,10 +225,9 @@ public class EditedTank : Tank
         }));
     }
 
-    protected override void StaticStart()
+    protected void StaticStart()
     {
-        base.StaticStart();
-
+        
         if (PlayerPrefs.HasKey(autosavedScript))
         {
             var lastCode = PlayerPrefs.GetString(autosavedScript);
@@ -252,11 +256,11 @@ public class EditedTank : Tank
 
     protected virtual void Update()
     {
-        healthBar.value = hb.Health01();
-        heatBar.value = heat;
+        healthBar.value = tank.healthCare.Health01();
+        heatBar.value = tank.heat;
     }
 
-    public class UserLogger:Logger
+    public class UserLogger:Tank.Logger
     {
         private TMP_InputField logField;
         public UserLogger(TMP_InputField ui)
