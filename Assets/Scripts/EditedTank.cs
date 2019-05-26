@@ -10,9 +10,12 @@ using System.Text;
 public class EditedTank : Tank
 {
     public const string scriptNames = "scriptNames";
+    public const string autosavedScript = "asvScript";
     public const char scriptSeparator = ';';
     public const string scriptExtention = ".js";
     public const string scriptNameTaboo = ";?,.";
+    public const string sceneMenu = "Menu";
+    public const string sceneSimulation = "WorkingScene";
 
     [Header("UI")]
     public TextAsset scriptTemplate;
@@ -24,6 +27,7 @@ public class EditedTank : Tank
     public TMP_Dropdown loadDropdown;
     public ProgressBar healthBar;
     public ProgressBar heatBar;
+    public RectTransform deathCanvas;
 
 
     protected override void Start()
@@ -168,9 +172,45 @@ public class EditedTank : Tank
         RestartScripting();
     }
 
+
+    private class DummyBehaviour:MonoBehaviour
+    {
+
+    }
+    public void Exit()
+    {
+        deathCanvas.SetParent(null);
+
+        var canvases = GetComponentsInChildren<Canvas>();
+        foreach (var item in canvases)
+        {
+            item.gameObject.SetActive(false);
+        }
+        
+        PlayerPrefs.SetString(autosavedScript, codeField.text);
+        deathCanvas.gameObject.SetActive(true);
+        var b = deathCanvas.gameObject.AddComponent<DummyBehaviour>();
+        float startTime = Time.time;
+
+        b.StartCoroutine(FlexPanel.DelayActionWhile(()=> {
+            UnityEngine.SceneManagement.SceneManager.LoadScene(sceneMenu);
+        },
+        ()=> {
+            return Time.time < startTime + 1f || !Input.anyKey;
+        }));
+    }
+
     protected override void StaticStart()
     {
         base.StaticStart();
+
+        if (PlayerPrefs.HasKey(autosavedScript))
+        {
+            var lastCode = PlayerPrefs.GetString(autosavedScript);
+            codeField.text = lastCode;
+            logger.Log("Autosaved script was successfuly recovered");
+        }
+
         saveAsButton.onClick.AddListener(() => {
             SaveScript(saveAsNameField.text, codeField.text, logger);
             PopulateSavedScriptDropdown(loadDropdown);

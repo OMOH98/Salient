@@ -20,12 +20,10 @@ public class TankSpawner : MonoBehaviour
         var rnds = tank.GetComponentsInChildren<MeshRenderer>();
         foreach (var item in rnds)
         {
-            //item.material = point.sideMaterial;
             List<Material> lst = new List<Material>();
             for (int i = 0; i < item.materials.Length; i++)
                 lst.Add(point.sideMaterial);
             item.materials = lst.ToArray();
-
         }
 
         var tankScript = tank.GetComponent<Tank>();
