@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Jurassic;
-using Jurassic.Library;
 
 
 
@@ -206,21 +205,15 @@ public class Tank : MonoBehaviour, PoliticsSubject
     public void StartScripting(Logger lgr)
     {
         logger = lgr;
-        //engine.EnableExposedClrTypes = true;
+        engine.EnableExposedClrTypes = true;
         RestartScripting();
-    }
-    public void Expose(Exposable exposable)
-    {
-        var n = exposable.GetType().Name.ToLower();
-        engine.SetGlobalValue(n, exposable.GetMirror());
     }
     public void RestartScripting()
     {
         System.Action<string> logger = this.logger.Log;
         engine.SetGlobalFunction(logFunction, logger);
-        Expose(actions);
-        //engine.SetGlobalValue(nameof(actions), actions);
-        //engine.SetGlobalValue(nameof(sensors), sensors);
+        engine.SetGlobalValue(nameof(actions), actions);
+        engine.SetGlobalValue(nameof(sensors), sensors);
 
         CallGlobalAction(setupFunction);
         initTime = Time.time;
@@ -430,32 +423,8 @@ public class Tank : MonoBehaviour, PoliticsSubject
     }
     #endregion
     #region NestedClasses&Interfaces
-    public abstract class Exposable
-    {
-        private ObjectInstance mirror;
-        public ObjectInstance GetMirror()
-        {
-            RefreshMirror();
-            return mirror;
-        }
-        public void RefreshMirror()
-        {
-            foreach (var item in this.GetType().GetFields())
-            {
-                if(item.IsPublic)
-                {
-                    mirror[item.Name] = item.GetValue(this);
-                }
-            }
-        }
-        public Exposable(ScriptEngine e)
-        {
-            mirror = e.Object.Construct();
-        }
-    }
-
     [System.Serializable]
-    public class Actions:Exposable
+    public class Actions
     {
         [Range(-0.5f, 1f)]
         public float leftTrackCoef;
@@ -466,10 +435,6 @@ public class Tank : MonoBehaviour, PoliticsSubject
         [Range(-1f, 1f)]
         public float radarAngularCoef;
         public float fireShots;
-        public Actions(ScriptEngine e):base(e)
-        {
-
-        }
     }
 
     [System.Serializable]
@@ -567,7 +532,6 @@ public class Tank : MonoBehaviour, PoliticsSubject
             turret = new Turret();
             proxor = new List<Radar>();
             recentDamage = new Queue<RecentDamage>();
-            
         }
     }
 
