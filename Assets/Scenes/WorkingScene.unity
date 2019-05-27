@@ -306,6 +306,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: BlackTrack
       objectReference: {fileID: 0}
+    - target: {fileID: 2302079590260076928, guid: 9f96de34025f4e3478bcd101b85cd63d,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2302079590260501920, guid: 9f96de34025f4e3478bcd101b85cd63d,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -500,6 +505,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: BlackTrack (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 2302079590260076928, guid: 9f96de34025f4e3478bcd101b85cd63d,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2302079590260501920, guid: 9f96de34025f4e3478bcd101b85cd63d,
         type: 3}
