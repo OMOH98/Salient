@@ -756,8 +756,8 @@ MonoBehaviour:
 
     fghhg'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 0161d805a3764c089bef00bfe00793f5, type: 2}
-  m_sharedMaterial: {fileID: 2147374, guid: 0161d805a3764c089bef00bfe00793f5, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 5302535af1044152a457ed104f1f4b91, type: 2}
+  m_sharedMaterial: {fileID: 2164040, guid: 5302535af1044152a457ed104f1f4b91, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -13106,7 +13106,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1047868934550457737}
   m_Direction: 2
   m_Value: 1
-  m_Size: 0.9388279
+  m_Size: 0.9472094
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
