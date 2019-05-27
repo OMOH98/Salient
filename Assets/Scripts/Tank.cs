@@ -318,7 +318,7 @@ public class Tank : MonoBehaviour, PoliticsSubject
         sensors.health01 = healthCare.Health01();
 
         sensors.angularVelocity = rb.angularVelocity.y * Mathf.Rad2Deg;
-        sensors.velocity = rb.velocity;
+        sensors.velocity = transform.TransformDirection(rb.velocity);
 
         sensors.turret.heat01 = heat;
         sensors.turret.relativeAzimuth = (turret.localRotation.eulerAngles.y+720f)%360f;
