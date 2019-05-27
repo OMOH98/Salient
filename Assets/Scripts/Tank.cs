@@ -227,7 +227,14 @@ public class Tank : MonoBehaviour, PoliticsSubject
         statsMirror = engine.Object.Construct();
         stats.PushTo(statsMirror);
         engine.SetGlobalValue(nameof(stats), statsMirror);
-        UpdateSensorData();
+
+        try
+        {
+            UpdateSensorData();
+        }catch(System.NullReferenceException)
+        {
+            ;
+        }
 
         CallGlobalFunction(setupFunction);
         initTime = Time.time;
