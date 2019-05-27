@@ -414,6 +414,10 @@ public class Tank : MonoBehaviour, PoliticsSubject
         public struct Vector3Double
         {
             public double x, y, z;
+            public double magnitude
+            {
+                get { return System.Math.Sqrt(x * x + y * y + z * z); }
+            }
             public static implicit operator Vector3(Vector3Double src)
             {
                 throw new System.NotImplementedException();
