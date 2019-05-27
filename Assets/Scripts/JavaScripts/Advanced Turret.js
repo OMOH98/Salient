@@ -177,6 +177,7 @@ var loop = function() {
                     newState = 0;
                     log("Ang: " + sensors.angularVelocity);
                     log("Vel: " + sensors.velocity.z);
+                    loop = function(){};
                 }
 
                 break;
