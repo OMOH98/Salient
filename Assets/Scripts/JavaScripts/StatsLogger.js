@@ -1,5 +1,4 @@
 /**
- * 
  * @param {String} msg 
  */
 function log(msg){}
@@ -54,7 +53,13 @@ var stats = {
 
 //called once when robot is loading its scripting system
 function setup(){
-	log("setting up");
+    log("setting up");
+    var s = "";
+    var k = Object.keys(stats);
+    k.forEach(function(value){
+        s+=value+": "+stats[value]+"\n";
+    });
+    log(s);
 }
 
 //called repeatedly every cycle of physics update (approximatly every 0.02 seconds)

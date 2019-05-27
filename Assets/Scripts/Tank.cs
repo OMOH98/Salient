@@ -1,7 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Jurassic;
+using Jurassic.Library;
 
 
 
@@ -18,27 +20,11 @@ public class Tank : MonoBehaviour, PoliticsSubject
     public float radarHeight = 0.5f;
     public string muzzleGameObjectName = "Muzzle";
     public GameObject impactPrefab;
-   
 
     [Header("Actuators")]
-    public float speed = 5f;
-    public float tankWidth = 2f;
-    public float rotationTreshold = 0.05f;
+    public Stats stats;
     public float vertialForceDisplacement = -0.5f;
-    public float turretAngularSpeed = 20f;
-    public float radarAngularSpeed = 60f;
-    //public float proxorUpdatePeriod = 2f;
-    public float proxorRadius = 10f;
-    //public int proxorMaxCount = 16;
-    //public int recentDamagesMemory = 16;
-    [Range(0f,1f)]
-    public float heatPerShot = 0.2f; //heat treshold = 1f
-    public float overheatFine = 0.2f;
-    [Range(0f,1f)]
-    public float coolingRate = 0.5f;
-    public float firePeriod = 1f;
     public float impactDestructionDelay = 6f;
-    public Damage damage;
     public int sideIdentifier = 0;
 
     public Actions actions;
@@ -60,6 +46,7 @@ public class Tank : MonoBehaviour, PoliticsSubject
     private ParticleSystem muzzleFlash;
     private Transform radar;
     private SphereCollider proxor;
+    private ObjectInstance statsMirror;
 
 
 
@@ -90,7 +77,7 @@ public class Tank : MonoBehaviour, PoliticsSubject
         proxor = gameObject.AddComponent<SphereCollider>();
         proxor.isTrigger = true;
         proxor.center = turret.localPosition;
-        proxor.radius = proxorRadius;
+        proxor.radius = stats.proxorRadius;
     }
 
     private void FixedUpdate()
@@ -232,9 +219,13 @@ public class Tank : MonoBehaviour, PoliticsSubject
     public void RestartScripting()
     {
         System.Action<string> logger = this.logger.Log;
+
         engine.SetGlobalFunction(logFunction, logger);
         engine.SetGlobalValue(nameof(actions), actions);
         engine.SetGlobalValue(nameof(sensors), sensors);
+        statsMirror = engine.Object.Construct();
+        stats.PushTo(statsMirror);
+        engine.SetGlobalValue(nameof(stats), statsMirror);
 
         CallGlobalFunction(setupFunction);
         initTime = Time.time;
@@ -246,18 +237,18 @@ public class Tank : MonoBehaviour, PoliticsSubject
     {
         if (grounded)
         {
-            if (Mathf.Abs(actions.leftTrackCoef - actions.rightTrackCoef) < rotationTreshold)
+            if (Mathf.Abs(actions.leftTrackCoef - actions.rightTrackCoef) < stats.rotationTreshold)
             {
-                rb.AddForce(transform.forward * 2 * speed * Mathf.Min(actions.leftTrackCoef, actions.rightTrackCoef));
+                rb.AddForce(transform.forward * 2 * stats.engineForce * Mathf.Min(actions.leftTrackCoef, actions.rightTrackCoef));
             }
             else
             {
-                var force = transform.forward * speed * actions.leftTrackCoef;
-                var point = transform.TransformPoint(Vector3.left * tankWidth * 0.5f + Vector3.up * vertialForceDisplacement);
+                var force = transform.forward * stats.engineForce * actions.leftTrackCoef;
+                var point = transform.TransformPoint(Vector3.left * stats.tankWidth * 0.5f + Vector3.up * vertialForceDisplacement);
                 rb.AddForceAtPosition(force, point, ForceMode.Force);
 
-                force = transform.forward * speed * actions.rightTrackCoef;
-                point = transform.TransformPoint(Vector3.right * tankWidth * 0.5f + Vector3.up * vertialForceDisplacement);
+                force = transform.forward * stats.engineForce * actions.rightTrackCoef;
+                point = transform.TransformPoint(Vector3.right * stats.tankWidth * 0.5f + Vector3.up * vertialForceDisplacement);
                 rb.AddForceAtPosition(force, point, ForceMode.Force);
             }
         }
@@ -265,12 +256,12 @@ public class Tank : MonoBehaviour, PoliticsSubject
 
     private void ApplyTurretRotation()
     {
-        turret.Rotate(Vector3.up * turretAngularSpeed * actions.turretAngularCoef * Time.fixedDeltaTime, Space.Self);
+        turret.Rotate(Vector3.up * stats.turretAngularSpeed * actions.turretAngularCoef * Time.fixedDeltaTime, Space.Self);
     }
 
     private void ApplyRadarRotation()
     {
-        radarAzimuth = (radarAzimuth + radarAngularSpeed * Time.fixedDeltaTime * actions.radarAngularCoef + 720f) % 360;
+        radarAzimuth = (radarAzimuth + stats.radarAngularSpeed * Time.fixedDeltaTime * actions.radarAngularCoef + 720f) % 360;
         radar.localRotation = Quaternion.Euler(Vector3.up*radarAzimuth);
         var radarDirection = new Vector3(Mathf.Sin(radarAzimuth * Mathf.Deg2Rad), 0f, Mathf.Cos(radarAzimuth * Mathf.Deg2Rad)).normalized;
         radarDirection = transform.TransformDirection(radarDirection);
@@ -281,7 +272,7 @@ public class Tank : MonoBehaviour, PoliticsSubject
     private float nextTimeToFire;
     private void ApplyFire()
     {
-        heat -= coolingRate*Time.fixedDeltaTime;
+        heat -= stats.coolingRate*Time.fixedDeltaTime;
         if (heat < 0f)
             heat = 0f;
 
@@ -289,10 +280,10 @@ public class Tank : MonoBehaviour, PoliticsSubject
             return;
 
         actions.fireShots--;
-        nextTimeToFire = Time.time + firePeriod;
-        heat += heatPerShot;
+        nextTimeToFire = Time.time + stats.firePeriod;
+        heat += stats.heatPerShot;
         if (heat >= 1f)
-            heat += overheatFine;
+            heat += stats.overheatFine;
 
         if (muzzleFlash.isPlaying)
             muzzleFlash.Stop();
@@ -310,7 +301,7 @@ public class Tank : MonoBehaviour, PoliticsSubject
             var hc = rhi.collider.gameObject.GetComponent<HealthCare>();
             if(hc!=null)
             {
-                var d = new Damage() {ammount = damage.ammount, direction = muzzleFlash.transform.forward };
+                var d = new Damage() {ammount = stats.damage.ammount, direction = muzzleFlash.transform.forward };
                 hc.ReceiveDamage(d);
             }
         }
@@ -512,6 +503,38 @@ public class Tank : MonoBehaviour, PoliticsSubject
         {
             radar = new Radar();
             turret = new Turret();
+        }
+    }
+
+    [System.Serializable]
+    public class Stats
+    {
+        public float engineForce = 5f;
+        public float tankWidth = 2f;
+        public float rotationTreshold = 0.05f;
+
+        public float turretAngularSpeed = 20f;
+        public float radarAngularSpeed = 60f;
+        public float proxorRadius = 10f;
+
+        [Range(0f, 1f)]
+        public float heatPerShot = 0.2f; //heat treshold = 1f
+        public float overheatFine = 0.2f;
+        [Range(0f, 1f)]
+        public float coolingRate = 0.5f;
+        public float firePeriod = 1f;
+        public Damage damage;
+        public void PushTo(ObjectInstance obj)
+        {
+            if (obj == null)
+                throw new System.ArgumentNullException("obj must be an initialized JS object");
+
+            var t = typeof(Stats);
+            foreach (var item in t.GetFields().Where(f=>f.IsPublic&&f.FieldType == typeof(float)))
+            {
+                obj[item.Name] = System.Convert.ToDouble(item.GetValue(this));
+            }
+            obj[nameof(damage)] = (double)damage.ammount;
         }
     }
 

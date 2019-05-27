@@ -4176,8 +4176,7 @@ MonoBehaviour:
   heatBar: {fileID: 2633906846765262816}
   deathCanvas: {fileID: 3548194397949999566}
   exampleScripts:
-  - {fileID: 4900000, guid: 7b67f9fed14170c46b3e9e3fe010c2a9, type: 3}
-  - {fileID: 4900000, guid: a4fc73b6fb1d6224abaab3c7adba7733, type: 3}
+  - {fileID: 4900000, guid: 5fc475bc921069640b986f11c1d19aa7, type: 3}
 --- !u!1 &5188307794002362625
 GameObject:
   m_ObjectHideFlags: 0
@@ -8744,7 +8743,7 @@ Canvas:
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
-  m_AdditionalShaderChannelsFlag: 1
+  m_AdditionalShaderChannelsFlag: 25
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
@@ -9825,6 +9824,11 @@ PrefabInstance:
         type: 3}
       propertyPath: sideIdentifier
       value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1789765048802152026, guid: 9f96de34025f4e3478bcd101b85cd63d,
+        type: 3}
+      propertyPath: stats.damage.ammount
+      value: 40
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9f96de34025f4e3478bcd101b85cd63d, type: 3}

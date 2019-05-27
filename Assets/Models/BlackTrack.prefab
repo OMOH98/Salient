@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 1789765048802152026}
   - component: {fileID: 677660407908174873}
   m_Layer: 0
-  m_Name: Black Track
+  m_Name: BlackTrack
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -113,19 +113,22 @@ MonoBehaviour:
   radarHeight: 1.1
   muzzleGameObjectName: Muzzle
   impactPrefab: {fileID: 100010, guid: 68b851daa6d71e842a86ea9fbb62daae, type: 3}
-  speed: 2000000
-  tankWidth: 3
-  rotationTreshold: 0.005
+  stats:
+    engineForce: 2000000
+    tankWidth: 3
+    rotationTreshold: 0.02
+    turretAngularSpeed: 30
+    radarAngularSpeed: 60
+    proxorRadius: 16
+    heatPerShot: 0.67
+    overheatFine: 0.2
+    coolingRate: 0.5
+    firePeriod: 1
+    damage:
+      ammount: 5
+      direction: {x: 0, y: 0, z: 0}
   vertialForceDisplacement: -0.5
-  turretAngularSpeed: 20
-  radarAngularSpeed: 60
-  heatPerShot: 0.5
-  overheatFine: 0.2
-  coolingRate: 0.2
-  firePeriod: 1
-  impactDestructionDelay: 6
-  damage:
-    ammount: 5
+  impactDestructionDelay: 8
   sideIdentifier: 272
   actions:
     leftTrackCoef: 0
@@ -151,7 +154,7 @@ MonoBehaviour:
   onDamageTaken:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
+    m_TypeName: DamagableBehaviour+DamageTakenEvent, Assembly-CSharp, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
   onDeath:
     m_PersistentCalls:
