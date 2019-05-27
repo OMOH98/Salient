@@ -1,0 +1,5 @@
+A couple of words about sensor data.
+
+Z axis is forward to the tank. X axis is perpendicular to Z and paralel to the ground while Y axis is perpendicular to both said axes.
+
+For the details about local azimuth measurements see the picture below. 

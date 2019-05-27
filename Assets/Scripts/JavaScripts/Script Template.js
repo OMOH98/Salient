@@ -17,7 +17,7 @@ function onDamageTaken(ammount, relativeAzimuthToSource){
 }
 
 /**
- * @param {Number} ammount
+ * @param {Number} distance
  * @param {Number} relativeAzimuth
  * @param {String} category
  */
@@ -26,7 +26,7 @@ function onProximityEnter(distance, relativeAzimuth, category){
 }
 
 /**
- * @param {Number} ammount
+ * @param {Number} distance
  * @param {Number} relativeAzimuth
  * @param {String} category
  */

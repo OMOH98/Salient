@@ -1,0 +1,9 @@
+<b>Welcome to Salient!</b>
+
+It is a game that features writing JavaScript code as the main mechanic. Your task would be to create code to power war robot. You could test it in battles against tanks with provided examples or against your friends codes.
+
+Through said code you could access robot sensors, govern its movement and weapon fire. That code consists of one global function -  <color="blue">log</color>; three objects -  <color="blue">actions</color>,  <color="blue">sensors</color> and  <color="blue">stats</color>; five callback functions. Delete all the content of scripting window in order to see the details. It will show default script template. I strongly advise you using external code editor such as Notepad++ or VS Code via clipboard. Said sample provides basic info for editors code completion tools. 
+
+There are three panels in user interface of development screen. All of them are resizable (try dragging little white knob). You may change alignment or hide two of them (code and docs). You may save your script and then load your own script, or one of examples (watch for i.e. letters on the begginning).
+
+But reading about user interface is boring. In fact, there is a heap of labels and placeholders to provide you with the info. Now, go ahead and select other topics in the dropdown above.

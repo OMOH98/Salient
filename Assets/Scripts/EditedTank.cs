@@ -56,6 +56,16 @@ public class EditedTank : MonoBehaviour
         if (codeField.text.Length <= 3)
             codeField.text = scriptTemplate.text;
     }
+    int prevLength = 0;
+    public void ClearScriptCR()
+    {
+        if(codeField.text.Length - prevLength>3)
+        {
+            var sb = new StringBuilder(codeField.text);
+            sb.Replace("\r", "");
+            codeField.text = sb.ToString();
+        }
+    }
 
     #region ScriptIO
     public static List<string> GetScriptNames()
@@ -144,7 +154,9 @@ public class EditedTank : MonoBehaviour
             try
             {
                 AddScriptNames(new string[] { n });
-                File.WriteAllText(n + scriptExtention, code);
+                StringBuilder sb = new StringBuilder(code);
+                sb.Replace("\r", "");
+                File.WriteAllText(n + scriptExtention, sb.ToString());
                 logger.Log($"Current script is successfuly saved as \"{n}\"!");
             }
             catch (IOException e)
@@ -167,7 +179,9 @@ public class EditedTank : MonoBehaviour
             string content = "";
             try
             {
-                content = File.ReadAllText(requestedName + scriptExtention);
+                var sb = new StringBuilder(File.ReadAllText(requestedName + scriptExtention));
+                sb.Replace("\r", "");
+                content = sb.ToString();
             }
             catch (IOException e)
             {

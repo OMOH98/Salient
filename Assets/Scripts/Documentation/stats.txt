@@ -1,0 +1,1 @@
+<color="blue">stats</color> object reflects characteristics of a robot that are constant along the battle, but still crucial for some calculations.
