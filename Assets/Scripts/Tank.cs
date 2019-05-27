@@ -200,7 +200,7 @@ public class Tank : MonoBehaviour, PoliticsSubject
             {
                 logger.Log($"JavaScript error has occured at line {e.LineNumber} with message: {e.Message}");
             }
-            catch (System.InvalidOperationException e)// function Name is not defined in tank script
+            catch (System.InvalidOperationException/*e*/)// function Name is not defined in tank script
             {
                 ;//Debug.Log(e);
             }

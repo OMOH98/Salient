@@ -9,18 +9,28 @@ public class HeightExpander : MonoBehaviour
 {
     Image img;
     LayoutElement el;
+    float ratio;
     // Start is called before the first frame update
     void Start()
     {
         img = GetComponent<Image>();
         el = GetComponent<LayoutElement>();
-        var coef = img.sprite.texture.width / img.sprite.texture.height;
-        el.preferredHeight = img.rectTransform.sizeDelta.x * coef;
+        ratio = (float)img.sprite.texture.height / img.sprite.texture.width;
     }
 
-    // Update is called once per frame
+    public void RefreshHeight()
+    {
+        el.preferredHeight = img.rectTransform.sizeDelta.x * ratio;
+    }
+
+    float prevDeltaX;
     void Update()
     {
-        
+        var x = img.rectTransform.sizeDelta.x;
+        if (prevDeltaX != x)
+        {
+            RefreshHeight();
+            prevDeltaX = x;
+        }
     }
 }
