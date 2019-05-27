@@ -4,11 +4,20 @@
 function log(msg){}
 
 var actions = {
-    leftTrackCoef: 0, //coefficient for speed of the left track. Values from -0.5 to 1 are acceptable.
-    rightTrackCoef: 0, //coefficient for speed of the right track. Values from -0.5 to 1 are acceptable.
-    turretAngularCoef: 0, //coefficient for angular speed of the turret. Values from -1 to 1 are acceptable.
-    radarAngularCoef: 0, //coefficient for angular speed of the radar. Values from -1 to 1 are acceptable.
-    fireShots: 0 //quantity of shots to perform. Could be set to any number, including Number.POSITIVE_INFINITY.
+    leftTrackCoef: 0, //coefficient for speed of the left track. 
+    //Values from -0.5 to 1 are acceptable.
+
+    rightTrackCoef: 0, //coefficient for speed of the right track. 
+    //Values from -0.5 to 1 are acceptable.
+
+    turretAngularCoef: 0, //coefficient for angular speed of the turret. 
+    //Values from -1 to 1 are acceptable.
+
+    radarAngularCoef: 0, //coefficient for angular speed of the radar. 
+    //Values from -1 to 1 are acceptable.
+    
+    fireShots: 0 //quantity of shots to perform. 
+    //Could be set to any number, including Number.POSITIVE_INFINITY.
 }
 
 var sensors = {

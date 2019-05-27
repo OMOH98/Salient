@@ -5683,6 +5683,15 @@ MonoBehaviour:
   - name: Actions interface
     text: {fileID: 4900000, guid: eab98695e06973b439d58dc5f9417d5d, type: 3}
     image: {fileID: 21300000, guid: 2db0ad33f58ad7244b4eb9334c0a1564, type: 3}
+  - name: Sensors
+    text: {fileID: 4900000, guid: 2fcf0a14131c16e46b87c18f547c8e0e, type: 3}
+    image: {fileID: 21300000, guid: 8a0135961d6964b45945c08bc5da9b0c, type: 3}
+  - name: Stats
+    text: {fileID: 4900000, guid: fac5316163b4faa4b93c54bde6030707, type: 3}
+    image: {fileID: 21300000, guid: e929ed8e371503f42981f6cad5900c57, type: 3}
+  - name: Units
+    text: {fileID: 4900000, guid: 0985559ec2f34a24ea3c952fd4fa9f7a, type: 3}
+    image: {fileID: 21300000, guid: dbce101fc0da4434782c99b24dd8e57f, type: 3}
 --- !u!1 &4722900855938155927
 GameObject:
   m_ObjectHideFlags: 0
@@ -7890,7 +7899,7 @@ MonoBehaviour:
   m_Elasticity: 0.1
   m_Inertia: 1
   m_DecelerationRate: 0.135
-  m_ScrollSensitivity: 1
+  m_ScrollSensitivity: 12
   m_Viewport: {fileID: 9040098974649732462}
   m_HorizontalScrollbar: {fileID: 5650955217339091219}
   m_VerticalScrollbar: {fileID: 5731053189497151949}
@@ -13096,8 +13105,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 5223458943178787064}
   m_HandleRect: {fileID: 1047868934550457737}
   m_Direction: 2
-  m_Value: 0
-  m_Size: 1
+  m_Value: 1
+  m_Size: 0.9388279
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
