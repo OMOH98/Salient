@@ -386,8 +386,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 7409882596533226704}
   m_HandleRect: {fileID: 12947049505546256}
   m_Direction: 0
-  m_Value: 0
-  m_Size: 0
+  m_Value: -0
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -13310,11 +13310,6 @@ PrefabInstance:
         type: 3}
       propertyPath: sideIdentifier
       value: -1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1789765048802152026, guid: 9f96de34025f4e3478bcd101b85cd63d,
-        type: 3}
-      propertyPath: stats.damage.ammount
-      value: 40
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9f96de34025f4e3478bcd101b85cd63d, type: 3}
