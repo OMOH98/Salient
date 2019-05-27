@@ -310,46 +310,7 @@ public class Tank : MonoBehaviour, PoliticsSubject
     
     #endregion
     #region TankAPIFunctions
-    private void SetTrackCoef(float value, bool left)
-    {
-        if (value > 1f || value < -0.5f)
-        {
-            logger.Log($"Coefficient value for {(left == true ? "left" : "right")} track speed must be between -0.5 and 1");
-        }
-        var val = Mathf.Clamp(value, -0.5f, 1f);
-        if (left)
-        {
-            actions.leftTrackCoef = val;
-        }
-        else actions.rightTrackCoef = val;
-    }
-    private void SetTurretAngularCoef(float value)
-    {
-        if (Mathf.Abs(value) > 1f)
-            logger.Log("Coefficient value for turret angular speed must be between -1 and 1");
-        actions.turretAngularCoef = Mathf.Clamp(value, -1f, 1f);
-    }
-    private void SetRadarAngularCoef(float value)
-    {
-        if (Mathf.Abs(value) > 1f)
-        {
-            logger.Log("Coefficient value for radar angular speed must be between -1 and 1");
-        }
-        actions.radarAngularCoef = Mathf.Clamp(value, -1f, 1f);
-    }
-    private void Fire()
-    {
-        actions.fireShots += 1;
-    }
-    private void FireAtWill()
-    {
-        actions.fireShots = float.PositiveInfinity;
-    }
-    private void CeaseFire()
-    {
-        actions.fireShots = 0f;
-    }
-
+    
     private void UpdateSensorData()
     {
         sensors.azimuth = (transform.rotation.eulerAngles.y + 720f) % 360f;
