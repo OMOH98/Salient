@@ -326,7 +326,7 @@ public class Tank : MonoBehaviour, PoliticsSubject
         sensors.time = Time.time - initTime;
         sensors.health01 = healthCare.Health01();
 
-        sensors.angularVelocity = rb.angularVelocity.y * Mathf.Rad2Deg;
+        sensors.angularVelocity = (rb.angularVelocity.y * Mathf.Rad2Deg+720f)%360f;
         sensors.velocity = transform.TransformDirection(rb.velocity);
 
         sensors.turret.heat01 = heat;
