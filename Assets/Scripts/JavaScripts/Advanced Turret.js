@@ -144,6 +144,8 @@ function loop() {
                 }
             case 4://braking
                 ang = sensors.angularVelocity;
+                while (ang > 180)
+                    ang -= 360;
                 if (collided) {
                     timeToCollide = sensors.time + TIME_TO_COLLIDE;
                     newState = 3;
@@ -153,11 +155,11 @@ function loop() {
                     newState = 2;
                     shots = 0;
                     wasHit = false;
-                } else if ((ang > 20 && ang < 180) || (ang < 340 && ang > 180)) {
+                } else if (Math.abs(ang) >= 20) {
                     log("Ang: " + sensors.angularVelocity);
                     actions.leftTrackCoef = -0.5;
                     actions.rightTrackCoef = 0.5;
-                    if (sensors.angularVelocity > 180) {
+                    if (ang < 0) {
                         actions.leftTrackCoef *= -1;
                         actions.rightTrackCoef *= -1;
                     }
