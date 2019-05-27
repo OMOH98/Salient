@@ -59,7 +59,7 @@ public class EditedTank : MonoBehaviour
     int prevLength = 0;
     public void ClearScriptCR()
     {
-        if(codeField.text.Length - prevLength>3)
+        if (codeField.text.Length - prevLength > 3)
         {
             var sb = new StringBuilder(codeField.text);
             sb.Replace("\r", "");
@@ -86,14 +86,14 @@ public class EditedTank : MonoBehaviour
         var tail = new StringBuilder();
         for (int i = 0; i < names.Count; i++)
         {
-            if(names.IndexOf(names[i])==i)
+            if (names.IndexOf(names[i]) == i)
             {
                 tail.AppendFormat("{0}{1}", names[i], scriptSeparator);
             }
         }
         PlayerPrefs.SetString(scriptNames, tail.ToString());
     }
-    public static  void AddScriptNames(IEnumerable<string> toAdd)
+    public static void AddScriptNames(IEnumerable<string> toAdd)
     {
         var names = GetScriptNames();
         names.AddRange(toAdd);
@@ -136,7 +136,7 @@ public class EditedTank : MonoBehaviour
         {
             foreach (var c in s)
             {
-                if(scriptNameTaboo.Contains(c.ToString()))
+                if (scriptNameTaboo.Contains(c.ToString()))
                 {
                     ret = false;
                     break;
@@ -169,12 +169,12 @@ public class EditedTank : MonoBehaviour
             logger.Log($"Set name is not valid because it contains taboo chars \"{scriptNameTaboo}\". Try other name.");
         }
     }
-    
+
     public static string LoadScript(string requestedName, Tank.Logger logger)
     {
 
         var names = GetScriptNames();
-        if(names.Contains(requestedName))
+        if (names.Contains(requestedName))
         {
             string content = "";
             try
@@ -191,13 +191,13 @@ public class EditedTank : MonoBehaviour
                 return "";
             }
             logger.Log($"Script \"{requestedName }\" was successfuly loaded!");
-            return content;            
+            return content;
         }
         else
         {
             foreach (var item in staticExamples)
             {
-                if(requestedName.Contains(item.name))
+                if (requestedName.Contains(item.name))
                 {
                     logger.Log($"Example script \"{item.name}\" was successfuly loaded!");
                     return item.text;
@@ -225,30 +225,29 @@ public class EditedTank : MonoBehaviour
         {
             item.gameObject.SetActive(false);
         }
-        
+
         PlayerPrefs.SetString(autosavedScript, codeField.text);
         deathCanvas.gameObject.SetActive(true);
         var b = deathCanvas.gameObject.AddComponent<DummyBehaviour>();
         float startTime = Time.time;
 
-        b.StartCoroutine(FlexPanel.DelayActionWhile(()=> {
-            try
-            {
-                UnityEngine.SceneManagement.SceneManager.LoadScene(sceneMenu);
-            }
-            catch
-            {
+        b.StartCoroutine(FlexPanel.DelayActionWhile(() =>
+        {
+            var s = UnityEngine.SceneManagement.SceneManager.GetSceneByName(sceneMenu);
+            if (s == null || s.buildIndex < 0)
                 UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);
-            }
+            else UnityEngine.SceneManagement.SceneManager.LoadScene(s.name);
+
         },
-        ()=> {
+        () =>
+        {
             return Time.time < startTime + 2f || !Input.anyKey;
         }));
     }
 
     protected void StaticStart()
     {
-        
+
         if (PlayerPrefs.HasKey(autosavedScript))
         {
             var lastCode = PlayerPrefs.GetString(autosavedScript);
@@ -256,11 +255,13 @@ public class EditedTank : MonoBehaviour
             logger.Log("Autosaved script was successfuly recovered");
         }
 
-        saveAsButton.onClick.AddListener(() => {
+        saveAsButton.onClick.AddListener(() =>
+        {
             SaveScript(saveAsNameField.text, codeField.text, logger);
             PopulateSavedScriptDropdown(loadDropdown);
         });
-        loadButton.onClick.AddListener(()=> {
+        loadButton.onClick.AddListener(() =>
+        {
             if (!PlayerPrefs.HasKey(scriptNames) || loadDropdown.value < 0 || loadDropdown.options.Count <= 0)
             {
                 logger.Log("There are no saved scripts to load");
@@ -281,7 +282,7 @@ public class EditedTank : MonoBehaviour
         heatBar.value = tank.heat;
     }
 
-    public class UserLogger:Tank.Logger
+    public class UserLogger : Tank.Logger
     {
         private TMP_InputField logField;
         public UserLogger(TMP_InputField ui)
