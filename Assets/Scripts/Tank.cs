@@ -27,10 +27,10 @@ public class Tank : MonoBehaviour, PoliticsSubject
     public float vertialForceDisplacement = -0.5f;
     public float turretAngularSpeed = 20f;
     public float radarAngularSpeed = 60f;
-    public float proxorUpdatePeriod = 2f;
+    //public float proxorUpdatePeriod = 2f;
     public float proxorRadius = 10f;
-    public int proxorMaxCount = 16;
-    public int recentDamagesMemory = 16;
+    //public int proxorMaxCount = 16;
+    //public int recentDamagesMemory = 16;
     [Range(0f,1f)]
     public float heatPerShot = 0.2f; //heat treshold = 1f
     public float overheatFine = 0.2f;
@@ -58,7 +58,8 @@ public class Tank : MonoBehaviour, PoliticsSubject
 
     private Transform turret;
     private ParticleSystem muzzleFlash;
-    private Transform radar; 
+    private Transform radar;
+    private SphereCollider proxor;
 
 
 
@@ -78,15 +79,19 @@ public class Tank : MonoBehaviour, PoliticsSubject
             var alpha = Vector3.Angle(Vector3.forward, direction);
             if (direction.x < 0f)
                 alpha *= -1f;
-            var recentd = new Sensors.RecentDamage() { ammount = d.ammount, timestamp = sensors.time, sourceAzimuth = (alpha + 180f) % 360f };
-            sensors.recentDamage.Enqueue(recentd);
-            while (sensors.recentDamage.Count > recentDamagesMemory)
-                sensors.recentDamage.Dequeue();
+            //var recentd = new Sensors.RecentDamage() { ammount = d.ammount, timestamp = sensors.time, sourceAzimuth = (alpha + 180f) % 360f };
+            CallGlobalFunction(onDamageTaken, d.ammount, (alpha + 180f) % 360);
         });
+
 
         turret = transform.Find(turretGameObjectName);
         muzzleFlash = turret.Find(muzzleGameObjectName).GetComponent<ParticleSystem>();
         radar = transform.Find(radarGameObjectName);
+
+        proxor = gameObject.AddComponent<SphereCollider>();
+        proxor.isTrigger = true;
+        proxor.center = turret.localPosition;
+        proxor.radius = proxorRadius;
     }
 
     private void FixedUpdate()
@@ -102,7 +107,7 @@ public class Tank : MonoBehaviour, PoliticsSubject
         ApplyRadarRotation();
         ApplyFire();
     }
-
+    #region CollisionSensors
     bool grounded = false;
     List<GameObject> collidingObjects = new List<GameObject>();
     private void OnCollisionEnter(Collision collision)
@@ -113,7 +118,12 @@ public class Tank : MonoBehaviour, PoliticsSubject
             grounded = true;
         }
         collidingObjects.Add(collision.gameObject);
+
+        var info = Sensors.Radar.GetRadarInfo(collision.gameObject, this);
+
+        CallGlobalFunction(onCollisionEnter, info.distance, info.relativeAzimuth, info.category);
     }
+    
     private void OnCollisionExit(Collision collision)
     {
         if(collidingObjects.Remove(collision.gameObject))
@@ -135,11 +145,19 @@ public class Tank : MonoBehaviour, PoliticsSubject
             }
         }
     }
-
+    private void OnTriggerEnter(Collider other)
+    {
+        var info = Sensors.Radar.GetRadarInfo(other.gameObject, this);
+        CallGlobalFunction(onProximityEnter, info.distance, info.relativeAzimuth, info.category);
+    }
+    #endregion
     #region CodeMethods
     public const string loopFunction = "loop";
     public const string setupFunction = "setup";
     public const string logFunction = "log";
+    public const string onDamageTaken = nameof(onDamageTaken);
+    public const string onProximityEnter = nameof(onProximityEnter);
+    public const string onCollisionEnter = nameof(onCollisionEnter);
     
     public string code
     {
@@ -184,13 +202,13 @@ public class Tank : MonoBehaviour, PoliticsSubject
         if (cmp != null)
             cmp.Execute(engine);
     }
-    protected void CallGlobalAction(string name)
+    protected void CallGlobalFunction(string name, params object[] args)
     {
         if (compiledCode != null)
         {
             try
             {
-                engine.CallGlobalFunction(name);
+                engine.CallGlobalFunction(name, args);
             }
             catch (JavaScriptException e)
             {
@@ -200,7 +218,7 @@ public class Tank : MonoBehaviour, PoliticsSubject
     }
     public virtual void Execute()
     {
-        CallGlobalAction(loopFunction);
+        CallGlobalFunction(loopFunction);
     }
     public void StartScripting(Logger lgr)
     {
@@ -215,7 +233,7 @@ public class Tank : MonoBehaviour, PoliticsSubject
         engine.SetGlobalValue(nameof(actions), actions);
         engine.SetGlobalValue(nameof(sensors), sensors);
 
-        CallGlobalAction(setupFunction);
+        CallGlobalFunction(setupFunction);
         initTime = Time.time;
     }
     #endregion
@@ -340,7 +358,6 @@ public class Tank : MonoBehaviour, PoliticsSubject
         actions.fireShots = 0f;
     }
 
-    float nextTimeToUpdateProxor = 0f;
     private void UpdateSensorData()
     {
         sensors.azimuth = transform.rotation.eulerAngles.y % 360;
@@ -360,32 +377,7 @@ public class Tank : MonoBehaviour, PoliticsSubject
         {
             Debug.DrawLine(radarRay.origin, rhi.point, Color.red);
             sensors.radar.distance = rhi.distance;
-            sensors.radar.category = Sensors.Radar.Categorize(rhi.collider.gameObject, SideId());
-        }
-
-        if (Time.time >= nextTimeToUpdateProxor)
-        {
-            nextTimeToUpdateProxor = Time.time + proxorUpdatePeriod;
-            sensors.lastProxorUpdate = sensors.time;
-
-            var po = Physics.OverlapSphere(turret.position, proxorRadius, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
-            sensors.proxor.Clear();
-            foreach (var col in po)
-            {
-                var cat = Sensors.Radar.Categorize(col.gameObject, SideId());
-                Vector3 center = transform.InverseTransformPoint(col.gameObject.transform.position);
-                var dist = center.magnitude;
-                center.y = 0f;
-                var alpha = Vector3.Angle(Vector3.forward, center);
-                if (center.x < 0f)
-                    alpha *= -1f;
-
-                var rep = new Sensors.Radar(dist, alpha % 360, cat);
-                sensors.proxor.Add(rep);
-
-                if (sensors.proxor.Count >= proxorMaxCount)
-                    break;
-            }
+            sensors.radar.categoryIndex = Sensors.Radar.Categorize(rhi.collider.gameObject, SideId());
         }
     }
 
@@ -445,9 +437,6 @@ public class Tank : MonoBehaviour, PoliticsSubject
         public double health01;
         public Radar radar;
         public Turret turret;
-        public List<Radar> proxor;
-        public double lastProxorUpdate;
-        public Queue<RecentDamage> recentDamage;
 
         public double radarAbsoluteAzimuth
         {
@@ -468,25 +457,13 @@ public class Tank : MonoBehaviour, PoliticsSubject
         {
             public double distance;
             public double relativeAzimuth;
-            public Category category;
+            public Category categoryIndex;
 
-            public Radar()
-            {
-
-            }
-            public Radar(double _distance, double _relativeAzimuth, Category _category)
-            {
-                distance = _distance;
-                relativeAzimuth = _relativeAzimuth;
-                category = _category;
-            }
-
-
-            public string catString
+            public string category
             {
                 get
                 {
-                    return System.Enum.GetName(typeof(Category), category);
+                    return System.Enum.GetName(typeof(Category), categoryIndex);
                 }
             }
             public enum Category
@@ -509,6 +486,17 @@ public class Tank : MonoBehaviour, PoliticsSubject
                     return Category.Ground;
                 }
             }
+            public static Radar GetRadarInfo(GameObject obj, Tank reference)
+            {
+                var cat = Sensors.Radar.Categorize(obj, reference.SideId());
+                Vector3 center = reference.transform.InverseTransformPoint(obj.transform.position);
+                var dist = center.magnitude;
+                center.y = 0f;
+                var alpha = Vector3.Angle(Vector3.forward, center);
+                if (center.x < 0f)
+                    alpha *= -1f;
+                return new Radar() { distance = dist, relativeAzimuth = alpha % 360, categoryIndex = cat };
+            }
         }
         public class Turret
         {
@@ -519,19 +507,10 @@ public class Tank : MonoBehaviour, PoliticsSubject
                 get { return heat01 <= 1f; }
             }
         }
-        public struct RecentDamage
-        {
-            public double ammount;
-            public double sourceAzimuth;
-            public double timestamp;
-        }
-
         public Sensors()
         {
             radar = new Radar();
             turret = new Turret();
-            proxor = new List<Radar>();
-            recentDamage = new Queue<RecentDamage>();
         }
     }
 

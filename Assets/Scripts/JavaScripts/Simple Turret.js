@@ -14,7 +14,7 @@ function loop(){
 		nextTimeToLog = sensors.time + 1;//1 second
 	}
 	if(sensors.radar.distance < Number.POSITIVE_INFINITY){
-		if(sensors.radar.category == 2)
+		if(sensors.radar.category == "Enemy")
 		{
 			actions.turretAngularCoef = 0;
 			actions.radarAngularCoef = 0;
