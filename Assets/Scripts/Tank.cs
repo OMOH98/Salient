@@ -79,8 +79,7 @@ public class Tank : MonoBehaviour, PoliticsSubject
             var alpha = Vector3.Angle(Vector3.forward, direction);
             if (direction.x < 0f)
                 alpha *= -1f;
-            //var recentd = new Sensors.RecentDamage() { ammount = d.ammount, timestamp = sensors.time, sourceAzimuth = (alpha + 180f) % 360f };
-            CallGlobalFunction(onDamageTaken, d.ammount, (alpha + 180f) % 360);
+            CallGlobalFunction(onDamageTaken, (double)d.ammount, (alpha + 900d) % 360d);
         });
 
 
@@ -214,6 +213,10 @@ public class Tank : MonoBehaviour, PoliticsSubject
             {
                 logger.Log($"JavaScript error has occured at line {e.LineNumber} with message: {e.Message}");
             }
+            catch (System.InvalidOperationException)// function Name is not defined in tank script
+            {
+                ;
+            }
         }
     }
     public virtual void Execute()
@@ -267,13 +270,11 @@ public class Tank : MonoBehaviour, PoliticsSubject
 
     private void ApplyRadarRotation()
     {
-        radarAzimuth = (radarAzimuth + radarAngularSpeed * Time.fixedDeltaTime * actions.radarAngularCoef) % 360;
+        radarAzimuth = (radarAzimuth + radarAngularSpeed * Time.fixedDeltaTime * actions.radarAngularCoef + 720f) % 360;
         radar.localRotation = Quaternion.Euler(Vector3.up*radarAzimuth);
         var radarDirection = new Vector3(Mathf.Sin(radarAzimuth * Mathf.Deg2Rad), 0f, Mathf.Cos(radarAzimuth * Mathf.Deg2Rad)).normalized;
         radarDirection = transform.TransformDirection(radarDirection);
-        //var radarHeight = radar.position.y - turret.position.y;
         radar.position = turret.position + Vector3.up * radarHeight + radarDirection * radarRadius;
-        //radar.localPosition = new Vector3(Mathf.Sin(radarAzimuth*Mathf.Deg2Rad) * radarRadius, radar.localPosition.y, Mathf.Cos(radarAzimuth* Mathf.Deg2Rad) * radarRadius);
     }
 
     public float heat { get; private set; }
@@ -360,12 +361,12 @@ public class Tank : MonoBehaviour, PoliticsSubject
 
     private void UpdateSensorData()
     {
-        sensors.azimuth = transform.rotation.eulerAngles.y % 360;
+        sensors.azimuth = (transform.rotation.eulerAngles.y + 720f) % 360f;
         sensors.time = Time.time - initTime;
         sensors.health01 = healthCare.Health01();
 
         sensors.turret.heat01 = heat;
-        sensors.turret.relativeAzimuth = turret.localRotation.eulerAngles.y;
+        sensors.turret.relativeAzimuth = (turret.localRotation.eulerAngles.y+720f)%360f;
 
         sensors.radar.relativeAzimuth = radarAzimuth;
         RaycastHit rhi;
@@ -495,7 +496,7 @@ public class Tank : MonoBehaviour, PoliticsSubject
                 var alpha = Vector3.Angle(Vector3.forward, center);
                 if (center.x < 0f)
                     alpha *= -1f;
-                return new Radar() { distance = dist, relativeAzimuth = alpha % 360, categoryIndex = cat };
+                return new Radar() { distance = dist, relativeAzimuth = (alpha+720f) % 360f, categoryIndex = cat };
             }
         }
         public class Turret
