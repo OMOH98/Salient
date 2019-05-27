@@ -200,9 +200,9 @@ public class Tank : MonoBehaviour, PoliticsSubject
             {
                 logger.Log($"JavaScript error has occured at line {e.LineNumber} with message: {e.Message}");
             }
-            catch (System.InvalidOperationException)// function Name is not defined in tank script
+            catch (System.InvalidOperationException e)// function Name is not defined in tank script
             {
-                ;
+                ;//Debug.Log(e);
             }
         }
     }
@@ -356,6 +356,9 @@ public class Tank : MonoBehaviour, PoliticsSubject
         sensors.time = Time.time - initTime;
         sensors.health01 = healthCare.Health01();
 
+        sensors.angularVelocity = rb.angularVelocity.y;
+        sensors.velocity = rb.velocity;
+
         sensors.turret.heat01 = heat;
         sensors.turret.relativeAzimuth = (turret.localRotation.eulerAngles.y+720f)%360f;
 
@@ -427,6 +430,8 @@ public class Tank : MonoBehaviour, PoliticsSubject
         public double azimuth;
         public double time;
         public double health01;
+        public double angularVelocity;
+        public Vector3Double velocity;
         public Radar radar;
         public Turret turret;
 
@@ -445,6 +450,18 @@ public class Tank : MonoBehaviour, PoliticsSubject
             }
         }
 
+        public struct Vector3Double
+        {
+            public double x, y, z;
+            public static implicit operator Vector3(Vector3Double src)
+            {
+                throw new System.NotImplementedException();
+            }
+            public static implicit operator Vector3Double(Vector3 src)
+            {
+                return new Vector3Double { x = src.x, y = src.y, z = src.z };
+            }
+        }
         public class Radar
         {
             public double distance;

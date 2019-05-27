@@ -16,6 +16,10 @@ var sensors = {
     azimuth : 0,
     time : 0,
     health01 : 0,
+    angularVelocity : 0,
+    velocity:{
+        x:0, y:0, z:0
+    },
     radar : {
         distance : 0,
         relativeAzimuth : 0,
