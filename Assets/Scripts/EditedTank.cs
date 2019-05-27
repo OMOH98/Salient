@@ -232,10 +232,17 @@ public class EditedTank : MonoBehaviour
         float startTime = Time.time;
 
         b.StartCoroutine(FlexPanel.DelayActionWhile(()=> {
-            UnityEngine.SceneManagement.SceneManager.LoadScene(sceneMenu);
+            try
+            {
+                UnityEngine.SceneManagement.SceneManager.LoadScene(sceneMenu);
+            }
+            catch
+            {
+                UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);
+            }
         },
         ()=> {
-            return Time.time < startTime + 1f || !Input.anyKey;
+            return Time.time < startTime + 2f || !Input.anyKey;
         }));
     }
 

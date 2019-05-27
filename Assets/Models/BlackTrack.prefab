@@ -116,7 +116,7 @@ MonoBehaviour:
   stats:
     engineForce: 2000000
     tankWidth: 3
-    rotationTreshold: 0.02
+    rotationTreshold: 0.005
     turretAngularSpeed: 30
     radarAngularSpeed: 60
     proxorRadius: 16

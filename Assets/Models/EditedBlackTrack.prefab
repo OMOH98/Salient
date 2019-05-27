@@ -6557,7 +6557,10 @@ MonoBehaviour:
   heatBar: {fileID: 2633906846765262816}
   deathCanvas: {fileID: 3548194397949999566}
   exampleScripts:
+  - {fileID: 4900000, guid: 0a0a43859aecd4d458e119fb54f67b4d, type: 3}
   - {fileID: 4900000, guid: 5fc475bc921069640b986f11c1d19aa7, type: 3}
+  - {fileID: 4900000, guid: 7b67f9fed14170c46b3e9e3fe010c2a9, type: 3}
+  - {fileID: 4900000, guid: a4fc73b6fb1d6224abaab3c7adba7733, type: 3}
 --- !u!1 &5188307794002362625
 GameObject:
   m_ObjectHideFlags: 0
