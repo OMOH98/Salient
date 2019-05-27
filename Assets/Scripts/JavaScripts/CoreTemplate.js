@@ -1,5 +1,4 @@
 /**
- * 
  * @param {String} msg 
  */
 function log(msg){}
