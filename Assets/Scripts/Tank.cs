@@ -52,9 +52,10 @@ public class Tank : MonoBehaviour, PoliticsSubject
 
     protected virtual void Start()
     {
+        StaticStart();
         if (logger == null)
             StartScripting(new DummyLogger());
-        StaticStart();
+
     }
     protected void StaticStart()
     {
