@@ -1,4 +1,4 @@
-//called once when robot is spawned on field
+//called once when robot is loading its scripting system
 function setup(){
 	log("setting up");
 }
