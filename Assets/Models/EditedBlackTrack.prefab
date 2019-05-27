@@ -6534,33 +6534,6 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
---- !u!114 &7115280472198355503
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6444879913525464983}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 897656969318218438d18baf0fb19768, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  scriptTemplate: {fileID: 4900000, guid: b0cc4761e0ccc254a92230c74807b7b1, type: 3}
-  codeField: {fileID: 476350944170590726}
-  logField: {fileID: 5267015195735327014}
-  saveAsButton: {fileID: 4198112546152125972}
-  saveAsNameField: {fileID: 7503235023639930432}
-  loadButton: {fileID: 4198112545246666224}
-  loadDropdown: {fileID: 4296562422651505108}
-  healthBar: {fileID: 2950983879181784443}
-  heatBar: {fileID: 2633906846765262816}
-  deathCanvas: {fileID: 3548194397949999566}
-  exampleScripts:
-  - {fileID: 4900000, guid: 0a0a43859aecd4d458e119fb54f67b4d, type: 3}
-  - {fileID: 4900000, guid: 5fc475bc921069640b986f11c1d19aa7, type: 3}
-  - {fileID: 4900000, guid: 7b67f9fed14170c46b3e9e3fe010c2a9, type: 3}
-  - {fileID: 4900000, guid: a4fc73b6fb1d6224abaab3c7adba7733, type: 3}
 --- !u!1 &5188307794002362625
 GameObject:
   m_ObjectHideFlags: 0
@@ -8322,6 +8295,33 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_HorizontalFit: 2
   m_VerticalFit: 2
+--- !u!114 &7115280472198355503
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6444879913525464983}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 897656969318218438d18baf0fb19768, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scriptTemplate: {fileID: 4900000, guid: b0cc4761e0ccc254a92230c74807b7b1, type: 3}
+  codeField: {fileID: 476350944170590726}
+  logField: {fileID: 5267015195735327014}
+  saveAsButton: {fileID: 4198112546152125972}
+  saveAsNameField: {fileID: 7503235023639930432}
+  loadButton: {fileID: 4198112545246666224}
+  loadDropdown: {fileID: 4296562422651505108}
+  healthBar: {fileID: 2950983879181784443}
+  heatBar: {fileID: 2633906846765262816}
+  deathCanvas: {fileID: 3548194397949999566}
+  exampleScripts:
+  - {fileID: 4900000, guid: 0a0a43859aecd4d458e119fb54f67b4d, type: 3}
+  - {fileID: 4900000, guid: 5fc475bc921069640b986f11c1d19aa7, type: 3}
+  - {fileID: 4900000, guid: 7b67f9fed14170c46b3e9e3fe010c2a9, type: 3}
+  - {fileID: 4900000, guid: a4fc73b6fb1d6224abaab3c7adba7733, type: 3}
 --- !u!1 &6449771982399473858
 GameObject:
   m_ObjectHideFlags: 0
