@@ -1,0 +1,1 @@
+Your are not forbidden to assign anything to properties of <color="blue">sensors</color>, this does mean little sense though. Values of this object are rewritten before each engine loop iteration. See the picture below for the details.

@@ -1,0 +1,7 @@
+Lets create a simplest possible robot. Wipe all the contents of editor window and grab template code that appears there. As a matter of fact, it is equivalent to an empty string in a sense that it does nothing. Still, it enables editors with code completion to work conveniently. 
+
+Find the setup function and change parameter of log to something like ("Hello world"). Execute code and see the output in the log window below. Here is the way to log any values from your script, as long as they converted to string. 
+
+Let us interface with robot itself. Add to setup function body code <color="blue">actions.leftTrackCoef = 0.1; actions.rightTrackCoef = -0.5;</color> and execute. Hide all panels and see how tank is reacting.
+
+Try following it with camera. By default, you can moove it with wasd, tab and ctrl; rotate with q and e. Now try pressing CapsLock key, it should make camera follow the robot. Now you can adjust its position with mouse wheell and shift + mouse wheel. If your code panel is not hidden, you can quickly switch between controlling camera and writing code pressing dedicated key (default - left alt).
