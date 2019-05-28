@@ -75,6 +75,9 @@ var directions = 1;
 var ang = 0;
 var loop = function () {
     var newState = state;
+    ang = sensors.angularVelocity;
+    while (ang > 180)
+        ang -= 360;
     do {
         state = newState;
         switch (newState) {
@@ -88,7 +91,6 @@ var loop = function () {
                     timeToEvade = sensors.time + TIME_TO_EVADE;
                     newState = 2;
                     shots = 0;
-                    wasHit = false;
                 }
                 else if (sensors.radar.categoryIndex == 2) {
                     newState = 4;
@@ -111,16 +113,28 @@ var loop = function () {
                     timeToEvade = sensors.time + TIME_TO_EVADE;
                     newState = 2;
                     shots = 0;
-                    wasHit = false;
                 } else if (sensors.radar.categoryIndex != 2) {
                     actions.fireShots = 0;
                     newState = 0;
+                    if (Math.sign(ang) == Math.sign(directions))
+                        directions *= -1;
                 }
                 break;
             case 2://evading
-                actions.leftTrackCoef = 1 * directions;
-                actions.rightTrackCoef = 0.8 * directions;
-                if (shots >= 3) {
+                actions.rightTrackCoef = actions.leftTrackCoef = 1;  
+                if(directions<0){
+                    actions.leftTrackCoef -=0.2;
+                }else   {
+                    actions.rightTrackCoef -=0.2;
+                }
+
+                if (wasHit) {
+                    shots += 1;
+                    wasHit = false;
+                    timeToEvade = sensors.time + TIME_TO_EVADE * 0.5;
+                }
+                
+                if (shots > 3) {
                     timeToCollide = sensors.time + TIME_TO_EVADE;
                     newState = 3;
                 }
@@ -128,25 +142,18 @@ var loop = function () {
                     timeToCollide = sensors.time + TIME_TO_COLLIDE;
                     newState = 3;
                 }
-                else if (wasHit) {
-                    shots += 1;
-                    wasHit = false;
-                    timeToEvade = sensors.time + TIME_TO_EVADE * 0.5;
-                }
                 else if (sensors.time >= timeToEvade) {
                     newState = 0;
                 }
                 break;
             case 3://on collission
                 collided = false;
-                actions.leftTrackCoef = actions.rightTrackCoef = -0.5 * directions;
+                actions.leftTrackCoef = actions.rightTrackCoef = -0.5;
                 if (sensors.time >= timeToCollide) {
                     newState = 0;
                 }
+                break;
             case 4://braking
-                ang = sensors.angularVelocity;
-                while (ang > 180)
-                    ang -= 360;
                 if (collided) {
                     timeToCollide = sensors.time + TIME_TO_COLLIDE;
                     newState = 3;
@@ -156,18 +163,18 @@ var loop = function () {
                     newState = 2;
                     shots = 0;
                     wasHit = false;
-                } else if (Math.abs(ang) >= 20) {
+                } else if (Math.abs(ang) >= 5) {
 
-                    actions.leftTrackCoef = -0.5;
-                    actions.rightTrackCoef = 0.5;
+                    actions.leftTrackCoef = -0.1;
+                    actions.rightTrackCoef = 0.1;
                     if (ang < 0) {
                         actions.leftTrackCoef *= -1;
                         actions.rightTrackCoef *= -1;
                     }
                 }
-                else if (Math.abs(sensors.velocity.z) > 40) {
+                else if (Math.abs(sensors.velocity.z) > 10) {
 
-                    actions.leftTrackCoef = actions.rightTrackCoef = -0.5
+                    actions.leftTrackCoef = actions.rightTrackCoef = -0.2
                     if (sensors.velocity.z < 0) {
                         actions.leftTrackCoef *= -1;
                         actions.rightTrackCoef *= -1;
@@ -175,10 +182,6 @@ var loop = function () {
                 }
                 else {
                     newState = 1;
-                    // log("Ang: " + sensors.angularVelocity);
-                    // log("Vel: " + sensors.velocity.z);
-                    directions *= -1;
-                    // loop = function(){};
                 }
 
                 break;
