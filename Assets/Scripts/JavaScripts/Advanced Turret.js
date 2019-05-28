@@ -73,13 +73,13 @@ var TIME_TO_COLLIDE = 3;
 var shots = 0;
 var directions = 1;
 var ang = 0;
-var loop = function() {
+var loop = function () {
     var newState = state;
     do {
         state = newState;
         switch (newState) {
             case 0://search
-                
+
                 if (collided) {
                     timeToCollide = sensors.time + TIME_TO_COLLIDE;
                     newState = 3;
@@ -95,7 +95,7 @@ var loop = function() {
                     break;
                 }
                 actions.leftTrackCoef = 0.22;
-                actions.rightTrackCoef = actions.leftTrackCoef - 0.12 * directions;
+                actions.rightTrackCoef = actions.leftTrackCoef - 0.08 * directions;
                 actions.turretAngularCoef = 1 * directions;
                 actions.radarAngularCoef = radarCoef * directions;
                 break;
@@ -157,7 +157,7 @@ var loop = function() {
                     shots = 0;
                     wasHit = false;
                 } else if (Math.abs(ang) >= 20) {
-                    
+
                     actions.leftTrackCoef = -0.5;
                     actions.rightTrackCoef = 0.5;
                     if (ang < 0) {
@@ -166,7 +166,7 @@ var loop = function() {
                     }
                 }
                 else if (Math.abs(sensors.velocity.z) > 40) {
-                   
+
                     actions.leftTrackCoef = actions.rightTrackCoef = -0.5
                     if (sensors.velocity.z < 0) {
                         actions.leftTrackCoef *= -1;
@@ -174,16 +174,19 @@ var loop = function() {
                     }
                 }
                 else {
-                    newState = 0;
-                    log("Ang: " + sensors.angularVelocity);
-                    log("Vel: " + sensors.velocity.z);
-                    loop = function(){};
+                    newState = 1;
+                    // log("Ang: " + sensors.angularVelocity);
+                    // log("Vel: " + sensors.velocity.z);
+                    directions *= -1;
+                    // loop = function(){};
                 }
 
                 break;
             default:
                 break;
         }
+        if (newState != state)
+            log("NewState: " + newState);
     } while (newState != state);
 }
 
