@@ -11,7 +11,7 @@ using Jurassic.Library;
 [RequireComponent(typeof(DamagableBehaviour))]
 public class Tank : MonoBehaviour, PoliticsSubject
 {
-
+    public const int invisibleId = int.MinValue;
     public bool execute = false;
     [Header("Parts")]
     public string turretGameObjectName = "Turret";
@@ -47,6 +47,7 @@ public class Tank : MonoBehaviour, PoliticsSubject
     private Transform radar;
     private SphereCollider proxor;
     private ObjectInstance statsMirror;
+    private int initialId;
 
 
 
@@ -59,6 +60,7 @@ public class Tank : MonoBehaviour, PoliticsSubject
     }
     protected void StaticStart()
     {
+        initialId = SideId();
         rb = GetComponent<Rigidbody>();
         healthCare = GetComponent<DamagableBehaviour>();
         healthCare.onDamageTaken.AddListener((d) =>
@@ -80,6 +82,17 @@ public class Tank : MonoBehaviour, PoliticsSubject
         proxor.center = turret.localPosition;
         proxor.radius = stats.proxorRadius;
     }
+    public void ToggleIdVisibility()
+    {
+        if(sideIdentifier == initialId)
+        {
+            sideIdentifier = invisibleId;
+        }
+        else
+        {
+            sideIdentifier = initialId;
+        }
+    }
 
     private void FixedUpdate()
     {
@@ -100,7 +113,7 @@ public class Tank : MonoBehaviour, PoliticsSubject
     private void OnCollisionEnter(Collision collision)
     {
         var pol = collision.gameObject.GetComponent<PoliticsSubject>();
-        if(pol==null)
+        if (pol == null)
         {
             grounded = true;
         }
@@ -110,10 +123,10 @@ public class Tank : MonoBehaviour, PoliticsSubject
 
         CallGlobalFunction(onCollisionEnter, info.distance, info.relativeAzimuth, info.category);
     }
-    
+
     private void OnCollisionExit(Collision collision)
     {
-        if(collidingObjects.Remove(collision.gameObject))
+        if (collidingObjects.Remove(collision.gameObject))
         {
             var pol = collision.gameObject.GetComponent<PoliticsSubject>();
             if (pol == null)
@@ -122,7 +135,7 @@ public class Tank : MonoBehaviour, PoliticsSubject
                 foreach (var item in collidingObjects)
                 {
                     pol = item.GetComponent<PoliticsSubject>();
-                    if(pol==null)
+                    if (pol == null)
                     {
                         g = true;
                         break;
@@ -145,7 +158,7 @@ public class Tank : MonoBehaviour, PoliticsSubject
     public const string onDamageTaken = nameof(onDamageTaken);
     public const string onProximityEnter = nameof(onProximityEnter);
     public const string onCollisionEnter = nameof(onCollisionEnter);
-    
+
     public string code
     {
         set
@@ -164,7 +177,7 @@ public class Tank : MonoBehaviour, PoliticsSubject
             }
         }
     }
-    
+
     protected CompiledScript Compile(string value)
     {
         CompiledScript ret = null;
@@ -231,7 +244,8 @@ public class Tank : MonoBehaviour, PoliticsSubject
         try
         {
             UpdateSensorData();
-        }catch(System.NullReferenceException)
+        }
+        catch (System.NullReferenceException)
         {
             ;
         }
@@ -271,7 +285,7 @@ public class Tank : MonoBehaviour, PoliticsSubject
     private void ApplyRadarRotation()
     {
         radarAzimuth = (radarAzimuth + stats.radarAngularSpeed * Time.fixedDeltaTime * actions.radarAngularCoef + 720f) % 360;
-        radar.localRotation = Quaternion.Euler(Vector3.up*radarAzimuth);
+        radar.localRotation = Quaternion.Euler(Vector3.up * radarAzimuth);
         var radarDirection = new Vector3(Mathf.Sin(radarAzimuth * Mathf.Deg2Rad), 0f, Mathf.Cos(radarAzimuth * Mathf.Deg2Rad)).normalized;
         radarDirection = transform.TransformDirection(radarDirection);
         radar.position = turret.position + Vector3.up * radarHeight + radarDirection * radarRadius;
@@ -281,7 +295,7 @@ public class Tank : MonoBehaviour, PoliticsSubject
     private float nextTimeToFire;
     private void ApplyFire()
     {
-        heat -= stats.coolingRate*Time.fixedDeltaTime;
+        heat -= stats.coolingRate * Time.fixedDeltaTime;
         if (heat < 0f)
             heat = 0f;
 
@@ -300,7 +314,7 @@ public class Tank : MonoBehaviour, PoliticsSubject
 
         RaycastHit rhi;
         Ray ray = new Ray(muzzleFlash.transform.position, muzzleFlash.transform.forward);
-        if(Physics.Raycast(ray, out rhi, float.PositiveInfinity, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
+        if (Physics.Raycast(ray, out rhi, float.PositiveInfinity, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
         {
             var impact = Instantiate(impactPrefab);
             impact.transform.SetPositionAndRotation(rhi.point, muzzleFlash.transform.rotation);
@@ -308,33 +322,33 @@ public class Tank : MonoBehaviour, PoliticsSubject
                 Destroy(impact, impactDestructionDelay);
 
             var hc = rhi.collider.gameObject.GetComponent<HealthCare>();
-            if(hc!=null)
+            if (hc != null)
             {
-                var d = new Damage() {ammount = stats.damage.ammount, direction = muzzleFlash.transform.forward };
+                var d = new Damage() { ammount = stats.damage.ammount, direction = muzzleFlash.transform.forward };
                 hc.ReceiveDamage(d);
             }
         }
 
     }
-    
+
     #endregion
     #region TankAPIFunctions
-    
+
     private void UpdateSensorData()
     {
         sensors.azimuth = (transform.rotation.eulerAngles.y + 720f) % 360f;
         sensors.time = Time.time - initTime;
         sensors.health01 = healthCare.Health01();
 
-        sensors.angularVelocity = (rb.angularVelocity.y * Mathf.Rad2Deg+720f)%360f;
+        sensors.angularVelocity = (rb.angularVelocity.y * Mathf.Rad2Deg + 720f) % 360f;
         sensors.velocity = transform.TransformDirection(rb.velocity);
 
         sensors.turret.heat01 = heat;
-        sensors.turret.relativeAzimuth = (turret.localRotation.eulerAngles.y+720f)%360f;
+        sensors.turret.relativeAzimuth = (turret.localRotation.eulerAngles.y + 720f) % 360f;
 
         sensors.radar.relativeAzimuth = radarAzimuth;
         RaycastHit rhi;
-        var radarDirection = new Vector3(Mathf.Sin(radarAzimuth*Mathf.Deg2Rad), 0f, Mathf.Cos(radarAzimuth * Mathf.Deg2Rad));
+        var radarDirection = new Vector3(Mathf.Sin(radarAzimuth * Mathf.Deg2Rad), 0f, Mathf.Cos(radarAzimuth * Mathf.Deg2Rad));
         radarDirection = transform.TransformDirection(radarDirection);
         var radarRay = new Ray(turret.position, radarDirection);
         sensors.radar.distance = float.PositiveInfinity;
@@ -458,9 +472,13 @@ public class Tank : MonoBehaviour, PoliticsSubject
                 var politican = obj.GetComponent<PoliticsSubject>();
                 if (politican != null)
                 {
-                    if (politican.SideId() != allyID)
+                    if (politican.SideId() == invisibleId)
                     {
-                       return Category.Enemy;
+                        return Category.Ground;
+                    }
+                    else if (politican.SideId() != allyID)
+                    {
+                        return Category.Enemy;
                     }
                     else return Category.Ally;
                 }
@@ -478,7 +496,7 @@ public class Tank : MonoBehaviour, PoliticsSubject
                 var alpha = Vector3.Angle(Vector3.forward, center);
                 if (center.x < 0f)
                     alpha *= -1f;
-                return new Radar() { distance = dist, relativeAzimuth = (alpha+720f) % 360f, categoryIndex = cat };
+                return new Radar() { distance = dist, relativeAzimuth = (alpha + 720f) % 360f, categoryIndex = cat };
             }
         }
         public class Turret
@@ -521,7 +539,7 @@ public class Tank : MonoBehaviour, PoliticsSubject
                 throw new System.ArgumentNullException("obj must be an initialized JS object");
 
             var t = typeof(Stats);
-            foreach (var item in t.GetFields().Where(f=>f.IsPublic&&f.FieldType == typeof(float)))
+            foreach (var item in t.GetFields().Where(f => f.IsPublic && f.FieldType == typeof(float)))
             {
                 obj[item.Name] = System.Convert.ToDouble(item.GetValue(this));
             }

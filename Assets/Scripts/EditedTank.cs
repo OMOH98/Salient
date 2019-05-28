@@ -29,6 +29,7 @@ public class EditedTank : MonoBehaviour
     public ProgressBar healthBar;
     public ProgressBar heatBar;
     public RectTransform deathCanvas;
+    public Button invisibilityButton;
     [Header("Example scripts")]
     public List<TextAsset> exampleScripts;
 
@@ -39,6 +40,7 @@ public class EditedTank : MonoBehaviour
     {
         if (staticExamples == null)
             staticExamples = exampleScripts;
+
     }
 
     protected void Start()
@@ -274,6 +276,28 @@ public class EditedTank : MonoBehaviour
             PopulateSavedScriptDropdown(loadDropdown);
         });
         PopulateSavedScriptDropdown(loadDropdown);
+
+        var t = invisibilityButton.GetComponentInChildren<Text>();
+        invisibilityButton.onClick.AddListener(() =>
+        {
+            tank.ToggleIdVisibility();
+            
+            if (t != null)
+            {
+                if (tank.SideId() == Tank.invisibleId)
+                {
+                    t.text = "Set me visible";
+                }
+                else
+                {
+                    t.text = "Set me invisible";
+                }
+            }
+        });
+        do
+        {
+            invisibilityButton.onClick.Invoke();
+        } while (tank.SideId() == Tank.invisibleId);
     }
 
     protected virtual void Update()
