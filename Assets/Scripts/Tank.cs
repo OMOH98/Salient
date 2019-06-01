@@ -224,10 +224,11 @@ public class Tank : MonoBehaviour, PoliticsSubject
     {
         CallGlobalFunction(loopFunction);
     }
-    public void StartScripting(Logger lgr)
+    public void StartScripting(Logger lgr, bool debug = false)
     {
         logger = lgr;
         engine.EnableExposedClrTypes = true;
+        engine.EnableDebugging = debug;
         RestartScripting();
     }
     public void RestartScripting()
