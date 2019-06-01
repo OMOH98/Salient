@@ -20,6 +20,9 @@ public class HeightExpander : MonoBehaviour
 
     public void RefreshHeight()
     {
+        if (img == null)
+            Start();
+
         ratio = (float)img.sprite.texture.height / img.sprite.texture.width;
         el.preferredHeight = img.rectTransform.sizeDelta.x * ratio;
     }
