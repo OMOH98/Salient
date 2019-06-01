@@ -30,6 +30,7 @@ public class EditedTank : MonoBehaviour
     public ProgressBar heatBar;
     public RectTransform deathCanvas;
     public Button invisibilityButton;
+    public Button scriptPlayPauseButton;
     [Header("Example scripts")]
     public List<TextAsset> exampleScripts;
 
@@ -294,20 +295,20 @@ public class EditedTank : MonoBehaviour
         PopulateSavedScriptDropdown(loadDropdown);
         toRepopulate.Add(loadDropdown);
 
-        var t = invisibilityButton.GetComponentInChildren<Text>();
+        var invBtnText = invisibilityButton.GetComponentInChildren<Text>();
         invisibilityButton.onClick.AddListener(() =>
         {
             tank.ToggleIdVisibility();
             
-            if (t != null)
+            if (invBtnText != null)
             {
                 if (tank.SideId() == Tank.invisibleId)
                 {
-                    t.text = "Set me visible";
+                    invBtnText.text = "Set me visible";
                 }
                 else
                 {
-                    t.text = "Set me invisible";
+                    invBtnText.text = "Set me invisible";
                 }
             }
         });
@@ -315,6 +316,35 @@ public class EditedTank : MonoBehaviour
         {
             invisibilityButton.onClick.Invoke();
         } while (tank.SideId() == Tank.invisibleId);
+
+        var scrPlPuBtnText = scriptPlayPauseButton.GetComponentInChildren<Text>();
+        bool enabled = true;
+        scriptPlayPauseButton.onClick.AddListener(() =>
+        {
+            var rgos = UnityEngine.SceneManagement.SceneManager.GetActiveScene().GetRootGameObjects();
+
+            foreach (var go in rgos)
+            {
+                var tanks = go.GetComponentsInChildren<Tank>();
+                foreach (var t in tanks)
+                {
+                    t.enabled = !enabled;
+                }
+            }
+            enabled = !enabled;
+            if(enabled)
+            {
+                scrPlPuBtnText.text = "Pause scripts";
+            }
+            else
+            {
+                scrPlPuBtnText.text = "Resume scripts";
+            }
+        });
+        do
+        {
+            scriptPlayPauseButton.onClick.Invoke();
+        } while (!enabled);
     }
 
     protected virtual void Update()
