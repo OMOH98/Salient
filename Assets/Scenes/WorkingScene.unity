@@ -89,7 +89,7 @@ LightmapSettings:
     m_PVRFilteringAtrousPositionSigmaAO: 1
     m_ShowResolutionOverlay: 1
   m_LightingDataAsset: {fileID: 0}
-  m_UseShadowmask: 1
+  m_UseShadowmask: 0
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -2055,6 +2055,51 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9020701829709268214, guid: 3c0dd79065bc9bb4bb4b728826b0df45,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 499851694667766384, guid: 3c0dd79065bc9bb4bb4b728826b0df45,
+        type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 499851694667766384, guid: 3c0dd79065bc9bb4bb4b728826b0df45,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 499851694667766384, guid: 3c0dd79065bc9bb4bb4b728826b0df45,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 499851694667766384, guid: 3c0dd79065bc9bb4bb4b728826b0df45,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 207195802792297825, guid: 3c0dd79065bc9bb4bb4b728826b0df45,
+        type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 207195802792297825, guid: 3c0dd79065bc9bb4bb4b728826b0df45,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 207195802792297825, guid: 3c0dd79065bc9bb4bb4b728826b0df45,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 207195802792297825, guid: 3c0dd79065bc9bb4bb4b728826b0df45,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 207195802792297825, guid: 3c0dd79065bc9bb4bb4b728826b0df45,
         type: 3}
       propertyPath: m_SizeDelta.x
       value: 0
