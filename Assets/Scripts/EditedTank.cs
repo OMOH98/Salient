@@ -160,6 +160,7 @@ public class EditedTank : MonoBehaviour
                 sb.Replace("\r", "");
                 File.WriteAllText(n + scriptExtention, sb.ToString());
                 logger.Log($"Current script is successfuly saved as \"{n}\"!");
+                RepopulateDropdowns();
             }
             catch (IOException e)
             {
@@ -172,6 +173,21 @@ public class EditedTank : MonoBehaviour
         }
     }
 
+    public static List<TMP_Dropdown> toRepopulate = new List<TMP_Dropdown>();
+    private static void RepopulateDropdowns()
+    {
+        for (int i = 0; i < toRepopulate.Count; i++)
+        {
+            try
+            {
+                PopulateSavedScriptDropdown(toRepopulate[i]);
+            }
+            catch
+            {
+                toRepopulate.RemoveAt(i);
+            }
+        }
+    }
     public static string LoadScript(string requestedName, Tank.Logger logger)
     {
 
@@ -189,7 +205,7 @@ public class EditedTank : MonoBehaviour
             {
                 logger.Log($"Error has occured while loading \"{requestedName}\" script with message \"{e.Message}\". The name would be deleted from selection dropdown.");
                 RemoveScriptName(requestedName);
-                //PopulateSavedScriptDropdown(loadDropdown);
+                RepopulateDropdowns();
                 return "";
             }
             logger.Log($"Script \"{requestedName }\" was successfuly loaded!");
@@ -276,6 +292,7 @@ public class EditedTank : MonoBehaviour
             PopulateSavedScriptDropdown(loadDropdown);
         });
         PopulateSavedScriptDropdown(loadDropdown);
+        toRepopulate.Add(loadDropdown);
 
         var t = invisibilityButton.GetComponentInChildren<Text>();
         invisibilityButton.onClick.AddListener(() =>

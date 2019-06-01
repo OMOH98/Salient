@@ -17,6 +17,7 @@ public class TankSpawnerUI : MonoBehaviour
     {
         spawner = GetComponent<TankSpawner>();
         EditedTank.PopulateSavedScriptDropdown(scriptChoise);
+        EditedTank.toRepopulate.Add(scriptChoise);
         sideChoise.options.Clear();
         foreach (var item in spawner.spawnpoints)
         {
@@ -27,7 +28,9 @@ public class TankSpawnerUI : MonoBehaviour
 
         add.onClick.AddListener(() =>
         {
-            spawner.Spawn(int.Parse(sideChoise.options[sideChoise.value].text), EditedTank.LoadScript(scriptChoise.options[scriptChoise.value].text, new Tank.DummyLogger()));
+            var code = EditedTank.LoadScript(scriptChoise.options[scriptChoise.value].text, new Tank.DummyLogger());
+            if (!string.IsNullOrEmpty(code))
+                spawner.Spawn(int.Parse(sideChoise.options[sideChoise.value].text), code);
         });
     }
 
