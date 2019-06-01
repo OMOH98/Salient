@@ -59,17 +59,25 @@ public class FlexPanel : MonoBehaviour
     }
 
     // Start is called before the first frame update
+    static bool isListeningToSceneChanges = false;
     void Start()
     {
         rt = GetComponent<RectTransform>();
         rt.anchorMin = Vector2.zero;
         rt.anchorMax = Vector2.one;
+        if (!isListeningToSceneChanges)
+        {
+            SceneManager.activeSceneChanged += (replaces, active) => { IdsBaked = false; };
+            isListeningToSceneChanges = true;
+        }
+
         BakeIds();
 
         var k = prefsKey;
         if(PlayerPrefs.HasKey(k))
         {
-            data = JsonUtility.FromJson<Data>(PlayerPrefs.GetString(k));
+            var d = JsonUtility.FromJson<Data>(PlayerPrefs.GetString(k));
+            data = d;
         }
 
         Align();
@@ -229,13 +237,13 @@ public class FlexPanel : MonoBehaviour
     {
         PlayerPrefs.SetString(prefsKey, JsonUtility.ToJson(data));
     }
-    private static bool IdMaked = false;
+    private static bool IdsBaked = false;
     private const int IdSeed = 45184;
     private static void BakeIds()
     {
-        if (IdMaked)
+        if (IdsBaked)
             return;
-        IdMaked = true;
+        IdsBaked = true;
 
         List<uint> usedIds = new List<uint>(16);
         System.Random r = new System.Random(IdSeed);
