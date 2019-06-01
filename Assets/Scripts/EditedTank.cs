@@ -48,7 +48,7 @@ public class EditedTank : MonoBehaviour
     {
         logger = new UserLogger(logField);
         tank = GetComponent<Tank>();
-        tank.StartScripting(logger, true);
+        tank.StartScripting(logger);
         StaticStart();
 
         StartCoroutine(FlexPanel.DelayAction(0.1f, FillInScriptTemplate));
