@@ -235,6 +235,10 @@ public class EditedTank : MonoBehaviour
 
 
     private class DummyBehaviour : MonoBehaviour { }
+    private void OnApplicationQuit()
+    {
+        PlayerPrefs.SetString(autosavedScript, codeField.text);
+    }
     public void Exit()
     {
         deathCanvas.SetParent(null);
@@ -245,11 +249,11 @@ public class EditedTank : MonoBehaviour
             item.gameObject.SetActive(false);
         }
 
-        PlayerPrefs.SetString(autosavedScript, codeField.text);
+
         deathCanvas.gameObject.SetActive(true);
         var b = deathCanvas.gameObject.AddComponent<DummyBehaviour>();
         float startTime = Time.time;
-
+        OnApplicationQuit();
         b.StartCoroutine(FlexPanel.DelayActionWhile(() =>
         {
             var s = UnityEngine.SceneManagement.SceneManager.GetSceneByName(sceneMenu);
