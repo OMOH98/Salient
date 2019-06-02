@@ -99,13 +99,15 @@ public class Tank : MonoBehaviour, PoliticsSubject
         UpdateSensorData();
 
         if (execute)
+        {
             Execute();
-        ValidateActions();
+            ValidateActions();
 
-        ApplyMovement();
-        ApplyTurretRotation();
-        ApplyRadarRotation();
-        ApplyFire();
+            ApplyMovement();
+            ApplyTurretRotation();
+            ApplyRadarRotation();
+            ApplyFire();
+        }
     }
     #region CollisionSensors
     bool grounded = false;
