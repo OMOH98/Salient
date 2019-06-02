@@ -3,6 +3,14 @@ using UnityEngine.Events;
 using UnityEngine.EventSystems;             
 using System.Collections;
 
+#region GlobalInterfaces
+
+public interface Pausable
+{
+    void Pause();
+    void Resume();
+}
+
 [System.Serializable]
 public struct Damage
 {
@@ -20,6 +28,8 @@ public interface HealthCare
     void Resurrect();
     float Health01();
 }
+#endregion
+
 public class DamagableBehaviour : MonoBehaviour, HealthCare
 {
     [Header("Health")]

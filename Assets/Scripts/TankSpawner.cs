@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TankSpawner : MonoBehaviour
+public class TankSpawner : MonoBehaviour, Pausable
 {
     public List<Spawnpoint> spawnpoints;
     public GameObject tankPrefab;
+
 
     protected void Start()
     {
@@ -14,6 +15,10 @@ public class TankSpawner : MonoBehaviour
             point.center.SetParent(null);
         }
     }
+
+    private bool timeFlows = true;
+    public void Resume() { timeFlows = true; }
+    public void Pause() { timeFlows = false; }
 
     public void Spawn(int side, string code)
     {
@@ -37,6 +42,12 @@ public class TankSpawner : MonoBehaviour
         var tankScript = tank.GetComponent<Tank>();
         tankScript.sideIdentifier = side;
         tankScript.code = code;
+        
+        if (!timeFlows)
+        {
+            tankScript.StartCoroutine(FlexPanel.DelayAction(0.2f, tankScript.Pause));
+        }
+            
     }
 
     [System.Serializable]
