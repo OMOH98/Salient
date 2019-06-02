@@ -1,3 +1,11 @@
+//This is a commented template document that does nothing.
+
+//It is written to let you know about possibilities
+//of tank programming interface.
+
+//Change implementations setup, loop and other functions
+//in order to add functionality (see below).
+
 /**
  * @param {String} msg 
  */

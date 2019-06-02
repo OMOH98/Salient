@@ -1,3 +1,8 @@
+//This is a template document that does nothing.
+
+//Change implementations setup, loop and other functions
+//in order to add functionality (see below).
+
 /**
  * @param {String} msg 
  */
