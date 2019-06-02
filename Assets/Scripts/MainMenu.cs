@@ -9,7 +9,6 @@ public class MainMenu : MonoBehaviour
 {
     //public string battleManagementScene;
     public string creditsScene;
-    public string aiManagementScene;
 
     public List<Battle> availableMaps;
     private List<Button> battleButtons;
@@ -141,7 +140,7 @@ public class MainMenu : MonoBehaviour
 
     public void OpenAIManagement()
     {
-        OpenScene(aiManagementScene);
+        OpenScene(EditedTank.sceneSimulation);
     }
     public void OpenOptions()
     {

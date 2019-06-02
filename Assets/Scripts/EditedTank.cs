@@ -256,11 +256,7 @@ public class EditedTank : MonoBehaviour
         OnApplicationQuit();
         b.StartCoroutine(FlexPanel.DelayActionWhile(() =>
         {
-            var s = UnityEngine.SceneManagement.SceneManager.GetSceneByName(sceneMenu);
-            if (s == null || s.buildIndex < 0)
-                UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);
-            else UnityEngine.SceneManagement.SceneManager.LoadScene(s.name);
-
+            UnityEngine.SceneManagement.SceneManager.LoadScene(sceneMenu);
         },
         () =>
         {
@@ -303,7 +299,7 @@ public class EditedTank : MonoBehaviour
         invisibilityButton.onClick.AddListener(() =>
         {
             tank.ToggleIdVisibility();
-            
+
             if (invBtnText != null)
             {
                 if (tank.SideId() == Tank.invisibleId)
@@ -336,7 +332,7 @@ public class EditedTank : MonoBehaviour
                 }
             }
             enabled = !enabled;
-            if(enabled)
+            if (enabled)
             {
                 scrPlPuBtnText.text = "Pause scripts";
             }

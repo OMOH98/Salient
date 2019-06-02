@@ -2230,10 +2230,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   creditsScene: 
-  aiManagementScene: 
   availableMaps:
-  - loadSceneName: 
-    mapName: First map
+  - loadSceneName: QuadArena
+    mapName: Quad
     sides:
     - count: 0
       aiDifficulty: 0
@@ -2241,9 +2240,6 @@ MonoBehaviour:
     - count: 0
       aiDifficulty: 0
       code: 
-  - loadSceneName: 
-    mapName: Second map
-    sides:
     - count: 0
       aiDifficulty: 0
       code: 
