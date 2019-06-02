@@ -1,6 +1,6 @@
-//This is a commented template document that does nothing.
+//This is a commented script template that does nothing.
 
-//It is written to let you know about possibilities
+//It is written to let you know of possibilities
 //of tank programming interface.
 
 //Change implementations setup, loop and other functions

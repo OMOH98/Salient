@@ -1,4 +1,7 @@
-//This is a template document that does nothing.
+//This is a script template that does nothing.
+
+//It is written to let you know of possibilities
+//of tank programming interface.
 
 //Change implementations setup, loop and other functions
 //in order to add functionality (see below).
