@@ -259,7 +259,6 @@ public class EditedTank : MonoBehaviour
 
     protected void StaticStart()
     {
-        //codeField.gameObject.AddComponent<ClearScriptCR>();
         if (PlayerPrefs.HasKey(autosavedScript))
         {
             var lastCode = PlayerPrefs.GetString(autosavedScript);
