@@ -46,5 +46,6 @@ public class TankSpawner : MonoBehaviour
         public float radius = 50f;
         public Material sideMaterial;
         public int sideId;
+        public bool attachCamera;
     }
 }
