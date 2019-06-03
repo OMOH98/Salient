@@ -5630,7 +5630,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1665177144}
   m_Direction: 2
   m_Value: 0
-  m_Size: 1
+  m_Size: 0.9999793
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -6805,7 +6805,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -0.000014645898}
+  m_AnchoredPosition: {x: 0, y: 0.00075316726}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1625658597
@@ -10632,11 +10632,6 @@ PrefabInstance:
         type: 3}
       propertyPath: onDeath.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
-      objectReference: {fileID: 0}
-    - target: {fileID: 2302079590260076930, guid: 9f96de34025f4e3478bcd101b85cd63d,
-        type: 3}
-      propertyPath: m_Name
-      value: body
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9f96de34025f4e3478bcd101b85cd63d, type: 3}
