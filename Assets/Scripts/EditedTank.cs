@@ -315,28 +315,40 @@ public class EditedTank : MonoBehaviour
         {
             var rgos = UnityEngine.SceneManagement.SceneManager.GetActiveScene().GetRootGameObjects();
 
-            foreach (var go in rgos)
-            {
-                var tanks = go.GetComponentsInChildren<Tank>();
-                foreach (var t in tanks)
-                {
-                    t.enabled = !enabled;
-                }
-            }
             enabled = !enabled;
             if (enabled)
             {
                 scrPlPuBtnText.text = "Pause scripts";
+                foreach (var go in rgos)
+                {
+                    var tanks = go.GetComponentsInChildren<Pausable>();
+                    foreach (var t in tanks)
+                    {
+                        t.Resume();
+                    }
+                }
             }
             else
             {
                 scrPlPuBtnText.text = "Resume scripts";
+                foreach (var go in rgos)
+                {
+                    var tanks = go.GetComponentsInChildren<Pausable>();
+                    foreach (var t in tanks)
+                    {
+                        t.Pause();
+                    }
+                }
             }
         });
-        do
+        StartCoroutine(FlexPanel.DelayAction(0.2f, () =>
         {
-            scriptPlayPauseButton.onClick.Invoke();
-        } while (!enabled);
+            do
+            {
+                scriptPlayPauseButton.onClick.Invoke();
+            } while (!enabled);
+        }));
+        
     }
 
     protected virtual void Update()

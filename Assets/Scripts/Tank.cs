@@ -9,10 +9,10 @@ using Jurassic.Library;
 
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(DamagableBehaviour))]
-public class Tank : MonoBehaviour, PoliticsSubject
+public class Tank : MonoBehaviour, PoliticsSubject, Pausable
 {
     public const int invisibleId = int.MinValue;
-    public bool execute = false;
+
     [Header("Parts")]
     public string turretGameObjectName = "Turret";
     public string radarGameObjectName = "Radar";
@@ -48,6 +48,7 @@ public class Tank : MonoBehaviour, PoliticsSubject
     private SphereCollider proxor;
     private ObjectInstance statsMirror;
     private int initialId;
+    private bool execute = true;
 
 
 
@@ -82,17 +83,7 @@ public class Tank : MonoBehaviour, PoliticsSubject
         proxor.center = turret.localPosition;
         proxor.radius = stats.proxorRadius;
     }
-    public void ToggleIdVisibility()
-    {
-        if(sideIdentifier == initialId)
-        {
-            sideIdentifier = invisibleId;
-        }
-        else
-        {
-            sideIdentifier = initialId;
-        }
-    }
+
 
     private void FixedUpdate()
     {
@@ -109,6 +100,39 @@ public class Tank : MonoBehaviour, PoliticsSubject
             ApplyFire();
         }
     }
+
+    #region Features
+    public void ToggleIdVisibility()
+    {
+        if (sideIdentifier == initialId)
+        {
+            sideIdentifier = invisibleId;
+        }
+        else
+        {
+            sideIdentifier = initialId;
+        }
+    }
+
+    private Vector3 prevVelocity;
+    private Vector3 prevAngVelocity;
+    public void Pause()
+    {
+        prevVelocity = rb.velocity;
+        prevAngVelocity = rb.angularVelocity;
+        execute = false;
+        rb.velocity = rb.angularVelocity = Vector3.zero;
+        rb.isKinematic = true;
+    }
+    public void Resume()
+    {
+        rb.velocity = prevVelocity;
+        rb.angularVelocity = prevAngVelocity;
+        rb.isKinematic = false;
+        execute = true;
+    }
+    #endregion
+
     #region CollisionSensors
     bool grounded = false;
     List<GameObject> collidingObjects = new List<GameObject>();
