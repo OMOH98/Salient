@@ -106,7 +106,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d1d5fc222cc64b49936e99737e6cd3c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  execute: 1
   turretGameObjectName: Turret
   radarGameObjectName: Radar
   radarRadius: 4
