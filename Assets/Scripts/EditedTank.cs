@@ -52,6 +52,7 @@ public class EditedTank : MonoBehaviour
         StaticStart();
 
         StartCoroutine(FlexPanel.DelayAction(0.1f, FillInScriptTemplate));
+
     }
 
     public void FillInScriptTemplate()
@@ -59,14 +60,55 @@ public class EditedTank : MonoBehaviour
         if (codeField.text.Length <= 3)
             codeField.text = scriptTemplate.text;
     }
-    int prevLength = 0;
-    public void ClearScriptCR()
+
+
+    public class ClearScriptCR : MonoBehaviour
     {
-        if (codeField.text.Length - prevLength > 3)
+        public int treshold = 3;
+
+        const string text = "text";
+        int prevLength = 0;
+        
+        dynamic tmpField;
+        //System.Reflection.PropertyInfo textProp;
+        private void Start()
         {
-            var sb = new StringBuilder(codeField.text);
+            var components = (from c in GetComponents(typeof(Component))
+                       where c.GetType().GetProperties().ToList().Find((inf) =>
+                       {
+                           return inf.CanRead&&inf.CanWrite && inf.PropertyType == typeof(string) && inf.Name == text;
+                       }) != null
+                       select c).ToArray();
+            if (components.Length > 0)
+            {
+                tmpField = components[0];
+                //textProp = tmpField.GetType().GetProperty(text);
+            }
+        }
+
+        bool works = true;
+        private void Update()
+        {
+            if (!works)
+                return;
+            if(tmpField==null)
+            {
+                Debug.LogWarning($"No component with text property was found on {gameObject.name} game object");
+                works = false;
+                return;
+            }
+
+            if (tmpField != null && tmpField.text.Length - prevLength > treshold)
+            {
+                tmpField.text = ClearCR(tmpField.text);
+            }
+            prevLength = tmpField.text.Length;
+        }
+        public static string ClearCR(string input)
+        {
+            var sb = new StringBuilder(input);
             sb.Replace("\r", "");
-            codeField.text = sb.ToString();
+            return sb.ToString();
         }
     }
 
@@ -266,7 +308,7 @@ public class EditedTank : MonoBehaviour
 
     protected void StaticStart()
     {
-
+        codeField.gameObject.AddComponent<ClearScriptCR>();
         if (PlayerPrefs.HasKey(autosavedScript))
         {
             var lastCode = PlayerPrefs.GetString(autosavedScript);
