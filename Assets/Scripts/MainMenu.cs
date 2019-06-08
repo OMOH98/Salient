@@ -7,15 +7,13 @@ using System.Linq;
 
 public class MainMenu : MonoBehaviour
 {
-    //public string battleManagementScene;
     public string creditsScene;
-    public string aiManagementScene;
 
     public List<Battle> availableMaps;
     private List<Button> battleButtons;
 
     [Header("Battle management UI")]
-    
+
 
     public GameObject battleListPanel;
     public GameObject blScrollViewContent;
@@ -29,8 +27,9 @@ public class MainMenu : MonoBehaviour
     public GameObject bpScrollViewContent;
     public GameObject bpSidePrefab;
     private const string bpsCountInputField = "Count";
-    private const string bpsAiDropdown = "AI";
+    private const string bpsAiScriptDropdown = "ScriptSelectDropdown";
     private const string bpsCodeInputField = "Code";
+    private const string bpsAttachToggle = "CameraToggle";
 
     // Start is called before the first frame update
     void Start()
@@ -44,7 +43,8 @@ public class MainMenu : MonoBehaviour
             txt.text = item.mapName;
             var btncmp = btn.GetComponent<Button>();
             var inx = battleButtons.Count;
-            btncmp.onClick.AddListener(() => {
+            btncmp.onClick.AddListener(() =>
+            {
                 OpenBattleProperties(inx);
             });
             btn.transform.SetParent(blScrollViewContent.transform);
@@ -59,12 +59,6 @@ public class MainMenu : MonoBehaviour
         battlePropertiesPanel.SetActive(false);
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     private int currentBattleInx;
     private void OpenBattleProperties(int battleIndex)
     {
@@ -74,9 +68,10 @@ public class MainMenu : MonoBehaviour
         var battle = availableMaps[battleIndex];
         bpMapName.text = string.Format("Map: \"{0}\":", battle.mapName);
 
-        //BAD: it is not that smart to destroy all the gameobjects and than instantiate same. Not only is it a performance issue, it also kills all the data user may has entered.
+        //BAD: it is not that smart to destroy all the gameobjects and than instantiate same. 
+        //Not only is it a performance issue, it also kills all the data user may has entered.
         List<GameObject> finalSolutionCandidates = new List<GameObject>();
-        for(int i=0; i<bpScrollViewContent.transform.childCount; i++)
+        for (int i = 0; i < bpScrollViewContent.transform.childCount; i++)
         {
             finalSolutionCandidates.Add(bpScrollViewContent.transform.GetChild(i).gameObject);
         }
@@ -89,6 +84,9 @@ public class MainMenu : MonoBehaviour
         {
             var side = Instantiate(bpSidePrefab);
             side.transform.SetParent(bpScrollViewContent.transform);
+            var scriptDropdown = side.transform.Find(bpsAiScriptDropdown).GetComponent<Dropdown>();
+            EditedTank.PopulateSavedScriptDropdown(scriptDropdown);
+            EditedTank.toRepopulate.Add(scriptDropdown);
         }
     }
 
@@ -98,13 +96,22 @@ public class MainMenu : MonoBehaviour
         for (int i = 0; i < battle.sides.Count && i < bpScrollViewContent.transform.childCount; i++)
         {
             var side = bpScrollViewContent.transform.GetChild(i);
-            var count = side.transform.Find(bpsCountInputField).GetComponent<InputField>().text;
-            var aiInx = side.transform.Find(bpsAiDropdown).GetComponent<Dropdown>().value;
-            string code = side.transform.Find(bpsCodeInputField).GetComponent<InputField>().text;
+            var count = side.transform.Find(bpsCountInputField).GetComponent<InputField>();
+            var aiDpdn = side.transform.Find(bpsAiScriptDropdown).GetComponent<Dropdown>();
+            var codeFld = side.transform.Find(bpsCodeInputField).GetComponent<InputField>();
+            var camTgl = side.transform.Find(bpsAttachToggle).GetComponent<Toggle>();
 
-            battle.sides[i].count = int.Parse(count);
-            battle.sides[i].aiDifficulty = (Battle.Side.LAID)aiInx;
-            battle.sides[i].code = code;
+            if(aiDpdn.gameObject.activeInHierarchy)
+            {
+                battle.sides[i].code = EditedTank.LoadScript(aiDpdn.options[aiDpdn.value].text, new Tank.DummyLogger());
+            }
+            else
+            {
+                battle.sides[i].code = codeFld.text;
+            }
+            battle.sides[i].count = int.Parse(count.text);
+            battle.sides[i].sideId = i;
+            battle.sides[i].attachCamera = camTgl.isOn;
         }
 
         var prev = SceneManager.GetActiveScene().GetRootGameObjects();
@@ -116,8 +123,6 @@ public class MainMenu : MonoBehaviour
 
         var preserver = new GameObject();
         preserver.name = BattleInfo.infoGameObjectName;
-
-        
 
         var pb = preserver.AddComponent<BattleInfo>();
         pb.battle = battle;
@@ -141,7 +146,7 @@ public class MainMenu : MonoBehaviour
 
     public void OpenAIManagement()
     {
-        OpenScene(aiManagementScene);
+        OpenScene(EditedTank.sceneSimulation);
     }
     public void OpenOptions()
     {
@@ -154,7 +159,7 @@ public class MainMenu : MonoBehaviour
 
     private void OpenScene(string sceneName)
     {
-        if(!string.IsNullOrEmpty(sceneName))
+        if (!string.IsNullOrEmpty(sceneName))
         {
             SceneManager.LoadScene(sceneName);
         }
@@ -163,7 +168,7 @@ public class MainMenu : MonoBehaviour
             Debug.Log($"coming soon!");
         }
     }
-    
+
 }
 
 [System.Serializable]
@@ -173,21 +178,38 @@ public class Battle
     public class Side
     {
         public int count;
-        public enum LAID
-        {
-            disabled, easy, medium, expert, userDefined
-        }
-        public LAID aiDifficulty;
+        public int sideId;
         public string code;
-        //public Color color;
+        public bool attachCamera;
     }
     public string loadSceneName;
     public string mapName;
     public List<Side> sides;
 }
 
-public class BattleInfo: MonoBehaviour
+public class BattleInfo : MonoBehaviour
 {
     public const string infoGameObjectName = "ChosenBattle";
     public Battle battle;
+
+    private void Awake()
+    {
+        SceneManager.activeSceneChanged += SceneManager_activeSceneChanged;
+    }
+
+    private void SceneManager_activeSceneChanged(Scene arg0, Scene arg1)
+    {
+        StartCoroutine(FlexPanel.DelayAction(0.05f, () =>
+        {
+            var spawners = (from s in arg1.GetRootGameObjects()
+                           where s.GetComponent<TankSpawner>() != null
+                           select s.GetComponent<TankSpawner>()).ToArray();
+            if(spawners.Length>0)
+            {
+                spawners[0].SpawnFromBattle(battle);
+            }
+            Destroy(gameObject);
+        }));
+        SceneManager.activeSceneChanged -= SceneManager_activeSceneChanged;
+    }
 }

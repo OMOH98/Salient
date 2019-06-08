@@ -4,30 +4,23 @@ using System.Linq;
 using UnityEngine.UI;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-//using System.Runtime.Serialization;
-//using System.Runtime.Serialization;
+using UnityEngine.Events;
 
 
 [RequireComponent(typeof(RectTransform))]
 public class FlexPanel : MonoBehaviour
 {
 
-    //[Range(0f, 1f)]
-    //public float widthCoef=1f;
-    //[Range(0f, 1f)]
-    //public float heightCoef=1f;
-    //public FlexAlignment _alignment = FlexAlignment.left;
 
     public Data data;
     public uint id; //id unique to all flexPanels
 
     [EnumFlags]
-    public FlexAlignment allowedAlignmens;// = FlexAlignment.left|FlexAlignment.right;
+    public FlexAlignment allowedAlignmens;
     public float paddingLeft, paddingRight;
     public bool changeableWidth = true;
     public float minWidth = 0.2f;
     public float maxWidth = 1f;
-    //public bool changeableHeight = false;
     public bool allowHide = true;
 
     public GameObject buttonPrefab;
@@ -35,6 +28,8 @@ public class FlexPanel : MonoBehaviour
 
     public Transform trayButtonsParent;
     public Transform controlsParent = null;
+
+    public UnityEvent onResize;
 
     private RectTransform rt;
     private Button trayButton;
@@ -77,6 +72,11 @@ public class FlexPanel : MonoBehaviour
         if(PlayerPrefs.HasKey(k))
         {
             var d = JsonUtility.FromJson<Data>(PlayerPrefs.GetString(k));
+            if (changeableWidth && d.widthCoef < minWidth)
+                d.widthCoef = minWidth;
+            if ((d.alignment & allowedAlignmens) == 0)
+                d.alignment = NextAllowedAlignment();
+            d.heightCoef = Mathf.Max(d.heightCoef, data.heightCoef);
             data = d;
         }
 
@@ -214,6 +214,8 @@ public class FlexPanel : MonoBehaviour
 
         rt.anchoredPosition = new Vector2(apx, apy);
         rt.sizeDelta = new Vector2(sdx, sdy);
+
+        onResize.Invoke();
     }
     #endregion
     #region DelayCoroutines

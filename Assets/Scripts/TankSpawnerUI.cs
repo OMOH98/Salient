@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
+
 
 [RequireComponent(typeof(TankSpawner))]
 public class TankSpawnerUI : MonoBehaviour
 {
-    public TMP_Dropdown scriptChoise;
-    public TMP_Dropdown sideChoise;
+    public Dropdown scriptChoise;
+    public Dropdown sideChoise;
     public Button add;
 
     TankSpawner spawner;
@@ -21,7 +21,7 @@ public class TankSpawnerUI : MonoBehaviour
         sideChoise.options.Clear();
         foreach (var item in spawner.spawnpoints)
         {
-            sideChoise.options.Add(new TMP_Dropdown.OptionData(item.sideId.ToString()));
+            sideChoise.options.Add(new Dropdown.OptionData(item.sideId.ToString()));
         }
         sideChoise.value = -1;
         sideChoise.value = 0;

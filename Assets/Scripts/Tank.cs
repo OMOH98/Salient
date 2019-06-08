@@ -380,7 +380,6 @@ public class Tank : MonoBehaviour, PoliticsSubject, Pausable
         sensors.radar.distance = float.PositiveInfinity;
         if (Physics.Raycast(radarRay, out rhi, float.PositiveInfinity, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
         {
-            Debug.DrawLine(radarRay.origin, rhi.point, Color.red);
             sensors.radar.distance = rhi.distance;
             sensors.radar.categoryIndex = Sensors.Radar.Categorize(rhi.collider.gameObject, SideId());
         }

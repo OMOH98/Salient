@@ -23,7 +23,7 @@ public class CamControl : MonoBehaviour {
     Coroutine movementToPlayer = null;
     GameObject target;
     private bool _followPlayer;
-    bool followPlayer
+    protected bool followPlayer
     {
         get { return _followPlayer; }
         set
@@ -56,7 +56,7 @@ public class CamControl : MonoBehaviour {
     public void DisableInput() { readInput = false; }
 
 
-	void Start () {
+	protected virtual void Start () {
         
         alpha = 70f;
         dist = 30f;
@@ -75,7 +75,7 @@ public class CamControl : MonoBehaviour {
     }
 	
 	// Update is called once per frame
-	void Update () {
+	protected virtual void Update () {
         if (target == null)
             CreateTarget();
         var input = Vector3.zero;

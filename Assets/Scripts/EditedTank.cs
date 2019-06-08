@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
+
 using System.Text;
 
 [RequireComponent(typeof(Tank))]
@@ -20,29 +20,20 @@ public class EditedTank : MonoBehaviour
 
     [Header("UI")]
     public TextAsset scriptTemplate;
-    public TMP_InputField codeField;
-    public TMP_InputField logField;
+    public InputField codeField;
+    public InputField logField;
     public Button saveAsButton;
-    public TMP_InputField saveAsNameField;
+    public InputField saveAsNameField;
     public Button loadButton;
-    public TMP_Dropdown loadDropdown;
+    public Dropdown loadDropdown;
     public ProgressBar healthBar;
     public ProgressBar heatBar;
     public RectTransform deathCanvas;
     public Button invisibilityButton;
     public Button scriptPlayPauseButton;
-    [Header("Example scripts")]
-    public List<TextAsset> exampleScripts;
 
     private Tank tank;
     private UserLogger logger;
-
-    protected void Awake()
-    {
-        if (staticExamples == null)
-            staticExamples = exampleScripts;
-
-    }
 
     protected void Start()
     {
@@ -52,6 +43,7 @@ public class EditedTank : MonoBehaviour
         StaticStart();
 
         StartCoroutine(FlexPanel.DelayAction(0.1f, FillInScriptTemplate));
+
     }
 
     public void FillInScriptTemplate()
@@ -59,16 +51,8 @@ public class EditedTank : MonoBehaviour
         if (codeField.text.Length <= 3)
             codeField.text = scriptTemplate.text;
     }
-    int prevLength = 0;
-    public void ClearScriptCR()
-    {
-        if (codeField.text.Length - prevLength > 3)
-        {
-            var sb = new StringBuilder(codeField.text);
-            sb.Replace("\r", "");
-            codeField.text = sb.ToString();
-        }
-    }
+
+
 
     #region ScriptIO
     public static List<string> GetScriptNames()
@@ -110,21 +94,21 @@ public class EditedTank : MonoBehaviour
         return ret;
     }
 
-    public static List<TextAsset> staticExamples = null;
-    public static void PopulateSavedScriptDropdown(TMP_Dropdown loadDropdown)
+    public static void PopulateSavedScriptDropdown(Dropdown loadDropdown)
     {
         loadDropdown.ClearOptions();
-        if (!PlayerPrefs.HasKey(scriptNames))
-            return;
-        var names = GetScriptNames();
         var ops = loadDropdown.options;
-        foreach (var n in names)
+        if (PlayerPrefs.HasKey(scriptNames))
         {
-            ops.Add(new TMP_Dropdown.OptionData(n));
+            var names = GetScriptNames();
+            foreach (var n in names)
+            {
+                ops.Add(new Dropdown.OptionData(n));
+            }
         }
-        foreach (var item in staticExamples)
+        foreach (var item in StaticExamples.list)
         {
-            ops.Add(new TMP_Dropdown.OptionData("i.e. " + item.name));
+            ops.Add(new Dropdown.OptionData("i.e. " + item.name));
         }
 
         loadDropdown.value = 1;
@@ -174,7 +158,7 @@ public class EditedTank : MonoBehaviour
         }
     }
 
-    public static List<TMP_Dropdown> toRepopulate = new List<TMP_Dropdown>();
+    public static List<Dropdown> toRepopulate = new List<Dropdown>();
     private static void RepopulateDropdowns()
     {
         for (int i = 0; i < toRepopulate.Count; i++)
@@ -214,7 +198,7 @@ public class EditedTank : MonoBehaviour
         }
         else
         {
-            foreach (var item in staticExamples)
+            foreach (var item in StaticExamples.list)
             {
                 if (requestedName.Contains(item.name))
                 {
@@ -256,11 +240,7 @@ public class EditedTank : MonoBehaviour
         OnApplicationQuit();
         b.StartCoroutine(FlexPanel.DelayActionWhile(() =>
         {
-            var s = UnityEngine.SceneManagement.SceneManager.GetSceneByName(sceneMenu);
-            if (s == null || s.buildIndex < 0)
-                UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);
-            else UnityEngine.SceneManagement.SceneManager.LoadScene(s.name);
-
+            UnityEngine.SceneManagement.SceneManager.LoadScene(sceneMenu);
         },
         () =>
         {
@@ -270,7 +250,7 @@ public class EditedTank : MonoBehaviour
 
     protected void StaticStart()
     {
-
+        deathCanvas.gameObject.SetActive(false);
         if (PlayerPrefs.HasKey(autosavedScript))
         {
             var lastCode = PlayerPrefs.GetString(autosavedScript);
@@ -285,7 +265,7 @@ public class EditedTank : MonoBehaviour
         });
         loadButton.onClick.AddListener(() =>
         {
-            if (!PlayerPrefs.HasKey(scriptNames) || loadDropdown.value < 0 || loadDropdown.options.Count <= 0)
+            if (loadDropdown.value < 0 || loadDropdown.options.Count <= 0)
             {
                 logger.Log("There are no saved scripts to load");
                 return;
@@ -303,7 +283,7 @@ public class EditedTank : MonoBehaviour
         invisibilityButton.onClick.AddListener(() =>
         {
             tank.ToggleIdVisibility();
-            
+
             if (invBtnText != null)
             {
                 if (tank.SideId() == Tank.invisibleId)
@@ -328,7 +308,7 @@ public class EditedTank : MonoBehaviour
             var rgos = UnityEngine.SceneManagement.SceneManager.GetActiveScene().GetRootGameObjects();
 
             enabled = !enabled;
-            if(enabled)
+            if (enabled)
             {
                 scrPlPuBtnText.text = "Pause scripts";
                 foreach (var go in rgos)
@@ -371,8 +351,8 @@ public class EditedTank : MonoBehaviour
 
     public class UserLogger : Tank.Logger
     {
-        private TMP_InputField logField;
-        public UserLogger(TMP_InputField ui)
+        private InputField logField;
+        public UserLogger(InputField ui)
         {
             logField = ui;
             ui.readOnly = true;

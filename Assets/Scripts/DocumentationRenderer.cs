@@ -2,12 +2,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UI;
-using TMPro;
+
 
 public class DocumentationRenderer : MonoBehaviour
 {
-    public TMP_Dropdown selector;
-    public TMP_Text text;
+    public Dropdown selector;
+    public Text text;
     public Image image;
     public List<DocPart> parts;
 
@@ -27,7 +27,7 @@ public class DocumentationRenderer : MonoBehaviour
         selector.options.Clear();
         foreach (var item in parts)
         {
-            selector.options.Add(new TMP_Dropdown.OptionData(item.name));
+            selector.options.Add(new Dropdown.OptionData(item.name));
         }
         selector.value = -1;
         selector.value = 0;
