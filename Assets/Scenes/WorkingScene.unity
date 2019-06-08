@@ -89,7 +89,7 @@ LightmapSettings:
     m_PVRFilteringAtrousPositionSigmaAO: 1
     m_ShowResolutionOverlay: 1
   m_LightingDataAsset: {fileID: 0}
-  m_UseShadowmask: 0
+  m_UseShadowmask: 1
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -7192,7 +7192,7 @@ MonoBehaviour:
   OnSelectField:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 325044276}
         m_MethodName: DisableInput
         m_Mode: 1
         m_Arguments:
@@ -7208,7 +7208,7 @@ MonoBehaviour:
   OnDeselectField:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 325044276}
         m_MethodName: EnableInput
         m_Mode: 1
         m_Arguments:
@@ -7308,7 +7308,7 @@ MonoBehaviour:
   m_OnEndEdit:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 245455465}
         m_MethodName: FillInScriptTemplate
         m_Mode: 1
         m_Arguments:
@@ -12422,7 +12422,7 @@ GameObject:
   - component: {fileID: 1770023559}
   - component: {fileID: 1770023558}
   m_Layer: 5
-  m_Name: MainCanvass
+  m_Name: MainCanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -13170,13 +13170,13 @@ MonoBehaviour:
     sideMaterial: {fileID: 2100000, guid: 5874dfd92ace58b40bbbff0b8782f484, type: 2}
     sideId: 1
     defaultCode: 
-    attachCamera: 0
+    attachCamera: 1
   - center: {fileID: 956616751}
     radius: 40
     sideMaterial: {fileID: 2100000, guid: 3421b7307b48a46438a83b0055a092a7, type: 2}
     sideId: 2
     defaultCode: 
-    attachCamera: 0
+    attachCamera: 1
   tankPrefab: {fileID: 2302079590260076928, guid: 9f96de34025f4e3478bcd101b85cd63d,
     type: 3}
 --- !u!114 &1955948743
