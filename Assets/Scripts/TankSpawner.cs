@@ -18,7 +18,14 @@ public class TankSpawner : MonoBehaviour, Pausable
         {
             spawnpoints[i].center.SetParent(null);
             var c = new GameObject(spawnpoints[i].sideMaterial.name + " center");
+            c.transform.SetPositionAndRotation(spawnpoints[i].center.position, Quaternion.identity);
             centres.Add(spawnpoints[i], c.AddComponent<CenterOfGroup>());
+        }
+
+        var advcam = Camera.main.GetComponent<MultipleCamControl>();
+        if(advcam!=null)
+        {
+            advcam.targets.AddRange(from c in centres.Values select c.gameObject);
         }
     }
 

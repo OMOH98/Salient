@@ -15,19 +15,19 @@ public class MultipleCamControl : CamControl
     // Update is called once per frame
     protected override void Update()
     {
-        base.Update();
-        if (Input.GetButtonDown("Follow"))
+        
+        if (followPlayer && Input.GetButtonDown("Follow"))
         {
-            currentInx++;
-            if(currentInx == targets.Count)
-            {
-                currentInx = -1;
-            }
-            else
-            {
+                currentInx++;
+                if (currentInx == targets.Count)
+                {
+                    currentInx = 0;
+                }
+
                 player = targets[currentInx];
+                followPlayer = false;
                 followPlayer = true;
-            }
         }
+        else base.Update();
     }
 }

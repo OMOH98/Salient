@@ -2614,17 +2614,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 325044274}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f95b49998b4e7c84698c62caad72cb5a, type: 3}
+  m_Script: {fileID: 11500000, guid: 6e7e52153b3cc684e81eb68788a8e443, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 245455462}
+  player: {fileID: 0}
   readInput: 1
   maxDist: 150
   minDist: 5
   rotationSpeed: 90
   changeDistSpeed: 800
   movementSpeed: 24
-  timeToMoveToPlayer: 0.7
+  timeToMoveToPlayer: 0.5
+  targets:
+  - {fileID: 245455462}
 --- !u!81 &325044277
 AudioListener:
   m_ObjectHideFlags: 0

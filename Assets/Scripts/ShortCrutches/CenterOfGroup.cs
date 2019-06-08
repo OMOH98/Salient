@@ -6,10 +6,19 @@ using System.Collections.Generic;
 public class CenterOfGroup : MonoBehaviour
 {
     public List<GameObject> group;
+
+    private Rigidbody rb;
+
     private void Awake()
     {
         if (group == null)
             group = new List<GameObject>();
+    }
+
+    private void Start()
+    {
+        rb = GetComponent<Rigidbody>();
+        rb.isKinematic = true;
     }
 
     // Update is called once per frame

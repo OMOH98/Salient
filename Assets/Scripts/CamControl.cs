@@ -32,6 +32,11 @@ public class CamControl : MonoBehaviour {
             {
                 if (!_followPlayer)
                 {
+                    if (movementToPlayer != null)
+                    {
+                        StopCoroutine(movementToPlayer);
+                        movementToPlayer = null;
+                    }
                     movementToPlayer = StartCoroutine(MoveTargetToPosition(player.transform, target.transform, timeToMoveToPlayer, () =>
                     {
                         target.transform.SetParent(player.transform);
@@ -44,7 +49,10 @@ public class CamControl : MonoBehaviour {
             else if(_followPlayer)
             {
                 if (movementToPlayer != null)
+                {
                     StopCoroutine(movementToPlayer);
+                    movementToPlayer = null;
+                }
                 target.transform.SetParent(null);
                 onBreakFollow?.Invoke();
             }
