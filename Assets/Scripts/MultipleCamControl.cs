@@ -9,14 +9,17 @@ public class MultipleCamControl : CamControl
 
     protected override void Start()
     {
-        base.player = targets[currentInx];
+        if (targets.Count > 0)
+            base.player = targets[currentInx];
         base.Start();
     }
     // Update is called once per frame
     protected override void Update()
     {
+        if (player == null && targets.Count > 0)
+            player = targets[0];
         
-        if (followPlayer && Input.GetButtonDown("Follow"))
+        if (readInput && followPlayer && Input.GetButtonDown("Follow"))
         {
                 currentInx++;
                 if (currentInx == targets.Count)

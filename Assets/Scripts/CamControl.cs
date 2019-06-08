@@ -28,6 +28,11 @@ public class CamControl : MonoBehaviour {
         get { return _followPlayer; }
         set
         {
+            if(player == null)
+            {
+                _followPlayer = false;
+                return;
+            }
             if(value)
             {
                 if (!_followPlayer)
