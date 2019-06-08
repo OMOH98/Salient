@@ -7,10 +7,10 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: GlowingTrackGreen
-  m_Shader: {fileID: 4800000, guid: e07c2b3fa7302a6448ef64c4a99c4a02, type: 3}
-  m_ShaderKeywords: 
-  m_LightmapFlags: 4
+  m_Name: Wire
+  m_Shader: {fileID: 4800000, guid: 933532a4fcc9baf4fa0491de14d08ed7, type: 3}
+  m_ShaderKeywords: _EMISSION
+  m_LightmapFlags: 2
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
@@ -19,10 +19,6 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
-    - Texture2D_BCFDFEE4:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
     - _BumpMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -48,12 +44,6 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
-    - Vector1_8B1630B5: 1.46
-    - Vector1_9DC8E74D: 0
-    - Vector1_DD82EEE1: 0
-    - Vector1_E4869AA: 6
-    - Vector1_E8796686: 0.98
-    - Vector1_FECB3D10: 1
     - _AlphaClip: 0
     - _Blend: 0
     - _BumpScale: 1
@@ -63,7 +53,7 @@ Material:
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
-    - _Metallic: 0
+    - _Metallic: 0.52
     - _OcclusionStrength: 1
     - _ReceiveShadows: 1
     - _SmoothnessTextureChannel: 0
@@ -73,14 +63,6 @@ Material:
     - _WorkflowMode: 1
     - _ZWrite: 1
     m_Colors:
-    - Color_35B10F4A: {r: 0.32941177, g: 2.9960785, b: 0, a: 0}
-    - Color_79B1C5F6: {r: 0.18869014, g: 2.670157, b: 0, a: 0}
-    - Color_898FE996: {r: 0.49019608, g: 0.49019608, b: 0.49019608, a: 0}
-    - Color_AF59BCD1: {r: 0, g: 0, b: 0, a: 0}
-    - Color_B37192AC: {r: 0, g: 0, b: 0, a: 0}
-    - Color_E2919D9B: {r: 0.77254903, g: 0.77254903, b: 0.77254903, a: 0}
-    - Vector2_C149EA0C: {r: 0, g: 0, b: 0, a: 0}
-    - Vector2_EC4BD5B4: {r: 0, g: 0, b: 0, a: 0}
-    - _Color: {r: 0.5, g: 0.5, b: 0.5, a: 1}
-    - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _SpecColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _EmissionColor: {r: 0.83137256, g: 0.83137256, b: 0.83137256, a: 1}
+    - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
