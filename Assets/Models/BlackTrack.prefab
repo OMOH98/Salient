@@ -108,8 +108,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   turretGameObjectName: Turret
   radarGameObjectName: Radar
-  radarRadius: 4
-  radarHeight: 1.1
+  radarRadius: 2.5
+  radarHeight: 0.8
   muzzleGameObjectName: Muzzle
   impactPrefab: {fileID: 100010, guid: 68b851daa6d71e842a86ea9fbb62daae, type: 3}
   stats:
