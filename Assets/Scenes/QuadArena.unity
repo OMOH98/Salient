@@ -835,13 +835,13 @@ MonoBehaviour:
     sideMaterial: {fileID: 2100000, guid: 5874dfd92ace58b40bbbff0b8782f484, type: 2}
     sideId: 2
     defaultCode: 
-    attachCamera: 0
+    attachCamera: 1
   - center: {fileID: 975068879}
     radius: 15
     sideMaterial: {fileID: 2100000, guid: 3421b7307b48a46438a83b0055a092a7, type: 2}
     sideId: 3
     defaultCode: 
-    attachCamera: 0
+    attachCamera: 1
   - center: {fileID: 704654345}
     radius: 15
     sideMaterial: {fileID: 2100000, guid: 87495d5a1995a60428f1adbed06472b4, type: 2}
@@ -859,7 +859,7 @@ MonoBehaviour:
     sideMaterial: {fileID: 2100000, guid: c95e13685e1d97f438b932cb93f04c17, type: 2}
     sideId: 6
     defaultCode: 
-    attachCamera: 0
+    attachCamera: 1
   tankPrefab: {fileID: 2302079590260076928, guid: 9f96de34025f4e3478bcd101b85cd63d,
     type: 3}
 --- !u!1 &1959547672

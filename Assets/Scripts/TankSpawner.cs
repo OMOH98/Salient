@@ -10,7 +10,7 @@ public class TankSpawner : MonoBehaviour, Pausable
     public GameObject tankPrefab;
 
     Dictionary<Spawnpoint, CenterOfGroup> centres;
-
+    MultipleCamControl mcc;
     protected void Start()
     {
         centres = new Dictionary<Spawnpoint, CenterOfGroup>(spawnpoints.Count);
@@ -22,10 +22,10 @@ public class TankSpawner : MonoBehaviour, Pausable
             centres.Add(spawnpoints[i], c.AddComponent<CenterOfGroup>());
         }
 
-        var advcam = Camera.main.GetComponent<MultipleCamControl>();
-        if(advcam!=null)
+        mcc = Camera.main.GetComponent<MultipleCamControl>();
+        if(mcc!=null)
         {
-            advcam.targets.AddRange(from c in centres.Values select c.gameObject);
+            mcc.targets.AddRange(from c in spawnpoints where c.attachCamera select centres[c].gameObject);
         }
     }
 
@@ -74,6 +74,9 @@ public class TankSpawner : MonoBehaviour, Pausable
         {
             spawnpoints[i].FetchFromSide(info.sides[i]);
         }
+        if (mcc != null)
+            mcc.UpdateTargets(from t in spawnpoints where t.attachCamera select centres[t].gameObject);
+
         for (int i = 0; i < spawnpoints.Count && i<info.sides.Count; i++)
         {
             for (int j = 0; j < info.sides[i].count; j++)
