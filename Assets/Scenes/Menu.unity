@@ -776,7 +776,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.5647059}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.7411765}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -1012,7 +1012,7 @@ PrefabInstance:
     - target: {fileID: 2416599699155911750, guid: 00c8398a85a409048af43c9c05fafa34,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -30
+      value: -34
       objectReference: {fileID: 0}
     - target: {fileID: 2416599699155911750, guid: 00c8398a85a409048af43c9c05fafa34,
         type: 3}
@@ -1022,7 +1022,7 @@ PrefabInstance:
     - target: {fileID: 2416599699155911750, guid: 00c8398a85a409048af43c9c05fafa34,
         type: 3}
       propertyPath: m_SizeDelta.y
-      value: 44
+      value: 56
       objectReference: {fileID: 0}
     - target: {fileID: 2416599699155911750, guid: 00c8398a85a409048af43c9c05fafa34,
         type: 3}
@@ -1351,8 +1351,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -19}
-  m_SizeDelta: {x: -40, y: -82}
+  m_AnchoredPosition: {x: 0, y: -24}
+  m_SizeDelta: {x: -40, y: -92}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &708832751
 MonoBehaviour:
@@ -1787,7 +1787,7 @@ MonoBehaviour:
       attachCamera: 0
   battleListPanel: {fileID: 217226391}
   blScrollViewContent: {fileID: 1809658671}
-  blButtonPrefab: {fileID: 6329998810562063177, guid: ca48d8b52bd239c4194cc92ddd2e543a,
+  blButtonPrefab: {fileID: 4775442948848260947, guid: be416e96140b6bf4b8dc2bb473a6c2db,
     type: 3}
   blCloseButton: {fileID: 221331192}
   battlePropertiesPanel: {fileID: 2125554636}
@@ -3307,8 +3307,8 @@ MonoBehaviour:
   m_Spacing: 8
   m_ChildForceExpandWidth: 0
   m_ChildForceExpandHeight: 0
-  m_ChildControlWidth: 0
-  m_ChildControlHeight: 0
+  m_ChildControlWidth: 1
+  m_ChildControlHeight: 1
 --- !u!1 &1896502464
 GameObject:
   m_ObjectHideFlags: 0
