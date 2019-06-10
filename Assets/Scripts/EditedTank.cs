@@ -21,16 +21,16 @@ public class EditedTank : MonoBehaviour
     [Header("UI")]
     public TextAsset scriptTemplate;
     public InputField codeField;
-    public InputField logField;
+    public UserLogger userLogger;
     public Button saveAsButton;
     public InputField saveAsNameField;
     public Button loadButton;
     public Dropdown loadDropdown;
     public ProgressBar healthBar;
     public ProgressBar heatBar;
-    public RectTransform deathCanvas;
     public Button invisibilityButton;
     public Button scriptPlayPauseButton;
+    public RectTransform deathCanvas;
 
     private Tank tank;
     private UserLogger logger;
@@ -38,7 +38,7 @@ public class EditedTank : MonoBehaviour
     protected void Start()
     {
         tank = GetComponent<Tank>();
-        logger = new UserLogger(logField);
+        logger = userLogger;
         tank.StartScripting(logger);
         StaticStart();
 
@@ -347,21 +347,6 @@ public class EditedTank : MonoBehaviour
     {
         healthBar.value = tank.healthCare.Health01();
         heatBar.value = tank.heat;
-    }
-
-    public class UserLogger : Tank.Logger
-    {
-        private InputField logField;
-
-        public UserLogger(InputField ui)
-        {
-            logField = ui;
-            ui.readOnly = true;
-        }
-        public void Log(string msg)
-        {
-            logField.text = msg + "\n--------------------------------------------------\n" + logField.text;
-        }
     }
 }
 
