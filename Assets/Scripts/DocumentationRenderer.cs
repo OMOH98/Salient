@@ -3,7 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UI;
 
-
+/// <summary>
+/// Renders specified documentation files to provided UI elements
+/// </summary>
 public class DocumentationRenderer : MonoBehaviour
 {
     public Dropdown selector;

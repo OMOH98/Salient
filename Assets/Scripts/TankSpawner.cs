@@ -4,6 +4,9 @@ using System.Linq;
 
 using UnityEngine;
 
+/// <summary>
+/// Provides functionality of creating tanks for certain sides in certain areas that run provided code.
+/// </summary>
 public class TankSpawner : MonoBehaviour, Pausable
 {
     public List<Spawnpoint> spawnpoints;

@@ -18,10 +18,16 @@ public struct Damage
     //[HideInInspector]
     public Vector3 direction;
 }
+/// <summary>
+/// Behaviour that is subject to a certain side
+/// </summary>
 public interface PoliticsSubject
 {
     int SideId();
 }
+/// <summary>
+/// Behaviout that could accept <see cref="Damage"/>
+/// </summary>
 public interface HealthCare 
 {
     void ReceiveDamage(Damage dmg);
@@ -30,6 +36,10 @@ public interface HealthCare
 }
 #endregion
 
+
+/// <summary>
+/// Implements <see cref="HealthCare"/> as a <see cref="Component"/>
+/// </summary>
 public class DamagableBehaviour : MonoBehaviour, HealthCare
 {
     [Header("Health")]

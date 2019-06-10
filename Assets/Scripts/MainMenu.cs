@@ -5,6 +5,9 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.Linq;
 
+/// <summary>
+/// Empowers Main menu UI
+/// </summary>
 public class MainMenu : MonoBehaviour
 {
     public string creditsScene;

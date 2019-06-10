@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+///  <see cref="MonoBehaviour"/> class that fetures basic controlling of camera game object
+/// </summary>
 public class CamControl : MonoBehaviour {
     public GameObject player;
     public bool readInput = true;

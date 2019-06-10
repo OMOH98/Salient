@@ -7,7 +7,9 @@ using UnityEngine;
 using UnityEngine.UI;
 
 
-
+/// <summary>
+/// Provides an ability to store and display log messages to user. Is used by <see cref="Tank"/>
+/// </summary>
 public class UserLogger : MonoBehaviour, Tank.Logger
 {
     public InputField partialLog;

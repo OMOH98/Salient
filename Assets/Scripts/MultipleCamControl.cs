@@ -3,11 +3,15 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
+
 public interface CamTarget
 {
     bool IsInteresting();
 }
 
+/// <summary>
+/// Building functionality of following multiple targets on top of basic <see cref="CamControl"/>
+/// </summary>
 public class MultipleCamControl : CamControl
 {
     public List<GameObject> targets;
