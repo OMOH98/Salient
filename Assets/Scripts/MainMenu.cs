@@ -8,7 +8,7 @@ using System.Linq;
 public class MainMenu : MonoBehaviour
 {
     public string creditsScene;
-
+    
     public List<Battle> availableMaps;
     private List<Button> battleButtons;
 
@@ -147,10 +147,6 @@ public class MainMenu : MonoBehaviour
     public void OpenAIManagement()
     {
         OpenScene(EditedTank.sceneSimulation);
-    }
-    public void OpenOptions()
-    {
-        //TODO: implement options
     }
     public void OpenCredits()
     {
