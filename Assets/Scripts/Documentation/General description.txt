@@ -2,8 +2,8 @@ Your goal is to create code to power war robot. You could test it in battles aga
 
 Through said code you could access robot sensors, govern its movement and weapon fire. That code have to consist of one global function -  <color="blue">log</color>; three objects -  <color="blue">actions</color>,  <color="blue">sensors</color> and  <color="blue">stats</color>; five callback functions. Delete all the content of scripting window and click elsewhere on screen in order to see the details. It will show default script template. I strongly advise you using external code editor such as Notepad++ or VS Code via clipboard. Said sample provides basic info for editors code completion tools. 
 
-There are four panels in user interface of development screen. All of them are resizable (try dragging little white knob). You may change alignment of some of them using dedicated buttons. 
+There are three panels in user interface of development screen. All of them are resizable (try dragging little white knob). You may change alignment of some of them using dedicated buttons. 
 
 The code enables you to manage code. The main input field is dedicated code editing. to You may fill it with your own script saved script, or one of examples (watch for i.e. letters on the begginning) using load button. And sure, you may save your code.
 
-Said panel also shows a piece of log information that includes service messages from JavaScript engine and custom messages made by invoking log function. If you need to see the entire log, you should open Log panel. It displays all the messages with timestamps. 
+Said panel also shows a piece of log information that includes service messages from JavaScript engine and custom messages made by invoking log function. If you need to see the entire log, you should open Log file. It is the only text file in the folder of a program. It displays all the messages with timestamps. By the way, feel free to delete it if you feel that it weights too much.
