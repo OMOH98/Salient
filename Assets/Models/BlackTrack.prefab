@@ -250,7 +250,7 @@ GameObject:
   - component: {fileID: 2302079590259174786}
   - component: {fileID: 2302079590258077506}
   m_Layer: 0
-  m_Name: right track
+  m_Name: rightTrack
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

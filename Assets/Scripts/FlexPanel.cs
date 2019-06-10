@@ -77,6 +77,8 @@ public class FlexPanel : MonoBehaviour
             if ((d.alignment & allowedAlignmens) == 0)
                 d.alignment = NextAllowedAlignment();
             d.heightCoef = Mathf.Max(d.heightCoef, data.heightCoef);
+            if (!allowHide)
+                d.hidden = false;
             data = d;
         }
 
@@ -91,6 +93,7 @@ public class FlexPanel : MonoBehaviour
             {
                 gameObject.SetActive(true);
                 trayButton.gameObject.SetActive(false);
+                data.hidden = false;
             });
 
             hideButton = Instantiate(buttonPrefab).GetComponent<Button>();
@@ -99,12 +102,16 @@ public class FlexPanel : MonoBehaviour
             {
                 trayButton.gameObject.SetActive(true);
                 gameObject.SetActive(false);
+                data.hidden = true;
             });
 
             trayButton.transform.SetParent(trayButtonsParent);
             hideButton.transform.SetParent(controlsParent == null ? transform : controlsParent);
+
+            if (data.hidden)
+                hideButton.onClick.Invoke();
+            else trayButton.gameObject.SetActive(false);
             LayoutRebuilder.ForceRebuildLayoutImmediate(trayButtonsParent as RectTransform);
-            trayButton.gameObject.SetActive(false);
         }
         if(allowedAlignmens!=0&&allowedAlignmens!=data.alignment)
         {
@@ -119,7 +126,6 @@ public class FlexPanel : MonoBehaviour
                     switchAlignmentCaption.text = "Align <";
                 else switchAlignmentCaption.text = "Align >";
                 alignment = a;
-                SaveConfiguration();
             });
         }
         if(changeableWidth)
@@ -174,7 +180,6 @@ public class FlexPanel : MonoBehaviour
 
     private void Align()
     {
-        SaveConfiguration();
         float apx = 0f, apy = 0f, sdx = 0f, sdy = 0f, hcoef = 1f;
 
         if (data.alignment == FlexAlignment.left)
@@ -215,7 +220,7 @@ public class FlexPanel : MonoBehaviour
         rt.anchoredPosition = new Vector2(apx, apy);
         rt.sizeDelta = new Vector2(sdx, sdy);
 
-        onResize.Invoke();
+        onResize?.Invoke();
     }
     #endregion
     #region DelayCoroutines
@@ -234,6 +239,11 @@ public class FlexPanel : MonoBehaviour
     }
     #endregion
     #region SavingConfigurationAndIdMaking
+    private void OnDestroy()
+    {
+        SaveConfiguration();
+    }
+
     private string prefsKey { get { return "FlexPanel" + id.ToString(); } }
     protected virtual void SaveConfiguration()
     {
@@ -285,6 +295,7 @@ public class FlexPanel : MonoBehaviour
         public float widthCoef;
         [Range(0f, 1f)]
         public float heightCoef;
+        public bool hidden = false;
     }
     #endregion
 
