@@ -1248,7 +1248,7 @@ MonoBehaviour:
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_spriteAnimator: {fileID: 0}
-  m_isInputParsingRequired: 0
+  m_isInputParsingRequired: 1
   m_inputSource: 0
   m_hasFontAssetChanged: 0
   m_subTextObjects:
@@ -5353,7 +5353,7 @@ MonoBehaviour:
   m_parseCtrlCharacters: 1
   m_isOrthographic: 1
   m_isCullingEnabled: 0
-  m_ignoreRectMaskCulling: 0
+  m_ignoreRectMaskCulling: 1
   m_ignoreCulling: 1
   m_horizontalMapping: 0
   m_verticalMapping: 0
@@ -5378,7 +5378,7 @@ MonoBehaviour:
   m_isVolumetricText: 0
   m_spriteAnimator: {fileID: 0}
   m_isInputParsingRequired: 0
-  m_inputSource: 3
+  m_inputSource: 0
   m_hasFontAssetChanged: 0
   m_subTextObjects:
   - {fileID: 0}
@@ -7287,7 +7287,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   partialLog: {fileID: 1491952249}
-  fullLog: {fileID: 0}
+  fullLog: {fileID: 945613975}
   maxSymbolsToDisplay: 1000
 --- !u!1 &1088440470
 GameObject:
