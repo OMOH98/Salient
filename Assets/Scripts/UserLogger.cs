@@ -6,10 +6,12 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 
+using TMPro;
+
 public class UserLogger : MonoBehaviour, Tank.Logger
 {
     public InputField partialLog;
-    public Text fullLog;
+    public TMP_InputField fullLog;
     public int maxSymbolsToDisplay = 1000;
 
     private List<string> messages = new List<string>();
