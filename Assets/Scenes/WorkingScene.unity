@@ -4425,7 +4425,7 @@ MonoBehaviour:
   parts:
   - name: Welcome
     text: {fileID: 4900000, guid: 899e8275dd22ac744b64f6e4a753e481, type: 3}
-    image: {fileID: 21300000, guid: c49825c859ad34b4797c94f37408956c, type: 3}
+    image: {fileID: 21300000, guid: 918a2c8f4a420be499e22570521e7801, type: 3}
   - name: Simplest robot
     text: {fileID: 4900000, guid: 1e4b2f9bf4cdbab4e9f5f9ae10faaf32, type: 3}
     image: {fileID: 21300000, guid: f5157f7dc001a4147961ca616a488819, type: 3}
@@ -4441,6 +4441,9 @@ MonoBehaviour:
   - name: Measurements
     text: {fileID: 4900000, guid: 0985559ec2f34a24ea3c952fd4fa9f7a, type: 3}
     image: {fileID: 21300000, guid: dbce101fc0da4434782c99b24dd8e57f, type: 3}
+  - name: Quickstart
+    text: {fileID: 4900000, guid: 0065b69d5e6e8e2418a877d70c5f031c, type: 3}
+    image: {fileID: 21300000, guid: c49825c859ad34b4797c94f37408956c, type: 3}
 --- !u!114 &620875889
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7107,7 +7110,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   partialLog: {fileID: 1491952249}
   fullLog: {fileID: 2048049770}
-  messagesToDisplay: 10
+  maxSymbolsToDisplay: 1000
 --- !u!1 &1088440470
 GameObject:
   m_ObjectHideFlags: 0
@@ -15033,7 +15036,7 @@ MonoBehaviour:
   m_Elasticity: 0.1
   m_Inertia: 1
   m_DecelerationRate: 0.135
-  m_ScrollSensitivity: 1
+  m_ScrollSensitivity: 16
   m_Viewport: {fileID: 707004789}
   m_HorizontalScrollbar: {fileID: 0}
   m_VerticalScrollbar: {fileID: 1236708432}

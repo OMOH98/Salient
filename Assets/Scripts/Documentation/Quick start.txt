@@ -1,0 +1,5 @@
+This section would provide you with info about key controls in the game. 
+
+Hide all panels except of side panel (you cannot hide it). Try navigating with camera. By default, you can moove it with wasd, tab and ctrl; rotate with q and e. Now try pressing CapsLock key, it should make camera follow the robot. If there are multiple robots on scene, camera would iterate over them on down of CapsLock. Now you can adjust its position with mouse wheell and shift + mouse wheel. If your code panel is not hidden, you can quickly switch between controlling camera and writing code pressing dedicated key (default - left alt).
+
+Bring up code panel using dedicated key on side panel. Click on code editing field. Input "asd". Now press left alt key and do the same. Notice difference in camera behaviour. 
