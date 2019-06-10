@@ -4460,6 +4460,7 @@ MonoBehaviour:
     alignment: 4
     widthCoef: 0.59288985
     heightCoef: 1
+    hidden: 0
   id: 1806859301
   allowedAlignmens: 5
   paddingLeft: 0
@@ -6995,6 +6996,7 @@ MonoBehaviour:
     alignment: 1
     widthCoef: 0.46757048
     heightCoef: 1
+    hidden: 0
   id: 2129529807
   allowedAlignmens: 5
   paddingLeft: 0
@@ -7382,7 +7384,7 @@ MonoBehaviour:
   m_Elasticity: 0.1
   m_Inertia: 1
   m_DecelerationRate: 0.135
-  m_ScrollSensitivity: 1
+  m_ScrollSensitivity: 16
   m_Viewport: {fileID: 1039086880}
   m_HorizontalScrollbar: {fileID: 243129325}
   m_VerticalScrollbar: {fileID: 1077578424}
@@ -13979,6 +13981,7 @@ MonoBehaviour:
     alignment: 4
     widthCoef: 0.33791736
     heightCoef: 1
+    hidden: 0
   id: 1383285590
   allowedAlignmens: -1
   paddingLeft: 0
@@ -14449,6 +14452,7 @@ MonoBehaviour:
     alignment: 4
     widthCoef: 0.59288985
     heightCoef: 1
+    hidden: 0
   id: 1806859301
   allowedAlignmens: 5
   paddingLeft: 0
