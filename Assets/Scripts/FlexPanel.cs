@@ -106,7 +106,7 @@ public class FlexPanel : MonoBehaviour
             });
 
             trayButton.transform.SetParent(trayButtonsParent);
-            hideButton.transform.SetParent(controlsParent == null ? transform : controlsParent);
+            hideButton.transform.SetParent(controlsParent ?? transform);
 
             if (data.hidden)
                 hideButton.onClick.Invoke();
@@ -118,7 +118,7 @@ public class FlexPanel : MonoBehaviour
             switchAlignmenButton = Instantiate(buttonPrefab).GetComponent<Button>();
             switchAlignmentCaption = switchAlignmenButton.GetComponentInChildren<Text>();
             switchAlignmentCaption.text = "Align >";
-            switchAlignmenButton.transform.SetParent(controlsParent == null ? transform : controlsParent);
+            switchAlignmenButton.transform.SetParent(controlsParent ?? transform);
             switchAlignmenButton.onClick.AddListener(() =>
             {
                 var a = NextAllowedAlignment();
@@ -151,8 +151,8 @@ public class FlexPanel : MonoBehaviour
                     }));
                 }
             });
-            widthSlider.transform.SetParent(controlsParent == null ? transform : controlsParent);
-            LayoutRebuilder.ForceRebuildLayoutImmediate((controlsParent == null ? transform : controlsParent) as RectTransform);
+            widthSlider.transform.SetParent(controlsParent ?? transform);
+            LayoutRebuilder.ForceRebuildLayoutImmediate((controlsParent ?? transform) as RectTransform);
         }
     }
     #region Alignment

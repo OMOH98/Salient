@@ -34,8 +34,7 @@ public class UserLogger : MonoBehaviour, Tank.Logger
         initialTime = Time.time;
         sb = new StringBuilder();
 
-        float up;
-        if (Options.TryGetOption(logUpdateFrequency, out up))
+        if (Options.TryGetOption(logUpdateFrequency, out float up))
             updatePeriod = up;
         if (fullLog != null)
             fullLog.text = "";
