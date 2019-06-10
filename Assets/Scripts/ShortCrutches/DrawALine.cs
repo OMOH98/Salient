@@ -12,6 +12,7 @@ public class DrawALine : MonoBehaviour
     {
         lr = GetComponent<LineRenderer>();
         lr.positionCount = 2;
+        Update();
     }
 
     // Update is called once per frame
