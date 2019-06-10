@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// Sets prefered height of an <see cref="Image"/> game object so that it maintains original aspect ratio while resized in width (i.e. due to flexible width).
+/// </summary>
 [RequireComponent(typeof(Image))]
 [RequireComponent(typeof(LayoutElement))]
 public class HeightExpander : MonoBehaviour

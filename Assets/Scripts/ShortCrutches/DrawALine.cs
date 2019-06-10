@@ -1,6 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+
+/// <summary>
+/// Maintains vertices of <see cref="LineRenderer"/> at positions of nesting game object and destination game object.
+/// </summary>
 [RequireComponent(typeof(LineRenderer))]
 public class DrawALine : MonoBehaviour
 {
