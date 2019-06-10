@@ -4,7 +4,7 @@ using System.Linq;
 using UnityEngine;
 using Jurassic;
 using Jurassic.Library;
-
+using JurassicTimeoutHelper;
 
 
 [RequireComponent(typeof(Rigidbody))]
@@ -41,6 +41,7 @@ public class Tank : MonoBehaviour, PoliticsSubject, Pausable
 
     protected Sensors sensors = new Sensors();
     protected CompiledScript compiledCode;
+    public ScriptTimeoutHelper timeoutHelper { get; private set; }
 
     private Transform turret;
     private ParticleSystem muzzleFlash;
@@ -51,7 +52,11 @@ public class Tank : MonoBehaviour, PoliticsSubject, Pausable
     private bool execute = true;
 
 
-
+    private void Awake()
+    {
+        timeoutHelper = new ScriptTimeoutHelper();
+        engine = new ScriptEngine();
+    }
     protected virtual void Start()
     {
         StaticStart();
@@ -232,17 +237,31 @@ public class Tank : MonoBehaviour, PoliticsSubject, Pausable
     {
         if (compiledCode != null)
         {
+            System.Action action = () =>
+            {
+                try
+                {
+                    engine.CallGlobalFunction(name, args);
+                }
+                catch (JavaScriptException e)
+                {
+                    logger.Log($"JavaScript error has occured at line {e.LineNumber} with message: {e.Message}");
+                }
+                catch (System.InvalidOperationException/*e*/)// function Name is not defined in tank script
+                {
+                    ;//Debug.Log(e);
+                }
+            };
+
             try
             {
-                engine.CallGlobalFunction(name, args);
+                timeoutHelper.RunWithTimeout(action, System.Convert.ToInt32(Time.fixedDeltaTime * 1000));
             }
-            catch (JavaScriptException e)
+            catch (System.TimeoutException)
             {
-                logger.Log($"JavaScript error has occured at line {e.LineNumber} with message: {e.Message}");
-            }
-            catch (System.InvalidOperationException/*e*/)// function Name is not defined in tank script
-            {
-                ;//Debug.Log(e);
+                Awake();
+                logger.Log("Code runned out of time and was shut down to prevent software freeze. The engine was corrupted and would be recreated now.");
+                StartScripting(logger);
             }
         }
     }
@@ -252,13 +271,25 @@ public class Tank : MonoBehaviour, PoliticsSubject, Pausable
     }
     public void StartScripting(Logger lgr)
     {
+
         logger = lgr;
         engine.EnableExposedClrTypes = true;
         RestartScripting();
     }
     public void RestartScripting()
     {
-        System.Action<string> logger = this.logger.Log;
+        System.Action<string> logger = (message) =>
+        {
+            timeoutHelper.EnterCriticalSection();
+            try
+            {
+                this.logger.Log(message);
+            }
+            finally
+            {
+                timeoutHelper.ExitCriticalSection();
+            }
+        };
 
         engine.SetGlobalFunction(logFunction, logger);
         engine.SetGlobalValue(nameof(actions), actions);

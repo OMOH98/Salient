@@ -37,8 +37,8 @@ public class EditedTank : MonoBehaviour
 
     protected void Start()
     {
-        logger = new UserLogger(logField);
         tank = GetComponent<Tank>();
+        logger = new UserLogger(logField);
         tank.StartScripting(logger);
         StaticStart();
 
@@ -340,7 +340,7 @@ public class EditedTank : MonoBehaviour
                 scriptPlayPauseButton.onClick.Invoke();
             } while (!enabled);
         }));
-        
+
     }
 
     protected virtual void Update()
@@ -352,6 +352,7 @@ public class EditedTank : MonoBehaviour
     public class UserLogger : Tank.Logger
     {
         private InputField logField;
+
         public UserLogger(InputField ui)
         {
             logField = ui;
