@@ -12,7 +12,7 @@ public class UserLogger : MonoBehaviour, Tank.Logger
     public Text fullLog;
     public int maxSymbolsToDisplay = 1000;
 
-    private List<string> messages;
+    private List<string> messages = new List<string>();
     private float initialTime;
     private int previousCount = 0;
     private StringBuilder sb;
@@ -22,8 +22,7 @@ public class UserLogger : MonoBehaviour, Tank.Logger
         partialLog.readOnly = true;
         sb = new StringBuilder();
         initialTime = Time.time;
-        messages = new List<string>();
-        previousCount = messages.Count;
+        previousCount = 0;
 
         fullLog.text = "";
     }
