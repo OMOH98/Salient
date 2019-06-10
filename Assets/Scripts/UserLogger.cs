@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using System.IO;
 
 using UnityEngine;
 using UnityEngine.UI;
@@ -17,6 +18,7 @@ public class UserLogger : MonoBehaviour, Tank.Logger
     public int messagesToDisplay = 10;
 
     public const string logUpdateFrequency = nameof(logUpdateFrequency);
+    public const string logFileName = "UserTankLog.txt";
 
 
     private List<string> messages = new List<string>();
@@ -43,16 +45,17 @@ public class UserLogger : MonoBehaviour, Tank.Logger
     {
         if (Time.time >= nextTimeToUpdate)
         {
-            if (fullLog != null)
+            sb.Clear();
+            for (int i = previousCount; i < messages.Count; i++)
             {
-                sb.Clear();
-                for (int i = previousCount; i < messages.Count; i++)
-                {
-                    sb.AppendFormat("[Time: {0:F1}] {1}\n", Time.time - initialTime, messages[i]);
-                }
-                fullLog.text += sb.ToString();
-                previousCount = messages.Count;
+                sb.AppendFormat("[Time: {0:F1}] {1}\n", Time.time - initialTime, messages[i]);
             }
+            var s = sb.ToString();
+            if (fullLog != null)
+                fullLog.text += s;
+            File.AppendAllText(logFileName, s);
+            previousCount = messages.Count;
+
 
             sb.Clear();
             for (int i = messages.Count - 1; i >= 0 && i > messages.Count - messagesToDisplay; i--)
