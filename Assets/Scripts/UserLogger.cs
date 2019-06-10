@@ -13,7 +13,7 @@ public class UserLogger : MonoBehaviour, Tank.Logger
     public InputField partialLog;
 
     public InputField fullLog;
-
+    public float initialTime;
     //public int maxSymbolsToDisplay = 1000;
     public int messagesToDisplay = 10;
 
@@ -23,7 +23,7 @@ public class UserLogger : MonoBehaviour, Tank.Logger
 
     private List<string> messages = new List<string>();
     private List<float> timestamps = new List<float>();
-    private float initialTime;
+
     private float updatePeriod;
     private int previousCount = 0;
     private StringBuilder sb;

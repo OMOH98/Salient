@@ -215,6 +215,7 @@ public class EditedTank : MonoBehaviour
     {
         tank.code = codeField.text;
         tank.RestartScripting();
+        userLogger.initialTime = Time.time;
     }
 
 
