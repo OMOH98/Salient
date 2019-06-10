@@ -90,7 +90,6 @@ public class CamControl : MonoBehaviour {
         else target.transform.position = player.transform.position;
     }
 	
-	// Update is called once per frame
 	protected virtual void Update () {
         if (target == null)
             CreateTarget();
@@ -154,10 +153,7 @@ public class CamControl : MonoBehaviour {
         {
             followPlayer = false;
         }
-        //if(Mathf.Abs(v) > 0f || Mathf.Abs(h) > 0f || Mathf.Abs(d) > 0)
-        //{
-        //    followPlayer = false;
-        //}
+
         else if(Input.GetButtonDown("Follow"))
         {
             followPlayer = !followPlayer;
@@ -199,68 +195,3 @@ public class CamControl : MonoBehaviour {
         yield break;
     }
 }
-//public class CamMover:MonoBehaviour
-//
-//    float _alpha=20f;
-//    float _beta;
-//    float _dist=3f;
-//    Vector3 _base;
-//    bool _change;
-//    public float angleToY
-//    {
-//        get { return _alpha; }
-//        set
-//        {
-//            if (value > 90f)
-//                _alpha = 90f;
-//            else if (value < 90f)
-//                _alpha = 0f;
-//            else
-//            {
-//                _alpha = value;
-//                _change = true;
-//            }
-//        }
-//    }
-//    public float angleToX
-//    {
-//        get { return _beta; }
-//        set
-//        {
-//            _beta = value % 360f;
-//            _change = true;
-//        }
-//    }
-//    public float distanceToBase
-//    {
-//        get { return _dist; }
-//        set
-//        {
-//            _dist = value;
-//            _change = true;
-//        }
-//    }
-//    public Vector3 basePosition
-//    {
-//        get { return _base; }
-//        set
-//        {
-//            _change = _change || value != _base;
-//            _base = value;
-//        }
-//    }
-
-//    private void LateUpdate()
-//    {
-//        if (_change)
-//        {
-//            var alpha = Mathf.Deg2Rad * _alpha;
-//            var beta = Mathf.Deg2Rad * _beta;
-//            var elevation = Vector3.up * _dist * Mathf.Cos(alpha);
-//            var displacement = (Vector3.right * Mathf.Cos(beta) + Vector3.forward * Mathf.Sin(beta)).normalized * _dist * Mathf.Sin(alpha);
-//            transform.position = _base + elevation + displacement;
-//            transform.LookAt(_base + Vector3.up);
-//            _change = false;
-//        }
-//    }
-//}
