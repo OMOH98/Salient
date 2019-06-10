@@ -10,7 +10,7 @@ public class UserLogger : MonoBehaviour, Tank.Logger
 {
     public InputField partialLog;
     public Text fullLog;
-    public int messagesToDisplay = 10;
+    public int maxSymbolsToDisplay = 1000;
 
     private List<string> messages;
     private float initialTime;
@@ -36,11 +36,12 @@ public class UserLogger : MonoBehaviour, Tank.Logger
             sb.Append(partialLog.text);
             for (int i = previousCount; i < messages.Count; i++)
             {
-                fullLog.text += string.Format("[{0:F1}] {1}\n", Time.time - initialTime, messages[i]);
-                sb.Remove(sb.Length - messages[i].Length, messages[i].Length);
+                fullLog.text += string.Format("[Time: {0:F1}] {1}\n", Time.time - initialTime, messages[i]);
                 sb.Insert(0, messages[i] + "\n-------------------------------------------------------\n");
             }
             previousCount = messages.Count;
+            if (sb.Length > maxSymbolsToDisplay)
+                sb.Remove(maxSymbolsToDisplay, sb.Length - maxSymbolsToDisplay);
             partialLog.text = sb.ToString();
         }
     }
