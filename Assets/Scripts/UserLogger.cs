@@ -22,6 +22,7 @@ public class UserLogger : MonoBehaviour, Tank.Logger
 
 
     private List<string> messages = new List<string>();
+    private List<float> timestamps = new List<float>();
     private float initialTime;
     private float updatePeriod;
     private int previousCount = 0;
@@ -48,7 +49,7 @@ public class UserLogger : MonoBehaviour, Tank.Logger
             sb.Clear();
             for (int i = previousCount; i < messages.Count; i++)
             {
-                sb.AppendFormat("[Time: {0:F1}] {1}\n", Time.time - initialTime, messages[i]);
+                sb.AppendFormat("[Time: {0:F2}] {1}\n", timestamps[i], messages[i]);
             }
             var s = sb.ToString();
             if (fullLog != null)
@@ -71,5 +72,6 @@ public class UserLogger : MonoBehaviour, Tank.Logger
     public void Log(string msg)
     {
         messages.Add(msg);
+        timestamps.Add(Time.time - initialTime);
     }
 }
