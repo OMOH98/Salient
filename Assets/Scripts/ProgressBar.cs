@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-
+/// <summary>
+/// Controls colors of standard slider
+/// </summary>
 [RequireComponent(typeof(Slider))]
 public class ProgressBar : MonoBehaviour
 {

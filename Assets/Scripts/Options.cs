@@ -5,6 +5,10 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 
+
+/// <summary>
+/// Governs UI that displays global game options and persistent storing of said options. Provides static interface for getting an option by name. 
+/// </summary>
 public class Options : MonoBehaviour
 {
     public GameObject itemsContent;

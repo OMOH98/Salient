@@ -4,6 +4,11 @@ using UnityEngine.UI;
 using System.Collections;
 using System.Text;
 
+
+/// <summary>
+/// Overrides preferred width/height of an <see cref="InputField"/> so that it is certainly bigger than its text content.
+/// Clears <see cref="InputField.text"/> from Carriage return chars.
+/// </summary>
 public class InputFieldContentSizeFitter : MonoBehaviour
 {
     public float padding = 5;

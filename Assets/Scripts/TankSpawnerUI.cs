@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-
+/// <summary>
+/// Empowers UI that allows spawning tanks using <see cref="TankSpawner"/>
+/// </summary>
 [RequireComponent(typeof(TankSpawner))]
 public class TankSpawnerUI : MonoBehaviour
 {

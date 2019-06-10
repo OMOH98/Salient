@@ -5,7 +5,9 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
 
-
+/// <summary>
+/// Implements OnSelect / OnDeselect events for <see cref="InputField"/>. Optionally, implements selection of the field by a hotkey.
+/// </summary>
 [RequireComponent(typeof(InputField))]
 public class CodeInputSelector : MonoBehaviour, ISelectHandler, IDeselectHandler
 {

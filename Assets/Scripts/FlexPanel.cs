@@ -7,11 +7,12 @@ using UnityEngine.SceneManagement;
 using UnityEngine.Events;
 
 
+/// <summary>
+/// Governs the panel that has flexible width, could be docked or hidden. 
+/// </summary>
 [RequireComponent(typeof(RectTransform))]
 public class FlexPanel : MonoBehaviour
 {
-
-
     public Data data;
     public uint id; //id unique to all flexPanels
 

@@ -6,7 +6,9 @@ using Jurassic;
 using Jurassic.Library;
 using JurassicTimeoutHelper;
 
-
+/// <summary>
+/// Governs Tank <see cref="GameObject"/>. 
+/// </summary>
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(DamagableBehaviour))]
 public class Tank : MonoBehaviour, PoliticsSubject, Pausable

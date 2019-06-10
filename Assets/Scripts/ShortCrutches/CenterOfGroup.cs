@@ -2,6 +2,10 @@
 using System.Collections;
 using System.Collections.Generic;
 
+/// <summary>
+/// Maintains position of a <see cref="GameObject"/> in the middle of specified group of game objects.
+/// Is used by <see cref="MultipleCamControl"/> to track entire sides.
+/// </summary>
 [RequireComponent(typeof(Rigidbody))]
 public class CenterOfGroup : MonoBehaviour, CamTarget
 {

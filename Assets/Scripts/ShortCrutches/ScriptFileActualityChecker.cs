@@ -3,7 +3,9 @@ using UnityEngine.UI;
 
 using System.Collections;
 
-
+/// <summary>
+/// In <see cref="Dropdown.onValueChanged"/> checks wether selected script file exists in file system.
+/// </summary>
 [RequireComponent(typeof(Dropdown))]
 public class ScriptFileActualityChecker : MonoBehaviour
 {

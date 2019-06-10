@@ -7,6 +7,9 @@ using UnityEngine.UI;
 
 using System.Text;
 
+/// <summary>
+/// Governs UI dedicated to editing code and flashing it to a <see cref="Tank"/>
+/// </summary>
 [RequireComponent(typeof(Tank))]
 public class EditedTank : MonoBehaviour
 {
