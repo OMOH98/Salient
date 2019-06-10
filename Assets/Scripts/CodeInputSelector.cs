@@ -9,28 +9,25 @@ using UnityEngine.Events;
 [RequireComponent(typeof(InputField))]
 public class CodeInputSelector : MonoBehaviour, ISelectHandler, IDeselectHandler
 {
+    public bool enableHotkey = true;
     public UnityEvent OnSelectField;
     public UnityEvent OnDeselectField;
 
     InputField field;
     bool selected = false;
     Color caretColor;
-    private Selectable dummySelectable;
-    static int count = 0;
+    private static Selectable dummySelectable;
     // Start is called before the first frame update
     void Start()
     {
-        UnityEngine.SceneManagement.SceneManager.activeSceneChanged += (prev, curr) => { count = 0; };
-        count++;
-        if(count>1)
-        {
-            Debug.LogWarning($"More than one {nameof(CodeInputSelector)} detected on scene. Works oly one.");
-        }
 
         field = GetComponent<InputField>();
         caretColor = field.caretColor;
-        var go = new GameObject("DummySelectable");
-        dummySelectable = go.AddComponent<Selectable>();
+        if (dummySelectable == null)
+        {
+            var go = new GameObject("DummySelectable");
+            dummySelectable = go.AddComponent<Selectable>();
+        }
     }
     int lastCaretPosition;
     void ISelectHandler.OnSelect(BaseEventData eventData)
@@ -53,7 +50,7 @@ public class CodeInputSelector : MonoBehaviour, ISelectHandler, IDeselectHandler
     {
         if (field.caretPosition != 0)
             lastCaretPosition = field.caretPosition;
-        if (Input.GetButtonDown("Code") && field != null)
+        if (enableHotkey && Input.GetButtonDown("Code") && field != null)
         {
             if (!selected)
                 field.Select();
