@@ -85,7 +85,7 @@ public class FlexPanel : MonoBehaviour
         if (allowHide)
         {
             trayButton = Instantiate(buttonPrefab).GetComponent<Button>();
-            trayButton.GetComponentInChildren<Text>().text = "Show " + gameObject.name;
+            trayButton.GetComponentInChildren<Text>().text = "Show " + Options.NicifyOptionName(gameObject.name);
 
             trayButton.onClick.AddListener(() =>
             {

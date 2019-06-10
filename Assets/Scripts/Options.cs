@@ -147,7 +147,7 @@ public class Options : MonoBehaviour
 
     #endregion
 
-    private static string NicifyOptionName(string input)
+    public static string NicifyOptionName(string input)
     {
         if (string.IsNullOrEmpty(input))
             return "No name";
