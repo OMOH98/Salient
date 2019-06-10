@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 [RequireComponent(typeof(Rigidbody))]
-public class CenterOfGroup : MonoBehaviour
+public class CenterOfGroup : MonoBehaviour, CamTarget
 {
     public List<GameObject> group;
 
@@ -19,6 +19,11 @@ public class CenterOfGroup : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         rb.isKinematic = true;
+    }
+
+    public bool IsInteresting()
+    {
+        return group != null && group.Count > 0;
     }
 
     // Update is called once per frame

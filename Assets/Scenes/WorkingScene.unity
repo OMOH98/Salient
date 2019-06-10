@@ -13334,13 +13334,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spawnpoints:
   - center: {fileID: 832621441}
-    radius: 40
+    radius: 60
     sideMaterial: {fileID: 2100000, guid: 5874dfd92ace58b40bbbff0b8782f484, type: 2}
     sideId: 1
     defaultCode: 
     attachCamera: 1
   - center: {fileID: 956616751}
-    radius: 40
+    radius: 60
     sideMaterial: {fileID: 2100000, guid: 3421b7307b48a46438a83b0055a092a7, type: 2}
     sideId: 2
     defaultCode: 
