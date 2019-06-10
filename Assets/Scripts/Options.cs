@@ -1,5 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Text;
+
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -145,6 +147,24 @@ public class Options : MonoBehaviour
 
     #endregion
 
+    private static string NicifyOptionName(string input)
+    {
+        if (string.IsNullOrEmpty(input))
+            return "No name";
+
+        var sb = new StringBuilder(input);
+        sb[0] = char.ToUpper(sb[0]);
+        for (int i = 1; i < sb.Length; i++)
+        {
+            if(char.IsUpper(sb[i]))
+            {
+                sb[i] = char.ToLower(sb[i]);
+                sb.Insert(i, ' ');
+            }
+        }
+        return sb.ToString();
+    }
+
     private void RenderValues()
     {
         
@@ -152,7 +172,7 @@ public class Options : MonoBehaviour
         {
             var item = options[ro.optionInx];
             ro.field.text = string.Format("{0:F2}", item.value);
-            ro.caption.text = UnityEditor.ObjectNames.NicifyVariableName(item.name)+": ";
+            ro.caption.text = NicifyOptionName(item.name)+": ";
         }
     }
   
