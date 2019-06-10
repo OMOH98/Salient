@@ -24,6 +24,8 @@ public class UserLogger : MonoBehaviour, Tank.Logger
         initialTime = Time.time;
         messages = new List<string>();
         previousCount = messages.Count;
+
+        fullLog.text = "";
     }
 
     private void Update()
