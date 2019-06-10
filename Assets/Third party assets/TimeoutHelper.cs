@@ -207,7 +207,8 @@ namespace JurassicTimeoutHelper
         public void EnterCriticalSection()
         {
             if (currentState == null)
-                throw new InvalidOperationException();
+                return;
+                //throw new InvalidOperationException();
 
             bool waitForAbortException;
             lock (currentState)
@@ -231,7 +232,8 @@ namespace JurassicTimeoutHelper
         public void ExitCriticalSection()
         {
             if (currentState == null)
-                throw new InvalidOperationException();
+                return;
+                //throw new InvalidOperationException();
 
             bool shouldAbort;
             lock (currentState)

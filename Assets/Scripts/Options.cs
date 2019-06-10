@@ -11,22 +11,33 @@ public class Options : MonoBehaviour
     public string optionCaptionName = "Caption";
     public List<Option> options;
 
+
+
     public const string prefix = "opt";
+
+
+    List<RenderedOption> renderedOptions;
+
+    #region EventCallbacks
 
     private void Awake()
     {
-        foreach (var item in options)
+        options.AddRange(ConstantOptions.options);
+        FetchValues(options);
+
+        if (staticOptions == null)
         {
-            var k = prefix + item.name;
-            if (PlayerPrefs.HasKey(k))
-            {
-                item.value = PlayerPrefs.GetFloat(k);
-            }
-            else item.value = item.defaultValue;
+            staticOptions = new Dictionary<string, Option>(options.Count);
         }
+        else staticOptions.Clear();
+        for (int i = 0; i < options.Count; i++)
+        {
+            staticOptions.Add(options[i].name, options[i]);
+        }
+
     }
 
-    private void OnApplicationQuit()
+    private void OnDestroy()
     {
         foreach (var o in options)
         {
@@ -34,15 +45,8 @@ public class Options : MonoBehaviour
         }
     }
 
-    class RenderedOption
-    {
-        public int optionInx;
-        public InputField field;
-        public Text caption;
 
-    }
-    List<RenderedOption> renderedOptions;
-    // Start is called before the first frame update
+
     void Start()
     {
         renderedOptions = new List<RenderedOption>(options.Count);
@@ -70,23 +74,65 @@ public class Options : MonoBehaviour
         RenderValues();
     }
 
-    private void RenderValues()
-    {
-        foreach (var ro in renderedOptions)
-        {
-            var item = options[ro.optionInx];
-            ro.field.text = string.Format("{0:F2}", item.value);
-            ro.caption.text = item.name;
-        }
-    }
+    #endregion
 
-    public void ResetToDefaults()
+    #region StaticInterface
+    private static void FetchValues(IEnumerable<Option> options)
     {
         foreach (var item in options)
         {
-            item.value = item.defaultValue;
+            var k = prefix + item.name;
+            if (PlayerPrefs.HasKey(k))
+            {
+                item.value = PlayerPrefs.GetFloat(k);
+            }
+            else item.value = item.defaultValue;
         }
-        RenderValues();
+    }
+
+    static Dictionary<string, Option> staticOptions;
+    public static bool TryGetOption(string optionName, out float value)
+    {
+        if(staticOptions==null)
+        {
+            FetchValues(ConstantOptions.options);
+            staticOptions = new Dictionary<string, Option>(ConstantOptions.options.Count);
+            for (int i = 0; i < ConstantOptions.options.Count; i++)
+            {
+                var item = ConstantOptions.options[i];
+                staticOptions.Add(item.name, item);
+            }
+        }
+
+        if (staticOptions.ContainsKey(optionName))
+        {
+            value = staticOptions[optionName].value;
+            return true;
+        }
+        value = 0f;
+        return false;
+    }
+    #endregion
+
+    #region Nested
+    public static class ConstantOptions
+    {
+        public static List<Option> options;
+        static ConstantOptions()
+        {
+            options = new List<Option>()
+            {
+                new Option(){defaultValue = 1000f, name = nameof(Tank.recursionDepth), value = 1000f},
+                new Option(){defaultValue = 1f, name = nameof(Tank.physicsFramesToExecuteLoop), value = 1f}
+            };
+        }
+    }
+
+    class RenderedOption
+    {
+        public int optionInx;
+        public InputField field;
+        public Text caption;
     }
 
     [System.Serializable]
@@ -95,5 +141,27 @@ public class Options : MonoBehaviour
         public string name;
         public float value;
         public float defaultValue;
+    }
+
+    #endregion
+
+    private void RenderValues()
+    {
+        
+        foreach (var ro in renderedOptions)
+        {
+            var item = options[ro.optionInx];
+            ro.field.text = string.Format("{0:F2}", item.value);
+            ro.caption.text = UnityEditor.ObjectNames.NicifyVariableName(item.name)+": ";
+        }
+    }
+  
+    public void ResetToDefaults()
+    {
+        foreach (var item in options)
+        {
+            item.value = item.defaultValue;
+        }
+        RenderValues();
     }
 }

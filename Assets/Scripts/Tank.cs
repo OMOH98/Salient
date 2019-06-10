@@ -12,6 +12,8 @@ using JurassicTimeoutHelper;
 public class Tank : MonoBehaviour, PoliticsSubject, Pausable
 {
     public const int invisibleId = int.MinValue;
+    public const string recursionDepth = nameof(recursionDepth);
+    public const string physicsFramesToExecuteLoop = nameof(physicsFramesToExecuteLoop);
 
     [Header("Parts")]
     public string turretGameObjectName = "Turret";
@@ -50,6 +52,7 @@ public class Tank : MonoBehaviour, PoliticsSubject, Pausable
     private ObjectInstance statsMirror;
     private int initialId;
     private bool execute = true;
+    private float physicsFramesToExecute = 1f;
 
 
     private void Awake()
@@ -227,11 +230,24 @@ public class Tank : MonoBehaviour, PoliticsSubject, Pausable
         }
         return ret;
     }
-    protected void ExecuteOnce(string code)
+    protected void CallGlobalFunctionWighoutLimit(string name, params object[] args)
     {
-        var cmp = Compile(code);
-        if (cmp != null)
-            cmp.Execute(engine);
+        try
+        {
+            engine.CallGlobalFunction(name, args);
+        }
+        catch (JavaScriptException e)
+        {
+            logger.Log($"JavaScript error has occured at line {e.LineNumber} with message: {e.Message}");
+        }
+        catch (System.InvalidOperationException/*e*/)// function Name is not defined in tank script
+        {
+            ;//Debug.Log(e);
+        }
+        catch(System.StackOverflowException e)
+        {
+            logger.Log($"JavaScript error has occured with message: {e.Message}");
+        }
     }
     protected void CallGlobalFunction(string name, params object[] args)
     {
@@ -239,23 +255,12 @@ public class Tank : MonoBehaviour, PoliticsSubject, Pausable
         {
             System.Action action = () =>
             {
-                try
-                {
-                    engine.CallGlobalFunction(name, args);
-                }
-                catch (JavaScriptException e)
-                {
-                    logger.Log($"JavaScript error has occured at line {e.LineNumber} with message: {e.Message}");
-                }
-                catch (System.InvalidOperationException/*e*/)// function Name is not defined in tank script
-                {
-                    ;//Debug.Log(e);
-                }
+                CallGlobalFunctionWighoutLimit(name, args);
             };
 
             try
             {
-                timeoutHelper.RunWithTimeout(action, System.Convert.ToInt32(Time.fixedDeltaTime * 1000));
+                timeoutHelper.RunWithTimeout(action, System.Convert.ToInt32(physicsFramesToExecute * Time.fixedDeltaTime * 1000));
             }
             catch (System.TimeoutException)
             {
@@ -274,21 +279,25 @@ public class Tank : MonoBehaviour, PoliticsSubject, Pausable
 
         logger = lgr;
         engine.EnableExposedClrTypes = true;
+
+        float rd;
+        if (Options.TryGetOption(recursionDepth, out rd))
+            engine.RecursionDepthLimit = System.Convert.ToInt32(rd);
+
+        float fc;
+        if (Options.TryGetOption(physicsFramesToExecuteLoop, out fc))
+            physicsFramesToExecute = fc;
+
         RestartScripting();
     }
     public void RestartScripting()
     {
+
         System.Action<string> logger = (message) =>
         {
             timeoutHelper.EnterCriticalSection();
-            try
-            {
-                this.logger.Log(message);
-            }
-            finally
-            {
-                timeoutHelper.ExitCriticalSection();
-            }
+            this.logger.Log(message);
+            timeoutHelper.ExitCriticalSection();
         };
 
         engine.SetGlobalFunction(logFunction, logger);
@@ -306,9 +315,9 @@ public class Tank : MonoBehaviour, PoliticsSubject, Pausable
         {
             ;
         }
-
-        CallGlobalFunction(setupFunction);
         initTime = Time.time;
+        CallGlobalFunctionWighoutLimit(setupFunction);
+
     }
     #endregion
 
