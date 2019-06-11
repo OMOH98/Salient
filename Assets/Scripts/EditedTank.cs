@@ -168,7 +168,13 @@ public class EditedTank : MonoBehaviour
         {
             try
             {
+                var selectedOption = toRepopulate[i].options[toRepopulate[i].value].text;
                 PopulateSavedScriptDropdown(toRepopulate[i]);
+                for (int j = 0; j < toRepopulate[i].options.Count; j++)
+                {
+                    if (toRepopulate[i].options[j].text == selectedOption)
+                        toRepopulate[i].value = j;
+                }
             }
             catch
             {
