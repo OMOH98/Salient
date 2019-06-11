@@ -1477,11 +1477,6 @@ PrefabInstance:
       propertyPath: m_ChildForceExpandHeight
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 3827473041696391759, guid: 7ac7d8fd03372e7439762f7950419acd,
-        type: 3}
-      propertyPath: m_IsOn
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 3691593238519580102, guid: 7ac7d8fd03372e7439762f7950419acd,
         type: 3}
       propertyPath: m_Text
