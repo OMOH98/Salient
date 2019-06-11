@@ -20,6 +20,7 @@ public class EditedTank : MonoBehaviour
     public const string scriptNameTaboo = ";:?,.";
     public const string sceneMenu = "Menu";
     public const string sceneSimulation = "WorkingScene";
+    public const string autosavePeriodSeconds = nameof(autosavePeriodSeconds);
 
     [Header("UI")]
     public TextAsset scriptTemplate;
@@ -231,7 +232,7 @@ public class EditedTank : MonoBehaviour
     private class DummyBehaviour : MonoBehaviour { }
     private void OnApplicationQuit()
     {
-        PlayerPrefs.SetString(autosavedScript, codeField.text);
+        AutoSave();
     }
     public void Exit()
     {
@@ -256,6 +257,19 @@ public class EditedTank : MonoBehaviour
         {
             return Time.time < startTime + 2f || !Input.anyKey;
         }));
+    }
+
+    private IEnumerator AutoSave()
+    {
+        var period = 100f;
+        if (Options.TryGetOption(autosavePeriodSeconds, out float p))
+            period = p;
+        
+        while (true)
+        {
+            PlayerPrefs.SetString(autosavedScript, codeField.text);
+            yield return new WaitForSeconds(period + Random.value * period * 0.1f);
+        }
     }
 
     protected void StaticStart()
@@ -350,7 +364,7 @@ public class EditedTank : MonoBehaviour
                 scriptPlayPauseButton.onClick.Invoke();
             } while (!enabled);
         }));
-
+        StartCoroutine(AutoSave());
     }
 
     protected virtual void Update()
