@@ -21,5 +21,6 @@ public class ScriptFileActualityChecker : MonoBehaviour
             var rn = dropdown.options[inx].text;
             EditedTank.LoadScript(rn, logger);
         });
+        dropdown.onValueChanged.Invoke(0);
     }
 }
