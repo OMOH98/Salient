@@ -236,9 +236,9 @@ MonoBehaviour:
   m_IgnoreLayout: 0
   m_MinWidth: 50
   m_MinHeight: -1
-  m_PreferredWidth: 400
+  m_PreferredWidth: -1
   m_PreferredHeight: -1
-  m_FlexibleWidth: -1
+  m_FlexibleWidth: 1
   m_FlexibleHeight: 1
   m_LayoutPriority: 1
 --- !u!1 &1817152172531402464
@@ -510,12 +510,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Padding:
-    m_Left: 5
-    m_Right: 5
+    m_Left: 10
+    m_Right: 10
     m_Top: 15
     m_Bottom: 18
   m_ChildAlignment: 4
-  m_Spacing: 5
+  m_Spacing: 8
   m_ChildForceExpandWidth: 0
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 1
