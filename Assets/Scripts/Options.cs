@@ -130,8 +130,12 @@ public class Options : MonoBehaviour
             {
                 new Option(){defaultValue = 1000f, name = nameof(Tank.recursionDepth), value = 1000f},
                 new Option(){defaultValue = 1f, name = nameof(Tank.physicsFramesToExecuteLoop), value = 1f},
-                new Option(){defaultValue = 0.5f, name = nameof(UserLogger.logUpdateFrequency), value = 1f}
+                new Option(){defaultValue = 0.5f, name = nameof(UserLogger.logUpdateFrequency), value = 1f},
             };
+            foreach (var item in options)
+            {
+                item.value = item.defaultValue;
+            }
         }
     }
 
