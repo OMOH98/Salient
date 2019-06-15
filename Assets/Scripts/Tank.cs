@@ -28,7 +28,6 @@ public class Tank : MonoBehaviour, PoliticsSubject, Pausable
     [Header("Actuators")]
     public Stats stats;
     public float vertialForceDisplacement = -0.5f;
-    //public float impactDestructionDelay = 6f;
     public int sideIdentifier = 0;
 
     public Actions actions;
@@ -404,12 +403,6 @@ public class Tank : MonoBehaviour, PoliticsSubject, Pausable
             impact.transform.SetPositionAndRotation(rhi.point, muzzleFlash.transform.rotation);
             var ips = impact.GetComponent<ParticleSystem>();
             impacts.Add(ips);
-            //if (impactDestructionDelay >= 0f)
-            //    StartCoroutine(FlexPanel.DelayAction(impactDestructionDelay, () =>
-            //    {
-            //        impacts.RemoveAt(i);
-            //        Destroy(impact);
-            //    }));
             StartCoroutine(FlexPanel.DelayActionWhile(() =>
                 {
                     impacts.Remove(ips);
