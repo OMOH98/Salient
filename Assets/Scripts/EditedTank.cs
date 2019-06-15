@@ -38,6 +38,7 @@ public class EditedTank : MonoBehaviour
 
     private Tank tank;
     private UserLogger logger;
+    private Text scriptPlayPauseButtonText;
 
     protected void Start()
     {
@@ -264,7 +265,7 @@ public class EditedTank : MonoBehaviour
         var period = 100f;
         if (Options.TryGetOption(autosavePeriodSeconds, out float p))
             period = p;
-        
+
         while (true)
         {
             PlayerPrefs.SetString(autosavedScript, codeField.text);
@@ -322,24 +323,30 @@ public class EditedTank : MonoBehaviour
         });
         invBtnText.text = "Set me invisible";
 
-        var scrPlPuBtnText = scriptPlayPauseButton.GetComponentInChildren<Text>();
+        scriptPlayPauseButtonText = scriptPlayPauseButton.GetComponentInChildren<Text>();
         scriptPlayPauseButton.onClick.AddListener(() =>
         {
-            if (Tank.TogglePauseAll())
-                scrPlPuBtnText.text = "Pause scripts";
-            else
-                scrPlPuBtnText.text = "Resume scripts";
+            Tank.TogglePauseAll();
         });
-        scrPlPuBtnText.text = "Pause scripts";
 
         LayoutRebuilder.ForceRebuildLayoutImmediate(scriptPlayPauseButton.transform.parent as RectTransform);
         StartCoroutine(AutoSave());
     }
 
+    private bool wasExecuting = true;
     protected virtual void Update()
     {
         healthBar.value = tank.healthCare.Health01();
         heatBar.value = tank.heat;
+        if (wasExecuting && !tank.execute)
+        {
+            scriptPlayPauseButtonText.text = "Resume scripts";
+        }
+        if (!wasExecuting && tank.execute)
+        {
+            scriptPlayPauseButtonText.text = "Pause scripts";
+        }
+        wasExecuting = tank.execute;
     }
 }
 

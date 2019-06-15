@@ -45,6 +45,7 @@ public class Tank : MonoBehaviour, PoliticsSubject, Pausable
     protected Sensors sensors = new Sensors();
     protected CompiledScript compiledCode;
     public ScriptTimeoutHelper timeoutHelper { get; private set; }
+    public bool execute { get; private set; }
 
     private Transform turret;
     private ParticleSystem muzzleFlash;
@@ -52,12 +53,12 @@ public class Tank : MonoBehaviour, PoliticsSubject, Pausable
     private SphereCollider proxor;
     private ObjectInstance statsMirror;
     private int initialId;
-    private bool execute = true;
     private float physicsFramesToExecute = 1f;
 
 
     private void Awake()
     {
+        execute = true;
         timeoutHelper = new ScriptTimeoutHelper();
         engine = new ScriptEngine();
     }
