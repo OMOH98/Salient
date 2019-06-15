@@ -28,7 +28,7 @@ public class Tank : MonoBehaviour, PoliticsSubject, Pausable
     [Header("Actuators")]
     public Stats stats;
     public float vertialForceDisplacement = -0.5f;
-    public float impactDestructionDelay = 6f;
+    //public float impactDestructionDelay = 6f;
     public int sideIdentifier = 0;
 
     public Actions actions;
@@ -133,6 +133,13 @@ public class Tank : MonoBehaviour, PoliticsSubject, Pausable
         execute = false;
         rb.velocity = rb.angularVelocity = Vector3.zero;
         rb.isKinematic = true;
+        if (muzzleFlash.isPlaying)
+            muzzleFlash.Pause();
+        foreach (var item in impacts)
+        {
+            if (item != null && item.isPlaying)
+                item.Pause();
+        }
     }
     public void Resume()
     {
@@ -140,6 +147,14 @@ public class Tank : MonoBehaviour, PoliticsSubject, Pausable
         rb.angularVelocity = prevAngVelocity;
         rb.isKinematic = false;
         execute = true;
+        if (muzzleFlash.isPaused)
+            muzzleFlash.Play();
+
+        foreach (var item in impacts)
+        {
+            if (item != null && item.isPaused)
+                item.Play();
+        }
     }
     #endregion
 
@@ -246,7 +261,7 @@ public class Tank : MonoBehaviour, PoliticsSubject, Pausable
         {
             ;//Debug.Log(e);
         }
-        catch(System.StackOverflowException e)
+        catch (System.StackOverflowException e)
         {
             logger.Log($"JavaScript error has occured with message: {e.Message}");
         }
@@ -361,6 +376,7 @@ public class Tank : MonoBehaviour, PoliticsSubject, Pausable
 
     public float heat { get; private set; }
     private float nextTimeToFire;
+    private List<ParticleSystem> impacts = new List<ParticleSystem>();
     private void ApplyFire()
     {
         heat -= stats.coolingRate * Time.fixedDeltaTime;
@@ -386,8 +402,22 @@ public class Tank : MonoBehaviour, PoliticsSubject, Pausable
         {
             var impact = Instantiate(impactPrefab);
             impact.transform.SetPositionAndRotation(rhi.point, muzzleFlash.transform.rotation);
-            if (impactDestructionDelay >= 0f)
-                Destroy(impact, impactDestructionDelay);
+            var ips = impact.GetComponent<ParticleSystem>();
+            impacts.Add(ips);
+            //if (impactDestructionDelay >= 0f)
+            //    StartCoroutine(FlexPanel.DelayAction(impactDestructionDelay, () =>
+            //    {
+            //        impacts.RemoveAt(i);
+            //        Destroy(impact);
+            //    }));
+            StartCoroutine(FlexPanel.DelayActionWhile(() =>
+                {
+                    impacts.Remove(ips);
+                    Destroy(impact);
+                }, () =>
+                {
+                    return ips.isPaused || ips.isPlaying;
+                }));
 
             var hc = rhi.collider.gameObject.GetComponent<HealthCare>();
             if (hc != null)
@@ -404,6 +434,9 @@ public class Tank : MonoBehaviour, PoliticsSubject, Pausable
 
     private void UpdateSensorData()
     {
+        if (!execute)
+            initTime += Time.fixedDeltaTime;
+
         sensors.azimuth = (transform.rotation.eulerAngles.y + 720f) % 360f;
         sensors.time = Time.time - initTime;
         sensors.health01 = healthCare.Health01();
