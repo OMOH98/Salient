@@ -320,50 +320,19 @@ public class EditedTank : MonoBehaviour
                 }
             }
         });
-        do
-        {
-            invisibilityButton.onClick.Invoke();
-        } while (tank.SideId() == Tank.invisibleId);
+        invBtnText.text = "Set me invisible";
 
         var scrPlPuBtnText = scriptPlayPauseButton.GetComponentInChildren<Text>();
-        bool enabled = true;
         scriptPlayPauseButton.onClick.AddListener(() =>
         {
-            var rgos = UnityEngine.SceneManagement.SceneManager.GetActiveScene().GetRootGameObjects();
-
-            enabled = !enabled;
-            if (enabled)
-            {
+            if (Tank.TogglePauseAll())
                 scrPlPuBtnText.text = "Pause scripts";
-                foreach (var go in rgos)
-                {
-                    var tanks = go.GetComponentsInChildren<Pausable>();
-                    foreach (var t in tanks)
-                    {
-                        t.Resume();
-                    }
-                }
-            }
             else
-            {
                 scrPlPuBtnText.text = "Resume scripts";
-                foreach (var go in rgos)
-                {
-                    var tanks = go.GetComponentsInChildren<Pausable>();
-                    foreach (var t in tanks)
-                    {
-                        t.Pause();
-                    }
-                }
-            }
         });
-        StartCoroutine(FlexPanel.DelayAction(0.2f, () =>
-        {
-            do
-            {
-                scriptPlayPauseButton.onClick.Invoke();
-            } while (!enabled);
-        }));
+        scrPlPuBtnText.text = "Pause scripts";
+
+        LayoutRebuilder.ForceRebuildLayoutImmediate(scriptPlayPauseButton.transform.parent as RectTransform);
         StartCoroutine(AutoSave());
     }
 

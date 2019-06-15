@@ -155,6 +155,37 @@ public class Tank : MonoBehaviour, PoliticsSubject, Pausable
                 item.Play();
         }
     }
+
+    private static bool staticEnabled = true;
+    public static bool TogglePauseAll()
+    {
+        var rgos = UnityEngine.SceneManagement.SceneManager.GetActiveScene().GetRootGameObjects();
+
+        staticEnabled = !staticEnabled;
+        if (staticEnabled)
+        {
+            foreach (var go in rgos)
+            {
+                var tanks = go.GetComponentsInChildren<Pausable>();
+                foreach (var t in tanks)
+                {
+                    t.Resume();
+                }
+            }
+        }
+        else
+        {
+            foreach (var go in rgos)
+            {
+                var tanks = go.GetComponentsInChildren<Pausable>();
+                foreach (var t in tanks)
+                {
+                    t.Pause();
+                }
+            }
+        }
+        return staticEnabled;
+    }
     #endregion
 
     #region CollisionSensors
