@@ -28,7 +28,6 @@ public class Tank : MonoBehaviour, PoliticsSubject, Pausable
     [Header("Actuators")]
     public Stats stats;
     public float vertialForceDisplacement = -0.5f;
-    public float impactDestructionDelay = 6f;
     public int sideIdentifier = 0;
 
     public Actions actions;
@@ -46,6 +45,7 @@ public class Tank : MonoBehaviour, PoliticsSubject, Pausable
     protected Sensors sensors = new Sensors();
     protected CompiledScript compiledCode;
     public ScriptTimeoutHelper timeoutHelper { get; private set; }
+    public bool execute { get; private set; }
 
     private Transform turret;
     private ParticleSystem muzzleFlash;
@@ -53,12 +53,12 @@ public class Tank : MonoBehaviour, PoliticsSubject, Pausable
     private SphereCollider proxor;
     private ObjectInstance statsMirror;
     private int initialId;
-    private bool execute = true;
     private float physicsFramesToExecute = 1f;
 
 
     private void Awake()
     {
+        execute = true;
         timeoutHelper = new ScriptTimeoutHelper();
         engine = new ScriptEngine();
     }
@@ -133,6 +133,13 @@ public class Tank : MonoBehaviour, PoliticsSubject, Pausable
         execute = false;
         rb.velocity = rb.angularVelocity = Vector3.zero;
         rb.isKinematic = true;
+        if (muzzleFlash.isPlaying)
+            muzzleFlash.Pause();
+        foreach (var item in impacts)
+        {
+            if (item != null && item.isPlaying)
+                item.Pause();
+        }
     }
     public void Resume()
     {
@@ -140,6 +147,45 @@ public class Tank : MonoBehaviour, PoliticsSubject, Pausable
         rb.angularVelocity = prevAngVelocity;
         rb.isKinematic = false;
         execute = true;
+        if (muzzleFlash.isPaused)
+            muzzleFlash.Play();
+
+        foreach (var item in impacts)
+        {
+            if (item != null && item.isPaused)
+                item.Play();
+        }
+    }
+
+    private static bool staticEnabled = true;
+    public static bool TogglePauseAll()
+    {
+        var rgos = UnityEngine.SceneManagement.SceneManager.GetActiveScene().GetRootGameObjects();
+
+        staticEnabled = !staticEnabled;
+        if (staticEnabled)
+        {
+            foreach (var go in rgos)
+            {
+                var tanks = go.GetComponentsInChildren<Pausable>();
+                foreach (var t in tanks)
+                {
+                    t.Resume();
+                }
+            }
+        }
+        else
+        {
+            foreach (var go in rgos)
+            {
+                var tanks = go.GetComponentsInChildren<Pausable>();
+                foreach (var t in tanks)
+                {
+                    t.Pause();
+                }
+            }
+        }
+        return staticEnabled;
     }
     #endregion
 
@@ -246,7 +292,7 @@ public class Tank : MonoBehaviour, PoliticsSubject, Pausable
         {
             ;//Debug.Log(e);
         }
-        catch(System.StackOverflowException e)
+        catch (System.StackOverflowException e)
         {
             logger.Log($"JavaScript error has occured with message: {e.Message}");
         }
@@ -361,6 +407,7 @@ public class Tank : MonoBehaviour, PoliticsSubject, Pausable
 
     public float heat { get; private set; }
     private float nextTimeToFire;
+    private List<ParticleSystem> impacts = new List<ParticleSystem>();
     private void ApplyFire()
     {
         heat -= stats.coolingRate * Time.fixedDeltaTime;
@@ -386,8 +433,16 @@ public class Tank : MonoBehaviour, PoliticsSubject, Pausable
         {
             var impact = Instantiate(impactPrefab);
             impact.transform.SetPositionAndRotation(rhi.point, muzzleFlash.transform.rotation);
-            if (impactDestructionDelay >= 0f)
-                Destroy(impact, impactDestructionDelay);
+            var ips = impact.GetComponent<ParticleSystem>();
+            impacts.Add(ips);
+            StartCoroutine(FlexPanel.DelayActionWhile(() =>
+                {
+                    impacts.Remove(ips);
+                    Destroy(impact);
+                }, () =>
+                {
+                    return ips.isPaused || ips.isPlaying;
+                }));
 
             var hc = rhi.collider.gameObject.GetComponent<HealthCare>();
             if (hc != null)
@@ -404,6 +459,9 @@ public class Tank : MonoBehaviour, PoliticsSubject, Pausable
 
     private void UpdateSensorData()
     {
+        if (!execute)
+            initTime += Time.fixedDeltaTime;
+
         sensors.azimuth = (transform.rotation.eulerAngles.y + 720f) % 360f;
         sensors.time = Time.time - initTime;
         sensors.health01 = healthCare.Health01();
