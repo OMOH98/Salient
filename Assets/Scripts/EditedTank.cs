@@ -233,7 +233,7 @@ public class EditedTank : MonoBehaviour
     private class DummyBehaviour : MonoBehaviour { }
     private void OnApplicationQuit()
     {
-        AutoSave();
+        PlayerPrefs.SetString(autosavedScript, codeField.text);
     }
     public void Exit()
     {
