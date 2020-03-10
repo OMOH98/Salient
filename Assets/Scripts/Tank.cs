@@ -237,7 +237,6 @@ public class Tank : MonoBehaviour, PoliticsSubject, Pausable
     public const string loopFunction = "loop";
     public const string setupFunction = "setup";
     public const string logFunction = "log";
-    public const string importFunction = "import";
     public const string onDamageTaken = nameof(onDamageTaken);
     public const string onProximityEnter = nameof(onProximityEnter);
     public const string onCollisionEnter = nameof(onCollisionEnter);
@@ -247,6 +246,17 @@ public class Tank : MonoBehaviour, PoliticsSubject, Pausable
         set
         {
             compiledCode = Compile(value);
+            if (compiledCode != null)
+            {
+                try
+                {
+                    compiledCode.Execute(engine);
+                }
+                catch (JavaScriptException e)
+                {
+                    logger.Log($"JavaScript error has occured at line {e.LineNumber} with message: {e.Message}");
+                }
+            }
         }
     }
 
@@ -312,39 +322,6 @@ public class Tank : MonoBehaviour, PoliticsSubject, Pausable
     {
         CallGlobalFunction(loopFunction);
     }
-    protected void ExecuteOnce(CompiledScript script)
-    {
-        if (script != null)
-        {
-            try
-            {
-                script.Execute(engine);
-            }
-            catch (JavaScriptException e)
-            {
-                logger.Log($"JavaScript error has occured at line {e.LineNumber} with message: {e.Message}");
-            }
-        }
-    }
-    protected void ExecuteOnce(string code)
-    {
-        compiledCode = Compile(code);
-        ExecuteOnce(compiledCode);
-    }
-    protected void Import(string fileName)
-    {
-        try
-        {
-            timeoutHelper.EnterCriticalSection();
-            string code = EditedTank.LoadScript(fileName, logger);
-            if (!string.IsNullOrEmpty(code))
-                ExecuteOnce(code);
-        }
-        finally
-        {
-            timeoutHelper.ExitCriticalSection();
-        }
-    }
     public void StartScripting(Logger lgr)
     {
 
@@ -370,11 +347,8 @@ public class Tank : MonoBehaviour, PoliticsSubject, Pausable
             this.logger.Log(message);
             timeoutHelper.ExitCriticalSection();
         };
+
         engine.SetGlobalFunction(logFunction, logger);
-
-        System.Action<string> importer = fileName => Import(fileName);
-        engine.SetGlobalFunction(importFunction, importer);
-
         engine.SetGlobalValue(nameof(actions), actions);
         engine.SetGlobalValue(nameof(sensors), sensors);
         statsMirror = engine.Object.Construct();
@@ -390,10 +364,8 @@ public class Tank : MonoBehaviour, PoliticsSubject, Pausable
             ;
         }
         initTime = Time.time;
-        if (compiledCode != null)
-            ExecuteOnce(compiledCode);
-
         CallGlobalFunctionWighoutLimit(setupFunction);
+
     }
     #endregion
 
